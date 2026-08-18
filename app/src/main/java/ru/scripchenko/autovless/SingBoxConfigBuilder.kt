@@ -42,7 +42,7 @@ object SingBoxConfigBuilder {
                   ],
                   "auto_route": true,
                   "strict_route": true,
-                  "stack": "system"
+                  "stack": "gvisor"
                 }
               ],
               "outbounds": [
