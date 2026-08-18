@@ -2,7 +2,10 @@ package ru.scripchenko.autovless
 
 object SingBoxConfigBuilder {
 
-    fun build(profile: VlessProfile): String {
+    fun build(
+        profile: VlessProfile,
+        routing: RoutingSettings = RoutingSettings()
+    ): String {
         require(profile.security == "reality") {
             "Пока поддерживается только security=reality"
         }
@@ -72,13 +75,79 @@ object SingBoxConfigBuilder {
                   "tag": "direct"
                 }
               ],
-              "route": {
-                "auto_detect_interface": true,
-                "final": "proxy"
-              }
+              "route": ${buildRoute(routing)}
             }
         """.trimIndent()
     }
+
+    private fun buildRoute(routing: RoutingSettings): String {
+        val domains =
+            routing.domains
+                .asSequence()
+                .map(::normalizeDomain)
+                .filter { it.isNotEmpty() }
+                .distinct()
+                .sorted()
+                .toList()
+
+        val finalOutbound =
+            when (routing.siteMode) {
+                SiteRoutingMode.ALL_VIA_VPN -> "proxy"
+                SiteRoutingMode.ONLY_SELECTED_VIA_VPN -> "direct"
+                SiteRoutingMode.EXCLUDE_SELECTED_FROM_VPN -> "proxy"
+            }
+
+        if (routing.siteMode == SiteRoutingMode.ALL_VIA_VPN || domains.isEmpty()) {
+            return """
+                {
+                  "auto_detect_interface": true,
+                  "final": "$finalOutbound"
+                }
+            """.trimIndent()
+        }
+
+        val selectedOutbound =
+            when (routing.siteMode) {
+                SiteRoutingMode.ONLY_SELECTED_VIA_VPN -> "proxy"
+                SiteRoutingMode.EXCLUDE_SELECTED_FROM_VPN -> "direct"
+                SiteRoutingMode.ALL_VIA_VPN -> error("Unexpected site routing mode")
+            }
+
+        val domainJson =
+            domains.joinToString(",\n") {
+                """                    "${jsonEscape(it)}""""
+            }
+
+        return """
+            {
+              "auto_detect_interface": true,
+              "rules": [
+                {
+                  "action": "sniff"
+                },
+                {
+                  "domain": [
+$domainJson
+                  ],
+                  "domain_suffix": [
+$domainJson
+                  ],
+                  "action": "route",
+                  "outbound": "$selectedOutbound"
+                }
+              ],
+              "final": "$finalOutbound"
+            }
+        """.trimIndent()
+    }
+
+    private fun normalizeDomain(value: String): String =
+        value
+            .trim()
+            .lowercase()
+            .removePrefix("*.")
+            .removePrefix(".")
+            .removeSuffix(".")
 
     private fun jsonEscape(value: String): String =
         buildString {
