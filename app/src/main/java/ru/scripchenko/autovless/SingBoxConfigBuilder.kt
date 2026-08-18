@@ -80,24 +80,159 @@ object SingBoxConfigBuilder {
         """.trimIndent()
     }
 
-    private fun buildRoute(routing: RoutingSettings): String {
+    private fun buildRoute(
+        routing: RoutingSettings
+    ): String {
         val domains =
             routing.domains
                 .asSequence()
                 .map(::normalizeDomain)
-                .filter { it.isNotEmpty() }
+                .filter(String::isNotEmpty)
                 .distinct()
                 .sorted()
                 .toList()
 
+        val siteRulePackages =
+            routing.siteRulePackages
+                .asSequence()
+                .map(String::trim)
+                .filter(String::isNotEmpty)
+                .distinct()
+                .sorted()
+                .toList()
+
+        /*
+         * During migration, preserve the previous global site-routing
+         * behavior when no application is explicitly assigned SITE_RULES.
+         */
+        if (siteRulePackages.isEmpty()) {
+            return buildLegacyGlobalSiteRoute(
+                routing.siteMode,
+                domains
+            )
+        }
+
+        /*
+         * All applications that reach the Android VPN are proxied by default.
+         * DIRECT applications have already been excluded from the TUN by
+         * AppRoutingConfigurator.
+         *
+         * Only SITE_RULES applications are allowed to use the direct outbound
+         * according to domain rules.
+         */
+        if (routing.siteMode == SiteRoutingMode.ALL_VIA_VPN) {
+            return """
+                {
+                  "auto_detect_interface": true,
+                  "final": "proxy"
+                }
+            """.trimIndent()
+        }
+
+        val packageJson =
+            jsonArrayLines(
+                siteRulePackages,
+                18
+            )
+
+        val selectedOutbound: String
+        val fallbackOutbound: String
+
+        when (routing.siteMode) {
+            SiteRoutingMode.ONLY_SELECTED_VIA_VPN -> {
+                selectedOutbound = "proxy"
+                fallbackOutbound = "direct"
+            }
+
+            SiteRoutingMode.EXCLUDE_SELECTED_FROM_VPN -> {
+                selectedOutbound = "direct"
+                fallbackOutbound = "proxy"
+            }
+
+            SiteRoutingMode.ALL_VIA_VPN ->
+                error("Unexpected site routing mode")
+        }
+
+        val rules =
+            mutableListOf<String>()
+
+        rules +=
+            """
+                {
+                  "action": "sniff"
+                }
+            """.trimIndent()
+
+        if (domains.isNotEmpty()) {
+            val domainJson =
+                jsonArrayLines(
+                    domains,
+                    18
+                )
+
+            rules +=
+                """
+                    {
+                      "package_name": [
+$packageJson
+                      ],
+                      "domain": [
+$domainJson
+                      ],
+                      "domain_suffix": [
+$domainJson
+                      ],
+                      "action": "route",
+                      "outbound": "$selectedOutbound"
+                    }
+                """.trimIndent()
+        }
+
+        rules +=
+            """
+                {
+                  "package_name": [
+$packageJson
+                  ],
+                  "action": "route",
+                  "outbound": "$fallbackOutbound"
+                }
+            """.trimIndent()
+
+        val rulesJson =
+            rules.joinToString(",\n") {
+                indentBlock(
+                    it,
+                    8
+                )
+            }
+
+        return """
+            {
+              "auto_detect_interface": true,
+              "rules": [
+$rulesJson
+              ],
+              "final": "proxy"
+            }
+        """.trimIndent()
+    }
+
+    private fun buildLegacyGlobalSiteRoute(
+        siteMode: SiteRoutingMode,
+        domains: List<String>
+    ): String {
         val finalOutbound =
-            when (routing.siteMode) {
+            when (siteMode) {
                 SiteRoutingMode.ALL_VIA_VPN -> "proxy"
                 SiteRoutingMode.ONLY_SELECTED_VIA_VPN -> "direct"
                 SiteRoutingMode.EXCLUDE_SELECTED_FROM_VPN -> "proxy"
             }
 
-        if (routing.siteMode == SiteRoutingMode.ALL_VIA_VPN || domains.isEmpty()) {
+        if (
+            siteMode == SiteRoutingMode.ALL_VIA_VPN ||
+            domains.isEmpty()
+        ) {
             return """
                 {
                   "auto_detect_interface": true,
@@ -107,16 +242,18 @@ object SingBoxConfigBuilder {
         }
 
         val selectedOutbound =
-            when (routing.siteMode) {
+            when (siteMode) {
                 SiteRoutingMode.ONLY_SELECTED_VIA_VPN -> "proxy"
                 SiteRoutingMode.EXCLUDE_SELECTED_FROM_VPN -> "direct"
-                SiteRoutingMode.ALL_VIA_VPN -> error("Unexpected site routing mode")
+                SiteRoutingMode.ALL_VIA_VPN ->
+                    error("Unexpected site routing mode")
             }
 
         val domainJson =
-            domains.joinToString(",\n") {
-                """                    "${jsonEscape(it)}""""
-            }
+            jsonArrayLines(
+                domains,
+                18
+            )
 
         return """
             {
@@ -141,15 +278,48 @@ $domainJson
         """.trimIndent()
     }
 
-    private fun normalizeDomain(value: String): String =
+    private fun jsonArrayLines(
+        values: List<String>,
+        spaces: Int
+    ): String {
+        val indent =
+            " ".repeat(spaces)
+
+        return values.joinToString(",\n") {
+            """$indent"${jsonEscape(it)}""""
+        }
+    }
+
+    private fun indentBlock(
+        value: String,
+        spaces: Int
+    ): String {
+        val indent =
+            " ".repeat(spaces)
+
+        return value
+            .lineSequence()
+            .joinToString("\n") {
+                indent + it
+            }
+    }
+
+    private fun normalizeDomain(
+        value: String
+    ): String =
         value
             .trim()
             .lowercase()
+            .removePrefix("https://")
+            .removePrefix("http://")
+            .substringBefore("/")
             .removePrefix("*.")
             .removePrefix(".")
             .removeSuffix(".")
 
-    private fun jsonEscape(value: String): String =
+    private fun jsonEscape(
+        value: String
+    ): String =
         buildString {
             value.forEach { character ->
                 when (character) {
@@ -162,7 +332,11 @@ $domainJson
                     '\t' -> append("\\t")
                     else -> {
                         if (character.code < 0x20) {
-                            append("\\u%04x".format(character.code))
+                            append(
+                                "\\u%04x".format(
+                                    character.code
+                                )
+                            )
                         } else {
                             append(character)
                         }
