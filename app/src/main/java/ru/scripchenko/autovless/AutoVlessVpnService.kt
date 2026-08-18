@@ -648,6 +648,12 @@ class AutoVlessVpnService :
             "1.1.1.1"
         )
 
+        AppRoutingConfigurator.apply(
+            this,
+            builder,
+            RoutingSettingsStore.load(this)
+        )
+
         val descriptor =
             builder.establish()
                 ?: error(
