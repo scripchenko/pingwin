@@ -13,51 +13,39 @@ object AppRoutingConfigurator {
         builder: VpnService.Builder,
         routing: RoutingSettings
     ) {
-        val directPackages =
-            routing.directPackages
-                .asSequence()
-                .map(String::trim)
-                .filter(String::isNotEmpty)
-                .distinct()
-                .sorted()
-                .toList()
-
-        val usesNewModel =
-            routing.directPackages.isNotEmpty() ||
-                    routing.siteRulePackages.isNotEmpty()
-
-        if (usesNewModel) {
-            directPackages.forEach { packageName ->
-                excludeApplication(
-                    builder,
-                    packageName
-                )
-            }
-            return
-        }
-
-        // Temporary compatibility with the previous routing UI.
-        val legacyPackages =
-            routing.packages
-                .asSequence()
-                .map(String::trim)
-                .filter(String::isNotEmpty)
-                .distinct()
-                .sorted()
-                .toList()
-
-        if (
-            legacyPackages.isEmpty() ||
-            routing.appMode == AppRoutingMode.ALL_VIA_VPN
-        ) {
-            return
-        }
-
         when (routing.appMode) {
-            AppRoutingMode.ALL_VIA_VPN -> Unit
+            AppRoutingMode.ALL_VIA_VPN -> {
+                // No allowed/disallowed list:
+                // Android routes all applications through the VPN.
+                return
+            }
 
             AppRoutingMode.ONLY_SELECTED_VIA_VPN -> {
-                legacyPackages.forEach { packageName ->
+                val allowedPackages =
+                    (routing.packages + routing.siteRulePackages)
+                        .asSequence()
+                        .map(String::trim)
+                        .filter(String::isNotEmpty)
+                        .distinct()
+                        .sorted()
+                        .toList()
+
+                /*
+                 * An empty Android allowed-app list means "all applications".
+                 * Until MainActivity gets an explicit "nothing selected"
+                 * guard, keep the VPN scoped to AutoVLESS itself so that
+                 * zero selected apps does not accidentally capture the
+                 * whole phone.
+                 */
+                if (allowedPackages.isEmpty()) {
+                    allowApplication(
+                        builder,
+                        context.packageName
+                    )
+                    return
+                }
+
+                allowedPackages.forEach { packageName ->
                     allowApplication(
                         builder,
                         packageName
@@ -66,12 +54,18 @@ object AppRoutingConfigurator {
             }
 
             AppRoutingMode.EXCLUDE_SELECTED_FROM_VPN -> {
-                legacyPackages.forEach { packageName ->
-                    excludeApplication(
-                        builder,
-                        packageName
-                    )
-                }
+                routing.packages
+                    .asSequence()
+                    .map(String::trim)
+                    .filter(String::isNotEmpty)
+                    .distinct()
+                    .sorted()
+                    .forEach { packageName ->
+                        excludeApplication(
+                            builder,
+                            packageName
+                        )
+                    }
             }
         }
     }
