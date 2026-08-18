@@ -107,6 +107,40 @@ fun AppRoutingScreen(
         )
     }
 
+    fun setFullVpnForApp(
+        packageName: String,
+        enabled: Boolean
+    ) {
+        val newPackages =
+            routing.packages
+                .toMutableSet()
+
+        val newSiteRulePackages =
+            routing.siteRulePackages
+                .toMutableSet()
+
+        if (enabled) {
+            newPackages.add(packageName)
+
+            // One application cannot simultaneously be
+            // "entirely through VPN" and "by site rules".
+            newSiteRulePackages.remove(packageName)
+        } else {
+            newPackages.remove(packageName)
+        }
+
+        saveRouting(
+            routing.copy(
+                appMode =
+                    AppRoutingMode.ONLY_SELECTED_VIA_VPN,
+                packages =
+                    newPackages,
+                siteRulePackages =
+                    newSiteRulePackages
+            )
+        )
+    }
+
     Column(
         modifier =
             Modifier
@@ -223,6 +257,10 @@ fun AppRoutingScreen(
                     app.packageName in
                             routing.packages
 
+                val usedBySiteRules =
+                    app.packageName in
+                            routing.siteRulePackages
+
                 Row(
                     modifier =
                         Modifier
@@ -230,27 +268,9 @@ fun AppRoutingScreen(
                             .clickable(
                                 enabled = !allViaVpn
                             ) {
-                                val newPackages =
-                                    routing.packages
-                                        .toMutableSet()
-
-                                if (checked) {
-                                    newPackages.remove(
-                                        app.packageName
-                                    )
-                                } else {
-                                    newPackages.add(
-                                        app.packageName
-                                    )
-                                }
-
-                                saveRouting(
-                                    routing.copy(
-                                        appMode =
-                                            AppRoutingMode.ONLY_SELECTED_VIA_VPN,
-                                        packages =
-                                            newPackages
-                                    )
+                                setFullVpnForApp(
+                                    app.packageName,
+                                    !checked
                                 )
                             }
                             .padding(
@@ -264,27 +284,9 @@ fun AppRoutingScreen(
                             if (allViaVpn) true else checked,
                         enabled = !allViaVpn,
                         onCheckedChange = { isChecked ->
-                            val newPackages =
-                                routing.packages
-                                    .toMutableSet()
-
-                            if (isChecked) {
-                                newPackages.add(
-                                    app.packageName
-                                )
-                            } else {
-                                newPackages.remove(
-                                    app.packageName
-                                )
-                            }
-
-                            saveRouting(
-                                routing.copy(
-                                    appMode =
-                                        AppRoutingMode.ONLY_SELECTED_VIA_VPN,
-                                    packages =
-                                        newPackages
-                                )
+                            setFullVpnForApp(
+                                app.packageName,
+                                isChecked
                             )
                         }
                     )
@@ -308,6 +310,14 @@ fun AppRoutingScreen(
                             style =
                                 MaterialTheme.typography.bodySmall
                         )
+
+                        if (!checked && usedBySiteRules) {
+                            Text(
+                                text = "Используется в правилах сайтов",
+                                style =
+                                    MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
                 }
 
