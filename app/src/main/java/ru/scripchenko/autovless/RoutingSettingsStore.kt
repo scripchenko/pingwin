@@ -33,7 +33,7 @@ object RoutingSettingsStore {
         val appMode =
             enumValueOrDefault(
                 prefs.getString(KEY_APP_MODE, null),
-                AppRoutingMode.ALL_VIA_VPN
+                AppRoutingMode.ONLY_SELECTED_VIA_VPN
             )
 
         return RoutingSettings(

@@ -28,7 +28,7 @@ data class RoutingSettings(
     val domains: Set<String> = emptySet(),
 
     // Legacy fields. They will be removed after migration.
-    val appMode: AppRoutingMode = AppRoutingMode.ALL_VIA_VPN,
+    val appMode: AppRoutingMode = AppRoutingMode.ONLY_SELECTED_VIA_VPN,
     val packages: Set<String> = emptySet(),
 
     /*
