@@ -3,6 +3,7 @@ package ru.scripchenko.autovless
 import android.net.VpnService
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,23 +26,55 @@ import ru.scripchenko.autovless.ui.theme.AutoVLESSTheme
 
 class MainActivity : ComponentActivity() {
 
+    private enum class Screen {
+        HOME,
+        APP_ROUTING
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             AutoVLESSTheme {
+                var screen by remember {
+                    mutableStateOf(Screen.HOME)
+                }
 
-                var link by remember { mutableStateOf("") }
-                var status by remember { mutableStateOf("Отключено") }
-                var pendingConfig by remember { mutableStateOf<String?>(null) }
+                if (screen == Screen.APP_ROUTING) {
+                    BackHandler {
+                        screen = Screen.HOME
+                    }
+
+                    AppRoutingScreen(
+                        onBack = {
+                            screen = Screen.HOME
+                        }
+                    )
+
+                    return@AutoVLESSTheme
+                }
+
+                var link by remember {
+                    mutableStateOf("")
+                }
+
+                var status by remember {
+                    mutableStateOf("Отключено")
+                }
+
+                var pendingConfig by remember {
+                    mutableStateOf<String?>(null)
+                }
 
                 val vpnPermissionLauncher =
                     rememberLauncherForActivityResult(
-                        contract = ActivityResultContracts.StartActivityForResult()
+                        contract =
+                            ActivityResultContracts.StartActivityForResult()
                     ) { result ->
 
                         if (result.resultCode == RESULT_OK) {
-                            val config = pendingConfig
+                            val config =
+                                pendingConfig
 
                             if (config != null) {
                                 AutoVlessVpnService.start(
@@ -49,25 +82,29 @@ class MainActivity : ComponentActivity() {
                                     config
                                 )
 
-                                status = "Запуск VPN..."
+                                status =
+                                    "Запуск VPN..."
                             }
                         } else {
-                            status = "Разрешение VPN не предоставлено"
+                            status =
+                                "Разрешение VPN не предоставлено"
                         }
 
                         pendingConfig = null
                     }
 
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(24.dp),
+                    verticalArrangement =
+                        Arrangement.spacedBy(16.dp)
                 ) {
-
                     Text(
                         text = "AutoVLESS",
-                        style = MaterialTheme.typography.headlineMedium
+                        style =
+                            MaterialTheme.typography.headlineMedium
                     )
 
                     OutlinedTextField(
@@ -78,30 +115,44 @@ class MainActivity : ComponentActivity() {
                         label = {
                             Text("VLESS-ссылка")
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier =
+                            Modifier.fillMaxWidth(),
                         minLines = 4
                     )
 
                     Button(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier =
+                            Modifier.fillMaxWidth(),
                         onClick = {
                             try {
-                                val profile = VlessProfile.parse(link)
+                                val profile =
+                                    VlessProfile.parse(link)
+
+                                val routing =
+                                    RoutingSettingsStore.load(
+                                        this@MainActivity
+                                    )
+
                                 val config =
-                                    SingBoxConfigBuilder.build(profile)
+                                    SingBoxConfigBuilder.build(
+                                        profile,
+                                        routing
+                                    )
 
                                 val validation =
-                                    LibboxValidator.validate(config)
+                                    LibboxValidator.validate(
+                                        config
+                                    )
 
                                 if (validation.isFailure) {
                                     status =
                                         "Ошибка конфигурации: " +
                                                 (
-                                                        validation
-                                                            .exceptionOrNull()
-                                                            ?.message
-                                                            ?: "неизвестная ошибка"
-                                                        )
+                                                    validation
+                                                        .exceptionOrNull()
+                                                        ?.message
+                                                        ?: "неизвестная ошибка"
+                                                )
 
                                     return@Button
                                 }
@@ -112,7 +163,8 @@ class MainActivity : ComponentActivity() {
                                     )
 
                                 if (permissionIntent != null) {
-                                    pendingConfig = config
+                                    pendingConfig =
+                                        config
 
                                     vpnPermissionLauncher.launch(
                                         permissionIntent
@@ -123,7 +175,8 @@ class MainActivity : ComponentActivity() {
                                         config
                                     )
 
-                                    status = "Запуск VPN..."
+                                    status =
+                                        "Запуск VPN..."
                                 }
 
                             } catch (e: Exception) {
@@ -136,16 +189,29 @@ class MainActivity : ComponentActivity() {
                     }
 
                     Button(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier =
+                            Modifier.fillMaxWidth(),
                         onClick = {
                             AutoVlessVpnService.stop(
                                 this@MainActivity
                             )
 
-                            status = "Отключено"
+                            status =
+                                "Отключено"
                         }
                     ) {
                         Text("Отключить")
+                    }
+
+                    Button(
+                        modifier =
+                            Modifier.fillMaxWidth(),
+                        onClick = {
+                            screen =
+                                Screen.APP_ROUTING
+                        }
+                    ) {
+                        Text("Приложения")
                     }
 
                     Text(
