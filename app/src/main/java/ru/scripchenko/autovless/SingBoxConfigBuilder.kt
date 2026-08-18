@@ -83,6 +83,24 @@ object SingBoxConfigBuilder {
     private fun buildRoute(
         routing: RoutingSettings
     ): String {
+        if (!routing.enabled) {
+            return """
+                {
+                  "auto_detect_interface": true,
+                  "final": "proxy"
+                }
+            """.trimIndent()
+        }
+
+        val packages =
+            routing.packages
+                .asSequence()
+                .map(String::trim)
+                .filter(String::isNotEmpty)
+                .distinct()
+                .sorted()
+                .toList()
+
         val domains =
             routing.domains
                 .asSequence()
@@ -92,112 +110,107 @@ object SingBoxConfigBuilder {
                 .sorted()
                 .toList()
 
-        val siteRulePackages =
-            routing.siteRulePackages
-                .asSequence()
-                .map(String::trim)
-                .filter(String::isNotEmpty)
-                .distinct()
-                .sorted()
-                .toList()
-
         /*
-         * During migration, preserve the previous global site-routing
-         * behavior when no application is explicitly assigned SITE_RULES.
-         */
-        if (siteRulePackages.isEmpty()) {
-            return buildLegacyGlobalSiteRoute(
-                routing.siteMode,
-                domains
-            )
-        }
-
-        /*
-         * All applications that reach the Android VPN are proxied by default.
-         * DIRECT applications have already been excluded from the TUN by
-         * AppRoutingConfigurator.
+         * If at least one enabled section is a whitelist
+         * ("only selected through VPN"), unmatched traffic goes direct.
          *
-         * Only SITE_RULES applications are allowed to use the direct outbound
-         * according to domain rules.
+         * Otherwise enabled sections are exclusion lists and unmatched
+         * traffic goes through VPN.
          */
-        if (routing.siteMode == SiteRoutingMode.ALL_VIA_VPN) {
-            return """
-                {
-                  "auto_detect_interface": true,
-                  "final": "proxy"
-                }
-            """.trimIndent()
-        }
+        val hasWhitelist =
+            (
+                routing.appEnabled &&
+                    routing.appMode ==
+                    RoutingMode.ONLY_SELECTED_VIA_VPN
+            ) ||
+                (
+                    routing.siteEnabled &&
+                        routing.siteMode ==
+                        RoutingMode.ONLY_SELECTED_VIA_VPN
+                )
 
-        val packageJson =
-            jsonArrayLines(
-                siteRulePackages,
-                18
-            )
-
-        val selectedOutbound: String
-        val fallbackOutbound: String
-
-        when (routing.siteMode) {
-            SiteRoutingMode.ONLY_SELECTED_VIA_VPN -> {
-                selectedOutbound = "proxy"
-                fallbackOutbound = "direct"
+        val finalOutbound =
+            if (hasWhitelist) {
+                "direct"
+            } else {
+                "proxy"
             }
-
-            SiteRoutingMode.EXCLUDE_SELECTED_FROM_VPN -> {
-                selectedOutbound = "direct"
-                fallbackOutbound = "proxy"
-            }
-
-            SiteRoutingMode.ALL_VIA_VPN ->
-                error("Unexpected site routing mode")
-        }
 
         val rules =
             mutableListOf<String>()
 
-        rules +=
-            """
-                {
-                  "action": "sniff"
-                }
-            """.trimIndent()
-
-        if (domains.isNotEmpty()) {
-            val domainJson =
-                jsonArrayLines(
-                    domains,
-                    18
-                )
-
+        if (routing.siteEnabled) {
             rules +=
                 """
                     {
-                      "package_name": [
-$packageJson
-                      ],
-                      "domain": [
-$domainJson
-                      ],
-                      "domain_suffix": [
-$domainJson
-                      ],
-                      "action": "route",
-                      "outbound": "$selectedOutbound"
+                      "action": "sniff"
                     }
                 """.trimIndent()
         }
 
-        rules +=
-            """
+        /*
+         * Direct exclusions have priority over positive VPN matches.
+         */
+        if (
+            routing.appEnabled &&
+            routing.appMode ==
+                RoutingMode.EXCLUDE_SELECTED_FROM_VPN &&
+            packages.isNotEmpty()
+        ) {
+            rules +=
+                packageRule(
+                    packages = packages,
+                    outbound = "direct"
+                )
+        }
+
+        if (
+            routing.siteEnabled &&
+            routing.siteMode ==
+                RoutingMode.EXCLUDE_SELECTED_FROM_VPN &&
+            domains.isNotEmpty()
+        ) {
+            rules +=
+                domainRule(
+                    domains = domains,
+                    outbound = "direct"
+                )
+        }
+
+        if (
+            routing.appEnabled &&
+            routing.appMode ==
+                RoutingMode.ONLY_SELECTED_VIA_VPN &&
+            packages.isNotEmpty()
+        ) {
+            rules +=
+                packageRule(
+                    packages = packages,
+                    outbound = "proxy"
+                )
+        }
+
+        if (
+            routing.siteEnabled &&
+            routing.siteMode ==
+                RoutingMode.ONLY_SELECTED_VIA_VPN &&
+            domains.isNotEmpty()
+        ) {
+            rules +=
+                domainRule(
+                    domains = domains,
+                    outbound = "proxy"
+                )
+        }
+
+        if (rules.isEmpty()) {
+            return """
                 {
-                  "package_name": [
-$packageJson
-                  ],
-                  "action": "route",
-                  "outbound": "$fallbackOutbound"
+                  "auto_detect_interface": true,
+                  "final": "$finalOutbound"
                 }
             """.trimIndent()
+        }
 
         val rulesJson =
             rules.joinToString(",\n") {
@@ -213,42 +226,36 @@ $packageJson
               "rules": [
 $rulesJson
               ],
-              "final": "proxy"
+              "final": "$finalOutbound"
             }
         """.trimIndent()
     }
 
-    private fun buildLegacyGlobalSiteRoute(
-        siteMode: SiteRoutingMode,
-        domains: List<String>
+    private fun packageRule(
+        packages: List<String>,
+        outbound: String
     ): String {
-        val finalOutbound =
-            when (siteMode) {
-                SiteRoutingMode.ALL_VIA_VPN -> "proxy"
-                SiteRoutingMode.ONLY_SELECTED_VIA_VPN -> "direct"
-                SiteRoutingMode.EXCLUDE_SELECTED_FROM_VPN -> "proxy"
+        val packageJson =
+            jsonArrayLines(
+                packages,
+                18
+            )
+
+        return """
+            {
+              "package_name": [
+$packageJson
+              ],
+              "action": "route",
+              "outbound": "$outbound"
             }
+        """.trimIndent()
+    }
 
-        if (
-            siteMode == SiteRoutingMode.ALL_VIA_VPN ||
-            domains.isEmpty()
-        ) {
-            return """
-                {
-                  "auto_detect_interface": true,
-                  "final": "$finalOutbound"
-                }
-            """.trimIndent()
-        }
-
-        val selectedOutbound =
-            when (siteMode) {
-                SiteRoutingMode.ONLY_SELECTED_VIA_VPN -> "proxy"
-                SiteRoutingMode.EXCLUDE_SELECTED_FROM_VPN -> "direct"
-                SiteRoutingMode.ALL_VIA_VPN ->
-                    error("Unexpected site routing mode")
-            }
-
+    private fun domainRule(
+        domains: List<String>,
+        outbound: String
+    ): String {
         val domainJson =
             jsonArrayLines(
                 domains,
@@ -257,23 +264,14 @@ $rulesJson
 
         return """
             {
-              "auto_detect_interface": true,
-              "rules": [
-                {
-                  "action": "sniff"
-                },
-                {
-                  "domain": [
+              "domain": [
 $domainJson
-                  ],
-                  "domain_suffix": [
-$domainJson
-                  ],
-                  "action": "route",
-                  "outbound": "$selectedOutbound"
-                }
               ],
-              "final": "$finalOutbound"
+              "domain_suffix": [
+$domainJson
+              ],
+              "action": "route",
+              "outbound": "$outbound"
             }
         """.trimIndent()
     }
@@ -313,6 +311,8 @@ $domainJson
             .removePrefix("https://")
             .removePrefix("http://")
             .substringBefore("/")
+            .substringBefore("?")
+            .substringBefore("#")
             .removePrefix("*.")
             .removePrefix(".")
             .removeSuffix(".")

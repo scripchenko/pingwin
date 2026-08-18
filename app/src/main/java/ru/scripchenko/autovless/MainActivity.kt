@@ -28,7 +28,8 @@ class MainActivity : ComponentActivity() {
 
     private enum class Screen {
         HOME,
-        APP_ROUTING
+        APP_ROUTING,
+        SITE_ROUTING
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,18 +41,36 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf(Screen.HOME)
                 }
 
-                if (screen == Screen.APP_ROUTING) {
-                    BackHandler {
-                        screen = Screen.HOME
-                    }
-
-                    AppRoutingScreen(
-                        onBack = {
+                when (screen) {
+                    Screen.APP_ROUTING -> {
+                        BackHandler {
                             screen = Screen.HOME
                         }
-                    )
 
-                    return@AutoVLESSTheme
+                        AppRoutingScreen(
+                            onBack = {
+                                screen = Screen.HOME
+                            }
+                        )
+
+                        return@AutoVLESSTheme
+                    }
+
+                    Screen.SITE_ROUTING -> {
+                        BackHandler {
+                            screen = Screen.HOME
+                        }
+
+                        SiteRoutingScreen(
+                            onBack = {
+                                screen = Screen.HOME
+                            }
+                        )
+
+                        return@AutoVLESSTheme
+                    }
+
+                    Screen.HOME -> Unit
                 }
 
                 var link by remember {
@@ -212,6 +231,17 @@ class MainActivity : ComponentActivity() {
                         }
                     ) {
                         Text("Приложения")
+                    }
+
+                    Button(
+                        modifier =
+                            Modifier.fillMaxWidth(),
+                        onClick = {
+                            screen =
+                                Screen.SITE_ROUTING
+                        }
+                    ) {
+                        Text("Сайты")
                     }
 
                     Text(

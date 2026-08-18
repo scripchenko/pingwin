@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -29,15 +28,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AppRoutingScreen(
+fun SiteRoutingScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-
-    val apps =
-        remember {
-            InstalledAppsLoader.load(context)
-        }
 
     var routing by
         remember {
@@ -46,7 +40,7 @@ fun AppRoutingScreen(
             )
         }
 
-    var query by
+    var domainInput by
         remember {
             mutableStateOf("")
         }
@@ -66,24 +60,20 @@ fun AppRoutingScreen(
         )
     }
 
-    val filteredApps =
-        remember(apps, query) {
-            val normalized =
-                query.trim().lowercase()
-
-            if (normalized.isEmpty()) {
-                apps
-            } else {
-                apps.filter {
-                    it.label
-                        .lowercase()
-                        .contains(normalized) ||
-                        it.packageName
-                            .lowercase()
-                            .contains(normalized)
-                }
-            }
-        }
+    fun normalizeDomain(
+        value: String
+    ): String =
+        value
+            .trim()
+            .lowercase()
+            .removePrefix("https://")
+            .removePrefix("http://")
+            .substringBefore("/")
+            .substringBefore("?")
+            .substringBefore("#")
+            .removePrefix("*.")
+            .removePrefix(".")
+            .removeSuffix(".")
 
     Column(
         modifier =
@@ -108,7 +98,7 @@ fun AppRoutingScreen(
                 Alignment.CenterVertically
         ) {
             Text(
-                text = "Маршрутизация приложений",
+                text = "Маршрутизация сайтов",
                 modifier =
                     Modifier.weight(1f),
                 style =
@@ -116,11 +106,11 @@ fun AppRoutingScreen(
             )
 
             Switch(
-                checked = routing.appEnabled,
+                checked = routing.siteEnabled,
                 onCheckedChange = {
                     save(
                         routing.copy(
-                            appEnabled = it
+                            siteEnabled = it
                         )
                     )
                 }
@@ -129,10 +119,10 @@ fun AppRoutingScreen(
 
         Text(
             text =
-                if (routing.appEnabled) {
-                    "Включено"
+                if (routing.siteEnabled) {
+                    "Правила действуют во всех приложениях и браузерах."
                 } else {
-                    "Отключено. Все приложения работают через VPN."
+                    "Отключено. Все сайты открываются через VPN."
                 },
             style =
                 MaterialTheme.typography.bodyMedium
@@ -147,12 +137,12 @@ fun AppRoutingScreen(
                 }
             ) {
                 Text(
-                    when (routing.appMode) {
+                    when (routing.siteMode) {
                         RoutingMode.ONLY_SELECTED_VIA_VPN ->
-                            "Только приложения из списка — через VPN"
+                            "Только адреса из списка — через VPN"
 
                         RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
-                            "Приложения из списка — без VPN"
+                            "Адреса из списка — без VPN"
                     }
                 )
             }
@@ -166,14 +156,14 @@ fun AppRoutingScreen(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            "Только приложения из списка должны работать через VPN"
+                            "Только адреса из списка должны открываться через VPN"
                         )
                     },
                     onClick = {
                         modeMenuExpanded = false
                         save(
                             routing.copy(
-                                appMode =
+                                siteMode =
                                     RoutingMode.ONLY_SELECTED_VIA_VPN
                             )
                         )
@@ -183,14 +173,14 @@ fun AppRoutingScreen(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            "Приложения из списка не должны работать через VPN"
+                            "Адреса из списка не должны открываться через VPN"
                         )
                     },
                     onClick = {
                         modeMenuExpanded = false
                         save(
                             routing.copy(
-                                appMode =
+                                siteMode =
                                     RoutingMode.EXCLUDE_SELECTED_FROM_VPN
                             )
                         )
@@ -200,21 +190,44 @@ fun AppRoutingScreen(
         }
 
         OutlinedTextField(
-            value = query,
+            value = domainInput,
             onValueChange = {
-                query = it
+                domainInput = it
             },
             modifier =
                 Modifier.fillMaxWidth(),
             singleLine = true,
             label = {
-                Text("Поиск приложения")
+                Text("Адрес, например youtube.com")
             }
         )
 
+        OutlinedButton(
+            modifier =
+                Modifier.fillMaxWidth(),
+            enabled =
+                domainInput.isNotBlank(),
+            onClick = {
+                val domain =
+                    normalizeDomain(domainInput)
+
+                if (domain.isNotEmpty()) {
+                    save(
+                        routing.copy(
+                            domains =
+                                routing.domains + domain
+                        )
+                    )
+                    domainInput = ""
+                }
+            }
+        ) {
+            Text("Добавить")
+        }
+
         Text(
             text =
-                "Выбрано: ${routing.packages.size}",
+                "Адресов в списке: ${routing.domains.size}",
             style =
                 MaterialTheme.typography.bodySmall
         )
@@ -224,88 +237,42 @@ fun AppRoutingScreen(
                 Modifier.fillMaxSize()
         ) {
             items(
-                items = filteredApps,
-                key = {
-                    it.packageName
-                }
-            ) { app ->
-                val checked =
-                    app.packageName in routing.packages
-
+                items =
+                    routing.domains
+                        .toList()
+                        .sorted(),
+                key = { it }
+            ) { domain ->
                 Row(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .clickable {
-                                val updated =
-                                    routing.packages
-                                        .toMutableSet()
-
-                                if (checked) {
-                                    updated.remove(
-                                        app.packageName
-                                    )
-                                } else {
-                                    updated.add(
-                                        app.packageName
-                                    )
-                                }
-
-                                save(
-                                    routing.copy(
-                                        packages = updated
-                                    )
-                                )
-                            }
                             .padding(
-                                vertical = 8.dp
+                                vertical = 12.dp
                             ),
                     verticalAlignment =
                         Alignment.CenterVertically
                 ) {
-                    Checkbox(
-                        checked = checked,
-                        onCheckedChange = { enabled ->
-                            val updated =
-                                routing.packages
-                                    .toMutableSet()
-
-                            if (enabled) {
-                                updated.add(
-                                    app.packageName
-                                )
-                            } else {
-                                updated.remove(
-                                    app.packageName
-                                )
-                            }
-
-                            save(
-                                routing.copy(
-                                    packages = updated
-                                )
-                            )
-                        }
+                    Text(
+                        text = domain,
+                        modifier =
+                            Modifier.weight(1f)
                     )
 
-                    Column(
+                    Text(
+                        text = "Удалить",
                         modifier =
-                            Modifier
-                                .weight(1f)
-                                .padding(start = 8.dp)
-                    ) {
-                        Text(
-                            text = app.label,
-                            style =
-                                MaterialTheme.typography.bodyLarge
-                        )
-
-                        Text(
-                            text = app.packageName,
-                            style =
-                                MaterialTheme.typography.bodySmall
-                        )
-                    }
+                            Modifier.clickable {
+                                save(
+                                    routing.copy(
+                                        domains =
+                                            routing.domains - domain
+                                    )
+                                )
+                            },
+                        style =
+                            MaterialTheme.typography.bodyMedium
+                    )
                 }
 
                 HorizontalDivider()

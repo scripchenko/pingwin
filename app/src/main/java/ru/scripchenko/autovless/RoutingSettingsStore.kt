@@ -6,14 +6,15 @@ object RoutingSettingsStore {
 
     private const val PREFS_NAME = "routing_settings"
 
+    private const val KEY_SITE_ENABLED = "site_enabled"
     private const val KEY_SITE_MODE = "site_mode"
     private const val KEY_DOMAINS = "domains"
 
-    // Legacy application-routing keys.
+    private const val KEY_APP_ENABLED = "app_enabled"
     private const val KEY_APP_MODE = "app_mode"
     private const val KEY_PACKAGES = "packages"
 
-    // New per-application routing keys.
+    // Keys from the intermediate routing implementation.
     private const val KEY_SITE_RULE_PACKAGES = "site_rule_packages"
     private const val KEY_DIRECT_PACKAGES = "direct_packages"
 
@@ -24,20 +25,20 @@ object RoutingSettingsStore {
                 Context.MODE_PRIVATE
             )
 
-        val siteMode =
-            enumValueOrDefault(
-                prefs.getString(KEY_SITE_MODE, null),
-                SiteRoutingMode.ALL_VIA_VPN
-            )
-
-        val appMode =
-            enumValueOrDefault(
-                prefs.getString(KEY_APP_MODE, null),
-                AppRoutingMode.ONLY_SELECTED_VIA_VPN
-            )
-
         return RoutingSettings(
-            siteMode = siteMode,
+            siteEnabled =
+                prefs.getBoolean(
+                    KEY_SITE_ENABLED,
+                    false
+                ),
+            siteMode =
+                enumValueOrDefault(
+                    prefs.getString(
+                        KEY_SITE_MODE,
+                        null
+                    ),
+                    RoutingMode.ONLY_SELECTED_VIA_VPN
+                ),
             domains =
                 prefs.getStringSet(
                     KEY_DOMAINS,
@@ -45,24 +46,22 @@ object RoutingSettingsStore {
                 )?.toSet()
                     ?: emptySet(),
 
-            appMode = appMode,
+            appEnabled =
+                prefs.getBoolean(
+                    KEY_APP_ENABLED,
+                    false
+                ),
+            appMode =
+                enumValueOrDefault(
+                    prefs.getString(
+                        KEY_APP_MODE,
+                        null
+                    ),
+                    RoutingMode.ONLY_SELECTED_VIA_VPN
+                ),
             packages =
                 prefs.getStringSet(
                     KEY_PACKAGES,
-                    emptySet()
-                )?.toSet()
-                    ?: emptySet(),
-
-            siteRulePackages =
-                prefs.getStringSet(
-                    KEY_SITE_RULE_PACKAGES,
-                    emptySet()
-                )?.toSet()
-                    ?: emptySet(),
-
-            directPackages =
-                prefs.getStringSet(
-                    KEY_DIRECT_PACKAGES,
                     emptySet()
                 )?.toSet()
                     ?: emptySet()
@@ -78,6 +77,10 @@ object RoutingSettingsStore {
             Context.MODE_PRIVATE
         )
             .edit()
+            .putBoolean(
+                KEY_SITE_ENABLED,
+                settings.siteEnabled
+            )
             .putString(
                 KEY_SITE_MODE,
                 settings.siteMode.name
@@ -86,8 +89,10 @@ object RoutingSettingsStore {
                 KEY_DOMAINS,
                 settings.domains.toSet()
             )
-
-            // Legacy values are kept until the UI migration is complete.
+            .putBoolean(
+                KEY_APP_ENABLED,
+                settings.appEnabled
+            )
             .putString(
                 KEY_APP_MODE,
                 settings.appMode.name
@@ -96,15 +101,8 @@ object RoutingSettingsStore {
                 KEY_PACKAGES,
                 settings.packages.toSet()
             )
-
-            .putStringSet(
-                KEY_SITE_RULE_PACKAGES,
-                settings.siteRulePackages.toSet()
-            )
-            .putStringSet(
-                KEY_DIRECT_PACKAGES,
-                settings.directPackages.toSet()
-            )
+            .remove(KEY_SITE_RULE_PACKAGES)
+            .remove(KEY_DIRECT_PACKAGES)
             .apply()
     }
 
