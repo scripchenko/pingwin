@@ -1203,27 +1203,6 @@ class AutoVlessVpnService :
             }
         }
 
-        // Diagnostic fallback for this Honor device.
-        // Confirmed from /proc/net/if_inet6 via adb shell:
-        // rmnet_data1 -> 0x10 = 16
-        // rmnet_data3 -> 0x19 = 25
-        val diagnosticIndex =
-            when (interfaceName) {
-                "rmnet_data1" -> 16
-                "rmnet_data3" -> 25
-            "rmnet_data4" -> 53
-                else -> 0
-            }
-
-        if (diagnosticIndex > 0) {
-            Log.w(
-                TAG,
-                "Diagnostic interface index fallback: " +
-                        "$interfaceName index=$diagnosticIndex"
-            )
-            return diagnosticIndex
-        }
-
         Log.e(
             TAG,
             "Unable to resolve interface index for $interfaceName"
