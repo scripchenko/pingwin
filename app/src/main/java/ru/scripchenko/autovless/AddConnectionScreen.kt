@@ -2,7 +2,6 @@ package ru.scripchenko.autovless
 
 import android.content.ClipboardManager
 import android.content.Context
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,19 +25,18 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AddConnectionScreen(
     onBack: () -> Unit,
+    onScanQr: () -> Unit,
     onAdded: () -> Unit
 ) {
     val context = LocalContext.current
 
-    var link by
-        remember {
-            mutableStateOf("")
-        }
+    var link by remember {
+        mutableStateOf("")
+    }
 
-    var error by
-        remember {
-            mutableStateOf<String?>(null)
-        }
+    var error by remember {
+        mutableStateOf<String?>(null)
+    }
 
     Column(
         modifier =
@@ -83,6 +81,14 @@ fun AddConnectionScreen(
             },
             minLines = 4
         )
+
+        OutlinedButton(
+            modifier =
+                Modifier.fillMaxWidth(),
+            onClick = onScanQr
+        ) {
+            Text("Сканировать QR-код")
+        }
 
         OutlinedButton(
             modifier =

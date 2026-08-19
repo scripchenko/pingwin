@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
 
     private enum class Screen {
         HOME,
+        SETTINGS,
         ADD_CONNECTION,
         CONNECTIONS,
         ROUTING,
@@ -65,6 +66,10 @@ class MainActivity : ComponentActivity() {
                             this@MainActivity
                         )
                     )
+                }
+
+                var connectionsRevision by remember {
+                    mutableStateOf(0)
                 }
 
                 val vpnState by
@@ -120,6 +125,13 @@ class MainActivity : ComponentActivity() {
                                     ConnectionStore.selected(
                                         this@MainActivity
                                     )
+
+                                if (
+                                    screen ==
+                                        Screen.ADD_CONNECTION
+                                ) {
+                                    screen = Screen.HOME
+                                }
                             }
                             .onFailure {
                                 Toast.makeText(
@@ -187,6 +199,47 @@ class MainActivity : ComponentActivity() {
                 }
 
                 when (screen) {
+                    Screen.SETTINGS -> {
+                        SettingsScreen(
+                            connectionCount =
+                                ConnectionStore.loadAll(
+                                    this@MainActivity
+                                ).size,
+                            onHomeClick = {
+                                screen = Screen.HOME
+                            },
+                            onRoutingClick = {
+                                screen = Screen.ROUTING
+                            },
+                            onAutomationClick = {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    "Автоматизацию добавим следующим этапом",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            },
+                            onConnectionsClick = {
+                                screen = Screen.CONNECTIONS
+                            },
+                            onLogsClick = {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    "Экран логов добавим позже",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            },
+                            onAboutClick = {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    "pingwin 0.1.0",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        )
+
+                        return@AutoVLESSTheme
+                    }
+
                     Screen.ADD_CONNECTION -> {
                         BackHandler {
                             screen = Screen.HOME
@@ -195,6 +248,27 @@ class MainActivity : ComponentActivity() {
                         AddConnectionScreen(
                             onBack = {
                                 screen = Screen.HOME
+                            },
+                            onScanQr = {
+                                val options =
+                                    ScanOptions().apply {
+                                        setDesiredBarcodeFormats(
+                                            ScanOptions.QR_CODE
+                                        )
+                                        setPrompt(
+                                            "Наведите камеру на QR-код"
+                                        )
+                                        setBeepEnabled(false)
+                                        setBarcodeImageEnabled(false)
+                                        setOrientationLocked(true)
+                                        setCaptureActivity(
+                                            QrScannerActivity::class.java
+                                        )
+                                    }
+
+                                qrLauncher.launch(
+                                    options
+                                )
                             },
                             onAdded = {
                                 selectedConnection =
@@ -216,11 +290,26 @@ class MainActivity : ComponentActivity() {
 
                         ConnectionListScreen(
                             connections =
-                                ConnectionStore.loadAll(
-                                    this@MainActivity
-                                ),
+                                remember(
+                                    connectionsRevision
+                                ) {
+                                    ConnectionStore.loadAll(
+                                        this@MainActivity
+                                    )
+                                },
                             selectedId =
                                 selectedConnection?.id,
+                            lockedConnectionId =
+                                if (
+                                    vpnState ==
+                                        VpnConnectionState.CONNECTED ||
+                                    vpnState ==
+                                        VpnConnectionState.CONNECTING
+                                ) {
+                                    selectedConnection?.id
+                                } else {
+                                    null
+                                },
                             onBack = {
                                 screen = Screen.HOME
                             },
@@ -234,6 +323,19 @@ class MainActivity : ComponentActivity() {
                                     connection
 
                                 screen = Screen.HOME
+                            },
+                            onDelete = { connection ->
+                                ConnectionStore.remove(
+                                    this@MainActivity,
+                                    connection.id
+                                )
+
+                                connectionsRevision++
+
+                                selectedConnection =
+                                    ConnectionStore.selected(
+                                        this@MainActivity
+                                    )
                             },
                             onAdd = {
                                 screen =
@@ -301,6 +403,27 @@ class MainActivity : ComponentActivity() {
                 if (connection == null) {
                     AddConnectionScreen(
                         onBack = {},
+                        onScanQr = {
+                            val options =
+                                ScanOptions().apply {
+                                    setDesiredBarcodeFormats(
+                                        ScanOptions.QR_CODE
+                                    )
+                                    setPrompt(
+                                        "Наведите камеру на QR-код"
+                                    )
+                                    setBeepEnabled(false)
+                                    setBarcodeImageEnabled(false)
+                                    setOrientationLocked(true)
+                                    setCaptureActivity(
+                                        QrScannerActivity::class.java
+                                    )
+                                }
+
+                            qrLauncher.launch(
+                                options
+                            )
+                        },
                         onAdded = {
                             selectedConnection =
                                 ConnectionStore.selected(
@@ -481,7 +604,7 @@ class MainActivity : ComponentActivity() {
                     },
                     onSettingsClick = {
                         screen =
-                            Screen.ROUTING
+                            Screen.SETTINGS
                     }
                 )
             }

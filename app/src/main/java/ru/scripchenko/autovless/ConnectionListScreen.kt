@@ -7,35 +7,46 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun ConnectionListScreen(
     connections: List<SavedConnection>,
     selectedId: String?,
+    lockedConnectionId: String?,
     onBack: () -> Unit,
     onSelect: (SavedConnection) -> Unit,
+    onDelete: (SavedConnection) -> Unit,
     onAdd: () -> Unit
 ) {
     Column(
         modifier =
             Modifier
                 .fillMaxSize()
-                .padding(20.dp),
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .padding(
+                    horizontal = 20.dp
+                ),
         verticalArrangement =
-            Arrangement.spacedBy(14.dp)
+            Arrangement.spacedBy(12.dp)
     ) {
         IconButton(
             onClick = onBack
@@ -49,15 +60,15 @@ fun ConnectionListScreen(
 
         Text(
             text = "Подключения",
-            style =
-                MaterialTheme.typography.headlineMedium
+            fontSize = 30.sp,
+            color = Color(0xFF17191F)
         )
 
         if (connections.isEmpty()) {
             Text(
                 text = "Сохранённых подключений пока нет.",
-                style =
-                    MaterialTheme.typography.bodyLarge
+                color = Color(0xFF777D89),
+                fontSize = 16.sp
             )
         } else {
             connections.forEach { connection ->
@@ -75,19 +86,32 @@ fun ConnectionListScreen(
                         }
                         ?: "—"
 
-                Card(
+                val deleteEnabled =
+                    connection.id != lockedConnectionId
+
+                Surface(
                     modifier =
                         Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                onSelect(connection)
-                            }
+                            .fillMaxWidth(),
+                    shape =
+                        RoundedCornerShape(20.dp),
+                    color =
+                        Color.White,
+                    shadowElevation = 2.dp
                 ) {
                     Row(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .clickable {
+                                    onSelect(connection)
+                                }
+                                .padding(
+                                    start = 16.dp,
+                                    top = 14.dp,
+                                    bottom = 14.dp,
+                                    end = 8.dp
+                                ),
                         verticalAlignment =
                             Alignment.CenterVertically
                     ) {
@@ -98,8 +122,13 @@ fun ConnectionListScreen(
                                 } else {
                                     "○"
                                 },
-                            style =
-                                MaterialTheme.typography.titleLarge
+                            color =
+                                if (connection.id == selectedId) {
+                                    Color(0xFF2450C8)
+                                } else {
+                                    Color(0xFF9AA0AA)
+                                },
+                            fontSize = 22.sp
                         )
 
                         Spacer(
@@ -111,12 +140,12 @@ fun ConnectionListScreen(
                             modifier =
                                 Modifier.weight(1f),
                             verticalArrangement =
-                                Arrangement.spacedBy(4.dp)
+                                Arrangement.spacedBy(3.dp)
                         ) {
                             Text(
                                 text = connection.name,
-                                style =
-                                    MaterialTheme.typography.titleMedium,
+                                fontSize = 17.sp,
+                                color = Color(0xFF17191F),
                                 fontWeight =
                                     FontWeight.SemiBold,
                                 maxLines = 1,
@@ -126,16 +155,41 @@ fun ConnectionListScreen(
 
                             Text(
                                 text = host,
-                                style =
-                                    MaterialTheme.typography.bodyMedium
+                                fontSize = 14.sp,
+                                color = Color(0xFF777D89)
                             )
                         }
 
                         Text(
                             text = "VLESS",
-                            style =
-                                MaterialTheme.typography.labelLarge
+                            fontSize = 13.sp,
+                            color = Color(0xFF555B67),
+                            fontWeight =
+                                FontWeight.SemiBold
                         )
+
+                        Spacer(
+                            modifier =
+                                Modifier.width(6.dp)
+                        )
+
+                        IconButton(
+                            enabled = deleteEnabled,
+                            onClick = {
+                                onDelete(connection)
+                            }
+                        ) {
+                            Text(
+                                text = "✕",
+                                fontSize = 20.sp,
+                                color =
+                                    if (deleteEnabled) {
+                                        Color(0xFFD84A4A)
+                                    } else {
+                                        Color(0xFFBFC3CB)
+                                    }
+                            )
+                        }
                     }
                 }
             }
