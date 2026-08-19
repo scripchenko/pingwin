@@ -299,6 +299,7 @@ class AutoVlessVpnService :
                     VpnConnectionState.CONNECTED
                 )
 
+
                 updateForegroundNotification(
                     "VPN работает"
                 )
@@ -376,6 +377,7 @@ class AutoVlessVpnService :
             VpnStatus.set(
                 VpnConnectionState.DISCONNECTED
             )
+
 
             Log.d(
                 TAG,
