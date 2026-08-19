@@ -4,7 +4,8 @@ object SingBoxConfigBuilder {
 
     fun build(
         profile: VlessProfile,
-        routing: RoutingSettings = RoutingSettings()
+        routing: RoutingSettings = RoutingSettings(),
+        detailedLogging: Boolean = false
     ): String {
         require(profile.security == "reality") {
             "Пока поддерживается только security=reality"
@@ -22,10 +23,17 @@ object SingBoxConfigBuilder {
             "Для Reality отсутствует server name (sni)"
         }
 
+        val logLevel =
+            if (detailedLogging) {
+                "debug"
+            } else {
+                "info"
+            }
+
         return """
             {
               "log": {
-                "level": "info",
+                "level": "$logLevel",
                 "timestamp": true
               },
               "dns": {
@@ -84,7 +92,7 @@ object SingBoxConfigBuilder {
         routing: RoutingSettings
     ): String {
         if (!routing.enabled) {
-            return """
+        return """
                 {
                   "auto_detect_interface": true,
                   "final": "proxy"
@@ -204,7 +212,7 @@ object SingBoxConfigBuilder {
         }
 
         if (rules.isEmpty()) {
-            return """
+        return """
                 {
                   "auto_detect_interface": true,
                   "final": "$finalOutbound"
@@ -219,7 +227,6 @@ object SingBoxConfigBuilder {
                     8
                 )
             }
-
         return """
             {
               "auto_detect_interface": true,
@@ -240,7 +247,6 @@ $rulesJson
                 packages,
                 18
             )
-
         return """
             {
               "package_name": [
@@ -261,7 +267,6 @@ $packageJson
                 domains,
                 18
             )
-
         return """
             {
               "domain": [

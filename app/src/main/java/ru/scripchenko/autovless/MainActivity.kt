@@ -28,6 +28,7 @@ class MainActivity : ComponentActivity() {
         HOME,
         SETTINGS,
         ABOUT,
+        LOGS,
         ADD_CONNECTION,
         CONNECTIONS,
         ROUTING,
@@ -160,7 +161,10 @@ class MainActivity : ComponentActivity() {
                         val config =
                             SingBoxConfigBuilder.build(
                                 profile,
-                                routing
+                                routing,
+                                DiagnosticLogStore.isDetailedEnabled(
+                                    this@MainActivity
+                                )
                             )
 
                         val validation =
@@ -223,11 +227,7 @@ class MainActivity : ComponentActivity() {
                                 screen = Screen.CONNECTIONS
                             },
                             onLogsClick = {
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    "Экран логов добавим позже",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                screen = Screen.LOGS
                             },
                             onAboutClick = {
                                 screen = Screen.ABOUT
@@ -237,6 +237,19 @@ class MainActivity : ComponentActivity() {
                         return@AutoVLESSTheme
                     }
 
+                    Screen.LOGS -> {
+                        BackHandler {
+                            screen = Screen.SETTINGS
+                        }
+
+                        LogsScreen(
+                            onBack = {
+                                screen = Screen.SETTINGS
+                            }
+                        )
+
+                        return@AutoVLESSTheme
+                    }
                     Screen.ABOUT -> {
                         BackHandler {
                             screen = Screen.SETTINGS

@@ -93,6 +93,7 @@ class AutoVlessVpnService :
             )
 
     private var commandServer: CommandServer? = null
+    private var singBoxLogClient: SingBoxLogClient? = null
     private var tunDescriptor: ParcelFileDescriptor? = null
 
     private val mainHandler =
@@ -191,6 +192,11 @@ class AutoVlessVpnService :
         when (intent?.action) {
 
             ACTION_START -> {
+                DiagnosticLogStore.append(
+                    this,
+                    "Запуск VPN"
+                )
+
                 VpnStatus.set(
                     VpnConnectionState.CONNECTING
                 )
@@ -290,9 +296,19 @@ class AutoVlessVpnService :
                 commandServer =
                     server
 
+                singBoxLogClient =
+                    SingBoxLogClient(this).also {
+                        it.start()
+                    }
+
                 Log.d(
                     TAG,
                     "sing-box started"
+                )
+
+                DiagnosticLogStore.append(
+                    this,
+                    "VPN подключён"
                 )
 
                 VpnStatus.set(
@@ -312,6 +328,11 @@ class AutoVlessVpnService :
                     e
                 )
 
+                DiagnosticLogStore.append(
+                    this,
+                    "Ошибка подключения: ${e.message ?: e.javaClass.simpleName}"
+                )
+
                 stopVpn()
 
                 VpnStatus.set(
@@ -328,6 +349,12 @@ class AutoVlessVpnService :
         synchronized(this) {
 
             stopPhysicalNetworkMonitor()
+
+            singBoxLogClient
+                ?.stop()
+
+            singBoxLogClient =
+                null
 
             try {
                 commandServer
@@ -374,6 +401,11 @@ class AutoVlessVpnService :
 
             stopSelf()
 
+            DiagnosticLogStore.append(
+                this,
+                "VPN отключён"
+            )
+
             VpnStatus.set(
                 VpnConnectionState.DISCONNECTED
             )
@@ -390,8 +422,14 @@ class AutoVlessVpnService :
 
         stopPhysicalNetworkMonitor()
 
-        try {
-            commandServer
+            singBoxLogClient
+                ?.stop()
+
+            singBoxLogClient =
+                null
+
+            try {
+                commandServer
                 ?.closeService()
         } catch (_: Exception) {
         }
