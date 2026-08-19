@@ -8,11 +8,16 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
@@ -21,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
@@ -142,13 +148,10 @@ class MainActivity : ComponentActivity() {
                     ) { result ->
 
                         if (result.resultCode == RESULT_OK) {
-                            val config =
-                                pendingConfig
-
-                            if (config != null) {
+                            pendingConfig?.let {
                                 AutoVlessVpnService.start(
                                     this@MainActivity,
-                                    config
+                                    it
                                 )
                             }
                         } else {
@@ -160,14 +163,76 @@ class MainActivity : ComponentActivity() {
                         pendingConfig = null
                     }
 
+                fun startVpnConnection(
+                    connection: SavedConnection
+                ) {
+                    try {
+                        val profile =
+                            VlessProfile.parse(
+                                connection.link
+                            )
+
+                        val routing =
+                            RoutingSettingsStore.load(
+                                this@MainActivity
+                            )
+
+                        val config =
+                            SingBoxConfigBuilder.build(
+                                profile,
+                                routing
+                            )
+
+                        val validation =
+                            LibboxValidator.validate(
+                                config
+                            )
+
+                        if (validation.isFailure) {
+                            VpnStatus.set(
+                                VpnConnectionState.ERROR
+                            )
+                            return
+                        }
+
+                        val permissionIntent =
+                            VpnService.prepare(
+                                this@MainActivity
+                            )
+
+                        if (permissionIntent != null) {
+                            pendingConfig = config
+
+                            vpnPermissionLauncher.launch(
+                                permissionIntent
+                            )
+                        } else {
+                            AutoVlessVpnService.start(
+                                this@MainActivity,
+                                config
+                            )
+                        }
+                    } catch (_: Exception) {
+                        VpnStatus.set(
+                            VpnConnectionState.ERROR
+                        )
+                    }
+                }
+
                 Column(
                     modifier =
                         Modifier
-                            .fillMaxSize()
-                            .padding(24.dp),
+                            .fillMaxSize(),
+                    horizontalAlignment =
+                        Alignment.CenterHorizontally,
                     verticalArrangement =
                         Arrangement.spacedBy(16.dp)
                 ) {
+                    Spacer(
+                        modifier =
+                            Modifier.height(24.dp)
+                    )
+
                     Text(
                         text = "AutoVLESS",
                         style =
@@ -178,21 +243,32 @@ class MainActivity : ComponentActivity() {
                         selectedConnection
 
                     if (connection == null) {
-                        Text(
-                            text = "Подключение ещё не добавлено",
-                            style =
-                                MaterialTheme.typography.titleMedium
-                        )
-
-                        Button(
+                        Column(
                             modifier =
-                                Modifier.fillMaxWidth(),
-                            onClick = {
-                                screen =
-                                    Screen.ADD_CONNECTION
-                            }
+                                Modifier
+                                    .fillMaxWidth(),
+                            horizontalAlignment =
+                                Alignment.CenterHorizontally,
+                            verticalArrangement =
+                                Arrangement.spacedBy(16.dp)
                         ) {
-                            Text("Добавить подключение")
+                            Text(
+                                text =
+                                    "Подключение ещё не добавлено",
+                                style =
+                                    MaterialTheme.typography.titleMedium
+                            )
+
+                            Button(
+                                onClick = {
+                                    screen =
+                                        Screen.ADD_CONNECTION
+                                }
+                            ) {
+                                Text(
+                                    "Добавить подключение"
+                                )
+                            }
                         }
 
                         return@Column
@@ -237,89 +313,88 @@ class MainActivity : ComponentActivity() {
                             }
                     }
 
-                    ServerConnectionCard(
-                        connection = connection,
-                        location = serverLocation
+                    Box(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                    ) {
+                        ServerConnectionCard(
+                            connection = connection,
+                            location = serverLocation
+                        )
+                    }
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(8.dp)
                     )
 
                     Button(
                         modifier =
-                            Modifier.fillMaxWidth(),
+                            Modifier.size(160.dp),
+                        shape =
+                            CircleShape,
                         enabled =
-                            vpnState != VpnConnectionState.CONNECTING &&
-                                vpnState != VpnConnectionState.CONNECTED,
+                            vpnState !=
+                                VpnConnectionState.CONNECTING,
+                        colors =
+                            ButtonDefaults.buttonColors(),
                         onClick = {
-                            try {
-                                val currentProfile =
-                                    VlessProfile.parse(
-                                        connection.link
-                                    )
-
-                                val routing =
-                                    RoutingSettingsStore.load(
+                            when (vpnState) {
+                                VpnConnectionState.CONNECTED -> {
+                                    AutoVlessVpnService.stop(
                                         this@MainActivity
                                     )
-
-                                val config =
-                                    SingBoxConfigBuilder.build(
-                                        currentProfile,
-                                        routing
-                                    )
-
-                                val validation =
-                                    LibboxValidator.validate(
-                                        config
-                                    )
-
-                                if (validation.isFailure) {
-                                    VpnStatus.set(
-                                        VpnConnectionState.ERROR
-                                    )
-
-                                    return@Button
                                 }
 
-                                val permissionIntent =
-                                    VpnService.prepare(
-                                        this@MainActivity
-                                    )
-
-                                if (permissionIntent != null) {
-                                    pendingConfig =
-                                        config
-
-                                    vpnPermissionLauncher.launch(
-                                        permissionIntent
-                                    )
-                                } else {
-                                    AutoVlessVpnService.start(
-                                        this@MainActivity,
-                                        config
+                                VpnConnectionState.DISCONNECTED,
+                                VpnConnectionState.ERROR -> {
+                                    startVpnConnection(
+                                        connection
                                     )
                                 }
-                            } catch (_: Exception) {
-                                VpnStatus.set(
-                                    VpnConnectionState.ERROR
-                                )
+
+                                VpnConnectionState.CONNECTING ->
+                                    Unit
                             }
                         }
                     ) {
-                        Text("Подключить")
+                        Text(
+                            text =
+                                when (vpnState) {
+                                    VpnConnectionState.CONNECTING ->
+                                        "…"
+
+                                    else ->
+                                        "⏻"
+                                },
+                            style =
+                                MaterialTheme.typography.displayMedium
+                        )
                     }
 
-                    Button(
+                    Text(
+                        text =
+                            when (vpnState) {
+                                VpnConnectionState.DISCONNECTED ->
+                                    "Нажмите, чтобы включить"
+
+                                VpnConnectionState.CONNECTING ->
+                                    "Подключение..."
+
+                                VpnConnectionState.CONNECTED ->
+                                    "VPN подключён"
+
+                                VpnConnectionState.ERROR ->
+                                    "Ошибка подключения"
+                            },
+                        style =
+                            MaterialTheme.typography.titleMedium
+                    )
+
+                    Spacer(
                         modifier =
-                            Modifier.fillMaxWidth(),
-                        enabled =
-                            vpnState != VpnConnectionState.DISCONNECTED,
-                        onClick = {
-                            AutoVlessVpnService.stop(
-                                this@MainActivity
-                            )
-                        }
-                    ) {
-                        Text("Отключить")
-                    }
+                            Modifier.height(8.dp)
+                    )
 
                     Button(
                         modifier =
@@ -359,7 +434,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                     Text(
-                        text = "Статус: $statusText"
+                        text = "Статус: $statusText",
+                        style =
+                            MaterialTheme.typography.bodyMedium
                     )
                 }
             }
