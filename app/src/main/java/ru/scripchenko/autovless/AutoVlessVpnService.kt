@@ -315,6 +315,14 @@ class AutoVlessVpnService :
                     VpnConnectionState.CONNECTED
                 )
 
+                if (
+                    !AppVisibility.isForeground()
+                ) {
+                    LauncherIconManager.showGreen(
+                        this
+                    )
+                }
+
 
                 updateForegroundNotification(
                     "VPN работает"
@@ -409,6 +417,14 @@ class AutoVlessVpnService :
             VpnStatus.set(
                 VpnConnectionState.DISCONNECTED
             )
+
+            if (
+                !AppVisibility.isForeground()
+            ) {
+                LauncherIconManager.showBlue(
+                    this
+                )
+            }
 
 
             Log.d(

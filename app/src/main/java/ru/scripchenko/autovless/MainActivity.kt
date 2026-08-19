@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
     private enum class Screen {
         HOME,
         SETTINGS,
+        AUTOMATION,
         ABOUT,
         LOGS,
         ADD_CONNECTION,
@@ -37,7 +38,19 @@ class MainActivity : ComponentActivity() {
     }
 
 
+    override fun onStart() {
+        super.onStart()
+
+        AppVisibility.setForeground(
+            true
+        )
+    }
+
     override fun onStop() {
+        AppVisibility.setForeground(
+            false
+        )
+
         super.onStop()
 
         when (VpnStatus.state.value) {
@@ -217,11 +230,7 @@ class MainActivity : ComponentActivity() {
                                 screen = Screen.ROUTING
                             },
                             onAutomationClick = {
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    "Автоматизацию добавим следующим этапом",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                screen = Screen.AUTOMATION
                             },
                             onConnectionsClick = {
                                 screen = Screen.CONNECTIONS
@@ -237,6 +246,19 @@ class MainActivity : ComponentActivity() {
                         return@AutoVLESSTheme
                     }
 
+                    Screen.AUTOMATION -> {
+                        BackHandler {
+                            screen = Screen.SETTINGS
+                        }
+
+                        AutomationScreen(
+                            onBack = {
+                                screen = Screen.SETTINGS
+                            }
+                        )
+
+                        return@AutoVLESSTheme
+                    }
                     Screen.LOGS -> {
                         BackHandler {
                             screen = Screen.SETTINGS
