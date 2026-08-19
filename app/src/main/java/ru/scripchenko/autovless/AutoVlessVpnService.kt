@@ -191,6 +191,10 @@ class AutoVlessVpnService :
         when (intent?.action) {
 
             ACTION_START -> {
+                VpnStatus.set(
+                    VpnConnectionState.CONNECTING
+                )
+
                 val config =
                     intent.getStringExtra(
                         EXTRA_CONFIG
@@ -291,6 +295,10 @@ class AutoVlessVpnService :
                     "sing-box started"
                 )
 
+                VpnStatus.set(
+                    VpnConnectionState.CONNECTED
+                )
+
                 updateForegroundNotification(
                     "VPN работает"
                 )
@@ -304,6 +312,10 @@ class AutoVlessVpnService :
                 )
 
                 stopVpn()
+
+                VpnStatus.set(
+                    VpnConnectionState.ERROR
+                )
 
             } finally {
                 isStarting = false
@@ -360,6 +372,10 @@ class AutoVlessVpnService :
             )
 
             stopSelf()
+
+            VpnStatus.set(
+                VpnConnectionState.DISCONNECTED
+            )
 
             Log.d(
                 TAG,

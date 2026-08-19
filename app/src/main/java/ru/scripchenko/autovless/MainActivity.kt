@@ -14,20 +14,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import ru.scripchenko.autovless.ui.theme.AutoVLESSTheme
 
 class MainActivity : ComponentActivity() {
 
     private enum class Screen {
         HOME,
+        ADD_CONNECTION,
+        ROUTING,
         APP_ROUTING,
         SITE_ROUTING
     }
@@ -41,15 +46,68 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf(Screen.HOME)
                 }
 
+                var selectedConnection by remember {
+                    mutableStateOf(
+                        ConnectionStore.selected(
+                            this@MainActivity
+                        )
+                    )
+                }
+
+                val vpnState by
+                    VpnStatus.state.collectAsState()
+
                 when (screen) {
-                    Screen.APP_ROUTING -> {
+                    Screen.ADD_CONNECTION -> {
                         BackHandler {
                             screen = Screen.HOME
                         }
 
-                        AppRoutingScreen(
+                        AddConnectionScreen(
                             onBack = {
                                 screen = Screen.HOME
+                            },
+                            onAdded = {
+                                selectedConnection =
+                                    ConnectionStore.selected(
+                                        this@MainActivity
+                                    )
+
+                                screen = Screen.HOME
+                            }
+                        )
+
+                        return@AutoVLESSTheme
+                    }
+
+                    Screen.ROUTING -> {
+                        BackHandler {
+                            screen = Screen.HOME
+                        }
+
+                        RoutingScreen(
+                            onBack = {
+                                screen = Screen.HOME
+                            },
+                            onApplications = {
+                                screen = Screen.APP_ROUTING
+                            },
+                            onSites = {
+                                screen = Screen.SITE_ROUTING
+                            }
+                        )
+
+                        return@AutoVLESSTheme
+                    }
+
+                    Screen.APP_ROUTING -> {
+                        BackHandler {
+                            screen = Screen.ROUTING
+                        }
+
+                        AppRoutingScreen(
+                            onBack = {
+                                screen = Screen.ROUTING
                             }
                         )
 
@@ -58,12 +116,12 @@ class MainActivity : ComponentActivity() {
 
                     Screen.SITE_ROUTING -> {
                         BackHandler {
-                            screen = Screen.HOME
+                            screen = Screen.ROUTING
                         }
 
                         SiteRoutingScreen(
                             onBack = {
-                                screen = Screen.HOME
+                                screen = Screen.ROUTING
                             }
                         )
 
@@ -71,14 +129,6 @@ class MainActivity : ComponentActivity() {
                     }
 
                     Screen.HOME -> Unit
-                }
-
-                var link by remember {
-                    mutableStateOf("")
-                }
-
-                var status by remember {
-                    mutableStateOf("Отключено")
                 }
 
                 var pendingConfig by remember {
@@ -100,13 +150,11 @@ class MainActivity : ComponentActivity() {
                                     this@MainActivity,
                                     config
                                 )
-
-                                status =
-                                    "Запуск VPN..."
                             }
                         } else {
-                            status =
-                                "Разрешение VPN не предоставлено"
+                            VpnStatus.set(
+                                VpnConnectionState.ERROR
+                            )
                         }
 
                         pendingConfig = null
@@ -126,26 +174,86 @@ class MainActivity : ComponentActivity() {
                             MaterialTheme.typography.headlineMedium
                     )
 
-                    OutlinedTextField(
-                        value = link,
-                        onValueChange = {
-                            link = it
-                        },
-                        label = {
-                            Text("VLESS-ссылка")
-                        },
-                        modifier =
-                            Modifier.fillMaxWidth(),
-                        minLines = 4
+                    val connection =
+                        selectedConnection
+
+                    if (connection == null) {
+                        Text(
+                            text = "Подключение ещё не добавлено",
+                            style =
+                                MaterialTheme.typography.titleMedium
+                        )
+
+                        Button(
+                            modifier =
+                                Modifier.fillMaxWidth(),
+                            onClick = {
+                                screen =
+                                    Screen.ADD_CONNECTION
+                            }
+                        ) {
+                            Text("Добавить подключение")
+                        }
+
+                        return@Column
+                    }
+
+                    val profile =
+                        remember(connection.id) {
+                            runCatching {
+                                VlessProfile.parse(
+                                    connection.link
+                                )
+                            }.getOrNull()
+                        }
+
+                    var serverLocation by
+                        remember(connection.id) {
+                            mutableStateOf<ServerLocation?>(null)
+                        }
+
+                    LaunchedEffect(
+                        connection.id,
+                        profile?.host
+                    ) {
+                        val host =
+                            profile?.host
+                                ?.takeIf {
+                                    it.isNotBlank()
+                                }
+
+                        serverLocation =
+                            if (host == null) {
+                                null
+                            } else {
+                                withContext(
+                                    Dispatchers.IO
+                                ) {
+                                    ServerLocationResolver.resolve(
+                                        this@MainActivity,
+                                        host
+                                    )
+                                }
+                            }
+                    }
+
+                    ServerConnectionCard(
+                        connection = connection,
+                        location = serverLocation
                     )
 
                     Button(
                         modifier =
                             Modifier.fillMaxWidth(),
+                        enabled =
+                            vpnState != VpnConnectionState.CONNECTING &&
+                                vpnState != VpnConnectionState.CONNECTED,
                         onClick = {
                             try {
-                                val profile =
-                                    VlessProfile.parse(link)
+                                val currentProfile =
+                                    VlessProfile.parse(
+                                        connection.link
+                                    )
 
                                 val routing =
                                     RoutingSettingsStore.load(
@@ -154,7 +262,7 @@ class MainActivity : ComponentActivity() {
 
                                 val config =
                                     SingBoxConfigBuilder.build(
-                                        profile,
+                                        currentProfile,
                                         routing
                                     )
 
@@ -164,14 +272,9 @@ class MainActivity : ComponentActivity() {
                                     )
 
                                 if (validation.isFailure) {
-                                    status =
-                                        "Ошибка конфигурации: " +
-                                                (
-                                                    validation
-                                                        .exceptionOrNull()
-                                                        ?.message
-                                                        ?: "неизвестная ошибка"
-                                                )
+                                    VpnStatus.set(
+                                        VpnConnectionState.ERROR
+                                    )
 
                                     return@Button
                                 }
@@ -193,14 +296,11 @@ class MainActivity : ComponentActivity() {
                                         this@MainActivity,
                                         config
                                     )
-
-                                    status =
-                                        "Запуск VPN..."
                                 }
-
-                            } catch (e: Exception) {
-                                status =
-                                    "Ошибка: ${e.message}"
+                            } catch (_: Exception) {
+                                VpnStatus.set(
+                                    VpnConnectionState.ERROR
+                                )
                             }
                         }
                     ) {
@@ -210,13 +310,12 @@ class MainActivity : ComponentActivity() {
                     Button(
                         modifier =
                             Modifier.fillMaxWidth(),
+                        enabled =
+                            vpnState != VpnConnectionState.DISCONNECTED,
                         onClick = {
                             AutoVlessVpnService.stop(
                                 this@MainActivity
                             )
-
-                            status =
-                                "Отключено"
                         }
                     ) {
                         Text("Отключить")
@@ -227,10 +326,10 @@ class MainActivity : ComponentActivity() {
                             Modifier.fillMaxWidth(),
                         onClick = {
                             screen =
-                                Screen.APP_ROUTING
+                                Screen.ROUTING
                         }
                     ) {
-                        Text("Приложения")
+                        Text("Маршрутизация")
                     }
 
                     Button(
@@ -238,14 +337,29 @@ class MainActivity : ComponentActivity() {
                             Modifier.fillMaxWidth(),
                         onClick = {
                             screen =
-                                Screen.SITE_ROUTING
+                                Screen.ADD_CONNECTION
                         }
                     ) {
-                        Text("Сайты")
+                        Text("Добавить ещё подключение")
                     }
 
+                    val statusText =
+                        when (vpnState) {
+                            VpnConnectionState.DISCONNECTED ->
+                                "Отключено"
+
+                            VpnConnectionState.CONNECTING ->
+                                "Подключение..."
+
+                            VpnConnectionState.CONNECTED ->
+                                "Подключено"
+
+                            VpnConnectionState.ERROR ->
+                                "Ошибка подключения"
+                        }
+
                     Text(
-                        text = "Статус: $status"
+                        text = "Статус: $statusText"
                     )
                 }
             }

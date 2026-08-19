@@ -83,13 +83,14 @@ fun SiteRoutingScreen(
         verticalArrangement =
             Arrangement.spacedBy(12.dp)
     ) {
-        Text(
-            text = "Назад",
-            modifier =
-                Modifier.clickable(onClick = onBack),
-            style =
-                MaterialTheme.typography.titleMedium
-        )
+        androidx.compose.material3.IconButton(
+            onClick = onBack
+        ) {
+            Text(
+                text = "←",
+                style = MaterialTheme.typography.headlineMedium
+            )
+        }
 
         Row(
             modifier =
