@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
     private enum class Screen {
         HOME,
         SETTINGS,
+        ABOUT,
         ADD_CONNECTION,
         CONNECTIONS,
         ROUTING,
@@ -229,11 +230,21 @@ class MainActivity : ComponentActivity() {
                                 ).show()
                             },
                             onAboutClick = {
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    "pingwin 0.1.0",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                screen = Screen.ABOUT
+                            }
+                        )
+
+                        return@AutoVLESSTheme
+                    }
+
+                    Screen.ABOUT -> {
+                        BackHandler {
+                            screen = Screen.SETTINGS
+                        }
+
+                        AboutScreen(
+                            onBack = {
+                                screen = Screen.SETTINGS
                             }
                         )
 
