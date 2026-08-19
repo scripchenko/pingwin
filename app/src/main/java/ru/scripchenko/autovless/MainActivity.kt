@@ -7,6 +7,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ class MainActivity : ComponentActivity() {
     private enum class Screen {
         HOME,
         ADD_CONNECTION,
+        CONNECTIONS,
         ROUTING,
         APP_ROUTING,
         SITE_ROUTING
@@ -80,6 +82,41 @@ class MainActivity : ComponentActivity() {
                                     )
 
                                 screen = Screen.HOME
+                            }
+                        )
+
+                        return@AutoVLESSTheme
+                    }
+
+                    Screen.CONNECTIONS -> {
+                        BackHandler {
+                            screen = Screen.HOME
+                        }
+
+                        ConnectionListScreen(
+                            connections =
+                                ConnectionStore.loadAll(
+                                    this@MainActivity
+                                ),
+                            selectedId =
+                                selectedConnection?.id,
+                            onBack = {
+                                screen = Screen.HOME
+                            },
+                            onSelect = { connection ->
+                                ConnectionStore.select(
+                                    this@MainActivity,
+                                    connection.id
+                                )
+
+                                selectedConnection =
+                                    connection
+
+                                screen = Screen.HOME
+                            },
+                            onAdd = {
+                                screen =
+                                    Screen.ADD_CONNECTION
                             }
                         )
 
@@ -221,8 +258,7 @@ class MainActivity : ComponentActivity() {
 
                 Column(
                     modifier =
-                        Modifier
-                            .fillMaxSize(),
+                        Modifier.fillMaxSize(),
                     horizontalAlignment =
                         Alignment.CenterHorizontally,
                     verticalArrangement =
@@ -245,8 +281,7 @@ class MainActivity : ComponentActivity() {
                     if (connection == null) {
                         Column(
                             modifier =
-                                Modifier
-                                    .fillMaxWidth(),
+                                Modifier.fillMaxWidth(),
                             horizontalAlignment =
                                 Alignment.CenterHorizontally,
                             verticalArrangement =
@@ -315,7 +350,12 @@ class MainActivity : ComponentActivity() {
 
                     Box(
                         modifier =
-                            Modifier.fillMaxWidth()
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    screen =
+                                        Screen.CONNECTIONS
+                                }
                     ) {
                         ServerConnectionCard(
                             connection = connection,
