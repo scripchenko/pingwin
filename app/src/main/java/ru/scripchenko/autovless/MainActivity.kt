@@ -4,11 +4,14 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.net.VpnService
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -90,6 +93,41 @@ class MainActivity : ComponentActivity() {
                         }
 
                         pendingConfig = null
+                    }
+
+                val qrLauncher =
+                    rememberLauncherForActivityResult(
+                        contract = ScanContract()
+                    ) { result ->
+                        val contents =
+                            result.contents
+                                ?.trim()
+                                .orEmpty()
+
+                        if (contents.isBlank()) {
+                            return@rememberLauncherForActivityResult
+                        }
+
+                        runCatching {
+                            ConnectionStore.add(
+                                context =
+                                    this@MainActivity,
+                                link = contents
+                            )
+                        }
+                            .onSuccess {
+                                selectedConnection =
+                                    ConnectionStore.selected(
+                                        this@MainActivity
+                                    )
+                            }
+                            .onFailure {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    "QR-код не содержит корректную VLESS-ссылку",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
                     }
 
                 fun startVpnConnection(
@@ -379,8 +417,23 @@ class MainActivity : ComponentActivity() {
                             Screen.CONNECTIONS
                     },
                     onAddQr = {
-                        screen =
-                            Screen.ADD_CONNECTION
+                        val options =
+                            ScanOptions().apply {
+                                setDesiredBarcodeFormats(
+                                    ScanOptions.QR_CODE
+                                )
+                                setPrompt(
+                                    "Наведите камеру на QR-код"
+                                )
+                                setBeepEnabled(false)
+                                setBarcodeImageEnabled(false)
+                                setOrientationLocked(true)
+                                setCaptureActivity(QrScannerActivity::class.java)
+                            }
+
+                        qrLauncher.launch(
+                            options
+                        )
                     },
                     onAddClipboard = {
                         val clipboard =

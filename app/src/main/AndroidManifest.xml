@@ -61,6 +61,12 @@
             </intent-filter>
         </activity-alias>
 
+        <activity
+            android:name=".QrScannerActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AutoVLESS" />
+
         <service
             android:name=".AutoVlessVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE"
