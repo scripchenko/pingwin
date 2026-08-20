@@ -66,6 +66,33 @@
         </activity-alias>
 
         <activity
+            android:name=".MacroDroidConnectActivity"
+            android:exported="true"
+            android:label="pingwin — Подключить VPN"
+            android:theme="@style/Theme.AutoVLESS">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MacroDroidDisconnectActivity"
+            android:exported="true"
+            android:label="pingwin — Отключить VPN"
+            android:theme="@style/Theme.AutoVLESS">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MacroDroidToggleActivity"
+            android:exported="true"
+            android:label="pingwin — Переключить VPN"
+            android:theme="@style/Theme.AutoVLESS">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".QrScannerActivity"
             android:exported="false"
             android:screenOrientation="portrait"
