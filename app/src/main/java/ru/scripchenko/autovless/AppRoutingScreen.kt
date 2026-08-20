@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -56,6 +57,11 @@ fun AppRoutingScreen(
             mutableStateOf(false)
         }
 
+    var hideSystemApps by
+        remember {
+            mutableStateOf(true)
+        }
+
     fun save(
         updated: RoutingSettings
     ) {
@@ -67,22 +73,39 @@ fun AppRoutingScreen(
     }
 
     val filteredApps =
-        remember(apps, query) {
+        remember(
+            apps,
+            query,
+            hideSystemApps,
+            routing.packages
+        ) {
             val normalized =
                 query.trim().lowercase()
 
-            if (normalized.isEmpty()) {
-                apps
-            } else {
-                apps.filter {
-                    it.label
-                        .lowercase()
-                        .contains(normalized) ||
-                        it.packageName
+            apps
+                .asSequence()
+                .filter { app ->
+                    !hideSystemApps ||
+                        !app.isSystem ||
+                        app.packageName in routing.packages
+                }
+                .filter { app ->
+                    normalized.isEmpty() ||
+                        app.label
+                            .lowercase()
+                            .contains(normalized) ||
+                        app.packageName
                             .lowercase()
                             .contains(normalized)
                 }
-            }
+                .sortedWith(
+                    compareByDescending<InstalledApp> {
+                        it.packageName in routing.packages
+                    }.thenBy {
+                        it.label.lowercase()
+                    }
+                )
+                .toList()
         }
 
     Column(
@@ -143,6 +166,8 @@ fun AppRoutingScreen(
             OutlinedButton(
                 modifier =
                     Modifier.fillMaxWidth(),
+                shape =
+                    RoundedCornerShape(8.dp),
                 onClick = {
                     modeMenuExpanded = true
                 }
@@ -198,6 +223,33 @@ fun AppRoutingScreen(
                     }
                 )
             }
+        }
+
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        hideSystemApps =
+                            !hideSystemApps
+                    },
+            verticalAlignment =
+                Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Скрыть системные приложения",
+                modifier =
+                    Modifier.weight(1f),
+                style =
+                    MaterialTheme.typography.bodyMedium
+            )
+
+            Switch(
+                checked = hideSystemApps,
+                onCheckedChange = {
+                    hideSystemApps = it
+                }
+            )
         }
 
         OutlinedTextField(

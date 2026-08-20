@@ -1,5 +1,6 @@
 package ru.scripchenko.autovless
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,24 @@ fun RoutingScreen(
     val routing =
         RoutingSettingsStore.load(context)
 
+    val selectedApplications =
+        routing.packages
+            .map { packageName ->
+                applicationName(
+                    context = context,
+                    packageName = packageName
+                )
+            }
+            .sortedBy {
+                it.lowercase()
+            }
+
+    val selectedSites =
+        routing.domains
+            .sortedBy {
+                it.lowercase()
+            }
+
     Column(
         modifier =
             Modifier
@@ -52,8 +71,8 @@ fun RoutingScreen(
 
         Text(
             text =
-                "По умолчанию весь трафик идёт через VPN. " +
-                    "Здесь можно отдельно настроить приложения и сайты.",
+                "Настройте, какой трафик должен идти через VPN. " +
+                    "Правила для приложений и сайтов задаются отдельно.",
             style =
                 MaterialTheme.typography.bodyMedium
         )
@@ -62,10 +81,20 @@ fun RoutingScreen(
 
         RoutingSection(
             title = "Приложения",
-            enabled = routing.appEnabled,
-            mode = routing.appMode,
-            count = routing.packages.size,
-            itemWord = "приложений",
+            status =
+                applicationStatus(
+                    enabled = routing.appEnabled,
+                    mode = routing.appMode,
+                    selectedCount =
+                        selectedApplications.size
+                ),
+            selectedText =
+                applicationSelectionText(
+                    enabled = routing.appEnabled,
+                    mode = routing.appMode,
+                    applications =
+                        selectedApplications
+                ),
             onClick = onApplications
         )
 
@@ -73,10 +102,19 @@ fun RoutingScreen(
 
         RoutingSection(
             title = "Сайты",
-            enabled = routing.siteEnabled,
-            mode = routing.siteMode,
-            count = routing.domains.size,
-            itemWord = "сайтов",
+            status =
+                siteStatus(
+                    enabled = routing.siteEnabled,
+                    mode = routing.siteMode,
+                    selectedCount =
+                        selectedSites.size
+                ),
+            selectedText =
+                siteSelectionText(
+                    enabled = routing.siteEnabled,
+                    mode = routing.siteMode,
+                    sites = selectedSites
+                ),
             onClick = onSites
         )
 
@@ -94,10 +132,8 @@ fun RoutingScreen(
 @Composable
 private fun RoutingSection(
     title: String,
-    enabled: Boolean,
-    mode: RoutingMode,
-    count: Int,
-    itemWord: String,
+    status: String,
+    selectedText: String?,
     onClick: () -> Unit
 ) {
     Row(
@@ -122,25 +158,14 @@ private fun RoutingSection(
             )
 
             Text(
-                text =
-                    if (!enabled) {
-                        "Выключено"
-                    } else {
-                        when (mode) {
-                            RoutingMode.ONLY_SELECTED_VIA_VPN ->
-                                "Только выбранные — через VPN"
-
-                            RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
-                                "Выбранные — без VPN"
-                        }
-                    },
+                text = status,
                 style =
                     MaterialTheme.typography.bodyMedium
             )
 
-            if (enabled) {
+            if (selectedText != null) {
                 Text(
-                    text = "Выбрано $itemWord: $count",
+                    text = selectedText,
                     style =
                         MaterialTheme.typography.bodySmall
                 )
@@ -154,3 +179,126 @@ private fun RoutingSection(
         )
     }
 }
+
+private fun applicationStatus(
+    enabled: Boolean,
+    mode: RoutingMode,
+    selectedCount: Int
+): String {
+    if (!enabled) {
+        return "Все приложения идут через VPN"
+    }
+
+    if (selectedCount == 0) {
+        return when (mode) {
+            RoutingMode.ONLY_SELECTED_VIA_VPN ->
+                "Через VPN приложения не выбраны"
+
+            RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
+                "Все приложения идут через VPN"
+        }
+    }
+
+    return when (mode) {
+        RoutingMode.ONLY_SELECTED_VIA_VPN ->
+            "Только выбранные — через VPN"
+
+        RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
+            "Выбранные — без VPN"
+    }
+}
+
+private fun siteStatus(
+    enabled: Boolean,
+    mode: RoutingMode,
+    selectedCount: Int
+): String {
+    if (!enabled) {
+        return "Все сайты идут через VPN"
+    }
+
+    if (selectedCount == 0) {
+        return when (mode) {
+            RoutingMode.ONLY_SELECTED_VIA_VPN ->
+                "Через VPN сайты не выбраны"
+
+            RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
+                "Все сайты идут через VPN"
+        }
+    }
+
+    return when (mode) {
+        RoutingMode.ONLY_SELECTED_VIA_VPN ->
+            "Только выбранные — через VPN"
+
+        RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
+            "Выбранные — без VPN"
+    }
+}
+
+private fun applicationSelectionText(
+    enabled: Boolean,
+    mode: RoutingMode,
+    applications: List<String>
+): String? {
+    if (
+        !enabled ||
+        applications.isEmpty()
+    ) {
+        return null
+    }
+
+    val prefix =
+        when (mode) {
+            RoutingMode.ONLY_SELECTED_VIA_VPN ->
+                "Через VPN: "
+
+            RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
+                "Без VPN: "
+        }
+
+    return prefix +
+        applications.joinToString(", ")
+}
+
+private fun siteSelectionText(
+    enabled: Boolean,
+    mode: RoutingMode,
+    sites: List<String>
+): String? {
+    if (
+        !enabled ||
+        sites.isEmpty()
+    ) {
+        return null
+    }
+
+    val prefix =
+        when (mode) {
+            RoutingMode.ONLY_SELECTED_VIA_VPN ->
+                "Через VPN: "
+
+            RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
+                "Без VPN: "
+        }
+
+    return prefix +
+        sites.joinToString(", ")
+}
+
+private fun applicationName(
+    context: Context,
+    packageName: String
+): String =
+    runCatching {
+        val applicationInfo =
+            context.packageManager
+                .getApplicationInfo(
+                    packageName,
+                    0
+                )
+
+        context.packageManager
+            .getApplicationLabel(applicationInfo)
+            .toString()
+    }.getOrDefault(packageName)

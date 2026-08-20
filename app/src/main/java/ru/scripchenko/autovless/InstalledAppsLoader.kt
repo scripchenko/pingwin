@@ -2,6 +2,7 @@ package ru.scripchenko.autovless
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
 
@@ -42,9 +43,20 @@ object InstalledAppsLoader {
                         .orEmpty()
                         .ifEmpty { packageName }
 
+                val applicationInfo =
+                    resolveInfo.activityInfo.applicationInfo
+
+                val systemFlags =
+                    ApplicationInfo.FLAG_SYSTEM or
+                        ApplicationInfo.FLAG_UPDATED_SYSTEM_APP
+
+                val isSystem =
+                    applicationInfo.flags and systemFlags != 0
+
                 InstalledApp(
                     label = label,
-                    packageName = packageName
+                    packageName = packageName,
+                    isSystem = isSystem
                 )
             }
             .filter { it.packageName != context.packageName }
