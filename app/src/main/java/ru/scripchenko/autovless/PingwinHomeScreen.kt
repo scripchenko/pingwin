@@ -121,7 +121,7 @@ fun PingwinHomeScreen(
 
             Spacer(
                 modifier =
-                    Modifier.width(7.dp)
+                    Modifier.width(2.dp)
             )
 
             Text(
