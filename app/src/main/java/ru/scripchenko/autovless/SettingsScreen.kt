@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 fun SettingsScreen(
     connectionCount: Int,
     onHomeClick: () -> Unit,
+    onGeneralClick: () -> Unit,
     onRoutingClick: () -> Unit,
     onAutomationClick: () -> Unit,
     onConnectionsClick: () -> Unit,
@@ -60,6 +61,13 @@ fun SettingsScreen(
         Spacer(
             modifier =
                 Modifier.height(24.dp)
+        )
+
+        SettingsRow(
+            icon = "◉",
+            title = "Общие",
+            subtitle = "Язык и основные параметры",
+            onClick = onGeneralClick
         )
 
         SettingsRow(

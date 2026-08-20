@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
     private enum class Screen {
         HOME,
         SETTINGS,
+        GENERAL,
         AUTOMATION,
         ABOUT,
         LOGS,
@@ -226,6 +227,9 @@ class MainActivity : ComponentActivity() {
                             onHomeClick = {
                                 screen = Screen.HOME
                             },
+                            onGeneralClick = {
+                                screen = Screen.GENERAL
+                            },
                             onRoutingClick = {
                                 screen = Screen.ROUTING
                             },
@@ -240,6 +244,20 @@ class MainActivity : ComponentActivity() {
                             },
                             onAboutClick = {
                                 screen = Screen.ABOUT
+                            }
+                        )
+
+                        return@AutoVLESSTheme
+                    }
+
+                    Screen.GENERAL -> {
+                        BackHandler {
+                            screen = Screen.SETTINGS
+                        }
+
+                        GeneralScreen(
+                            onBack = {
+                                screen = Screen.SETTINGS
                             }
                         )
 
