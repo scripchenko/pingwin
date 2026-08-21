@@ -3,6 +3,11 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+val pingwinStoreFile = providers.gradleProperty("PINGWIN_STORE_FILE")
+val pingwinStorePassword = providers.gradleProperty("PINGWIN_STORE_PASSWORD")
+val pingwinKeyAlias = providers.gradleProperty("PINGWIN_KEY_ALIAS")
+val pingwinKeyPassword = providers.gradleProperty("PINGWIN_KEY_PASSWORD")
+
 android {
     namespace = "com.pingwin.vpn"
     compileSdk {
@@ -19,8 +24,20 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        if (pingwinStoreFile.isPresent && pingwinStorePassword.isPresent && pingwinKeyAlias.isPresent && pingwinKeyPassword.isPresent) {
+            create("release") {
+                storeFile = file(pingwinStoreFile.get())
+                storePassword = pingwinStorePassword.get()
+                keyAlias = pingwinKeyAlias.get()
+                keyPassword = pingwinKeyPassword.get()
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfigs.findByName("release")?.let { signingConfig = it }
             optimization {
                 enable = false
             }
