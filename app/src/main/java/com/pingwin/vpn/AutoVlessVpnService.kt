@@ -48,7 +48,7 @@ class AutoVlessVpnService :
     CommandServerHandler {
 
     companion object {
-        private const val TAG = "AutoVLESS"
+        private const val TAG = "Pingwin"
         private const val EXTRA_CONFIG = "config"
 
         private const val ACTION_START = "START"
@@ -500,7 +500,7 @@ class AutoVlessVpnService :
         val channel =
             NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,
-                "AutoVLESS VPN",
+                "Pingwin VPN",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
                 description =
@@ -545,7 +545,7 @@ class AutoVlessVpnService :
                 NOTIFICATION_CHANNEL_ID
             )
             .setContentTitle(
-                "AutoVLESS"
+                "Pingwin"
             )
             .setContentText(
                 text
@@ -632,7 +632,7 @@ class AutoVlessVpnService :
         val builder =
             Builder()
                 .setSession(
-                    "AutoVLESS"
+                    "Pingwin"
                 )
                 .setMtu(
                     options.mtu

@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AutoVLESS"
+rootProject.name = "Pingwin"
 include(":app")

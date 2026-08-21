@@ -21,7 +21,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.pingwin.vpn.ui.theme.AutoVLESSTheme
+import com.pingwin.vpn.ui.theme.PingwinTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            AutoVLESSTheme {
+            PingwinTheme {
                 var screen by rememberSaveable {
                     mutableStateOf(Screen.HOME)
                 }
@@ -262,7 +262,7 @@ class MainActivity : ComponentActivity() {
                             }
                         )
 
-                        return@AutoVLESSTheme
+                        return@PingwinTheme
                     }
 
                     Screen.GENERAL -> {
@@ -276,7 +276,7 @@ class MainActivity : ComponentActivity() {
                             }
                         )
 
-                        return@AutoVLESSTheme
+                        return@PingwinTheme
                     }
 
                     Screen.AUTOMATION -> {
@@ -290,7 +290,7 @@ class MainActivity : ComponentActivity() {
                             }
                         )
 
-                        return@AutoVLESSTheme
+                        return@PingwinTheme
                     }
                     Screen.LOGS -> {
                         BackHandler {
@@ -303,7 +303,7 @@ class MainActivity : ComponentActivity() {
                             }
                         )
 
-                        return@AutoVLESSTheme
+                        return@PingwinTheme
                     }
                     Screen.ABOUT -> {
                         BackHandler {
@@ -316,7 +316,7 @@ class MainActivity : ComponentActivity() {
                             }
                         )
 
-                        return@AutoVLESSTheme
+                        return@PingwinTheme
                     }
 
                     Screen.ADD_CONNECTION -> {
@@ -359,7 +359,7 @@ class MainActivity : ComponentActivity() {
                             }
                         )
 
-                        return@AutoVLESSTheme
+                        return@PingwinTheme
                     }
 
                     Screen.CONNECTIONS -> {
@@ -424,7 +424,7 @@ class MainActivity : ComponentActivity() {
                             }
                         )
 
-                        return@AutoVLESSTheme
+                        return@PingwinTheme
                     }
 
                     Screen.ROUTING -> {
@@ -444,7 +444,7 @@ class MainActivity : ComponentActivity() {
                             }
                         )
 
-                        return@AutoVLESSTheme
+                        return@PingwinTheme
                     }
 
                     Screen.APP_ROUTING -> {
@@ -458,7 +458,7 @@ class MainActivity : ComponentActivity() {
                             }
                         )
 
-                        return@AutoVLESSTheme
+                        return@PingwinTheme
                     }
 
                     Screen.SITE_ROUTING -> {
@@ -472,7 +472,7 @@ class MainActivity : ComponentActivity() {
                             }
                         )
 
-                        return@AutoVLESSTheme
+                        return@PingwinTheme
                     }
 
                     Screen.HOME -> Unit
@@ -513,7 +513,7 @@ class MainActivity : ComponentActivity() {
                         }
                     )
 
-                    return@AutoVLESSTheme
+                    return@PingwinTheme
                 }
 
                 val profile =
