@@ -15,3 +15,7 @@
 local.properties
 
 tmp-libbox/
+
+# Signing keys
+*.jks
+*.keystore
