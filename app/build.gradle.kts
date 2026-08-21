@@ -1,16 +1,16 @@
-﻿plugins {
+plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 }
 
 android {
-    namespace = "ru.scripchenko.autovless"
+    namespace = "com.pingwin.vpn"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "ru.scripchenko.autovless"
+        applicationId = "com.pingwin.vpn"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
