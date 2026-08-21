@@ -11,7 +11,9 @@ object ConnectionStore {
     private const val KEY_CONNECTIONS = "connections_json"
     private const val KEY_SELECTED_ID = "selected_connection_id"
 
-    fun loadAll(context: Context): List<SavedConnection> {
+    fun loadAll(
+        context: Context
+    ): List<SavedConnection> {
         val prefs =
             context.getSharedPreferences(
                 PREFS_NAME,
@@ -28,7 +30,9 @@ object ConnectionStore {
             val array = JSONArray(raw)
 
             buildList {
-                for (index in 0 until array.length()) {
+                for (
+                    index in 0 until array.length()
+                ) {
                     val item =
                         array.getJSONObject(index)
 
@@ -44,7 +48,9 @@ object ConnectionStore {
         }.getOrDefault(emptyList())
     }
 
-    fun selected(context: Context): SavedConnection? {
+    fun selected(
+        context: Context
+    ): SavedConnection? {
         val prefs =
             context.getSharedPreferences(
                 PREFS_NAME,
@@ -71,7 +77,26 @@ object ConnectionStore {
         name: String? = null
     ): SavedConnection {
         val profile =
-            VlessProfile.parse(link)
+            try {
+                VlessProfile.parse(link)
+            } catch (
+                error: VlessParseException
+            ) {
+                throw IllegalArgumentException(
+                    context.getString(
+                        when (error.error) {
+                            VlessParseError.INVALID_SCHEME ->
+                                R.string.vless_error_invalid_scheme
+
+                            VlessParseError.MISSING_UUID ->
+                                R.string.vless_error_missing_uuid
+
+                            VlessParseError.MISSING_HOST ->
+                                R.string.vless_error_missing_host
+                        }
+                    )
+                )
+            }
 
         val connection =
             SavedConnection(
@@ -165,9 +190,18 @@ object ConnectionStore {
                 connections.forEach { connection ->
                     put(
                         JSONObject().apply {
-                            put("id", connection.id)
-                            put("name", connection.name)
-                            put("link", connection.link)
+                            put(
+                                "id",
+                                connection.id
+                            )
+                            put(
+                                "name",
+                                connection.name
+                            )
+                            put(
+                                "link",
+                                connection.link
+                            )
                         }
                     )
                 }

@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -190,7 +191,7 @@ fun PingwinHomeScreen(
                 ) {
                     DropdownMenuItem(
                         text = {
-                            Text("QR-код")
+                            Text(stringResource(R.string.home_add_qr))
                         },
                         onClick = {
                             addMenuExpanded = false
@@ -200,7 +201,7 @@ fun PingwinHomeScreen(
 
                     DropdownMenuItem(
                         text = {
-                            Text("Буфер обмена")
+                            Text(stringResource(R.string.home_add_clipboard))
                         },
                         onClick = {
                             addMenuExpanded = false
@@ -210,7 +211,7 @@ fun PingwinHomeScreen(
 
                     DropdownMenuItem(
                         text = {
-                            Text("Вручную")
+                            Text(stringResource(R.string.home_add_manual))
                         },
                         onClick = {
                             addMenuExpanded = false
@@ -347,16 +348,16 @@ fun PingwinHomeScreen(
                     text =
                         when (vpnState) {
                             VpnConnectionState.DISCONNECTED ->
-                                "Нажмите для подключения"
+                                stringResource(R.string.home_status_disconnected)
 
                             VpnConnectionState.CONNECTING ->
-                                "Подключение..."
+                                stringResource(R.string.home_status_connecting)
 
                             VpnConnectionState.CONNECTED ->
-                                "Подключено"
+                                stringResource(R.string.home_status_connected)
 
                             VpnConnectionState.ERROR ->
-                                "Ошибка подключения"
+                                stringResource(R.string.home_status_error)
                         },
                     color =
                         Color(0xFF15171C),
@@ -579,7 +580,7 @@ fun PingwinHomeScreen(
                     )
 
                     Text(
-                        text = "Главная",
+                        text = stringResource(R.string.settings_home),
                         color =
                             Color(0xFF2450C8),
                         fontSize = 15.sp,
@@ -615,7 +616,7 @@ fun PingwinHomeScreen(
                 )
 
                 Text(
-                    text = "Настройки",
+                    text = stringResource(R.string.settings_title),
                     color =
                         Color(0xFF555B67),
                     fontSize = 15.sp

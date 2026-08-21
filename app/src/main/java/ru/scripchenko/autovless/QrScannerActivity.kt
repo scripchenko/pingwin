@@ -29,7 +29,9 @@ class QrScannerActivity : Activity() {
         barcodeView =
             DecoratedBarcodeView(this).apply {
                 setStatusText(
-                    "Поместите QR-код в рамку"
+                    getString(
+                        R.string.qr_scanner_status
+                    )
                 )
             }
 

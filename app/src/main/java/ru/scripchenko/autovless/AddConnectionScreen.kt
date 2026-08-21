@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -37,6 +38,11 @@ fun AddConnectionScreen(
     var error by remember {
         mutableStateOf<String?>(null)
     }
+
+    val addConnectionError =
+        stringResource(
+            R.string.add_connection_error
+        )
 
     Column(
         modifier =
@@ -57,13 +63,19 @@ fun AddConnectionScreen(
         }
 
         Text(
-            text = "Добавить подключение",
+            text =
+                stringResource(
+                    R.string.add_connection_title
+                ),
             style =
                 MaterialTheme.typography.headlineMedium
         )
 
         Text(
-            text = "Вставьте VLESS-ссылку.",
+            text =
+                stringResource(
+                    R.string.add_connection_hint
+                ),
             style =
                 MaterialTheme.typography.bodyMedium
         )
@@ -77,7 +89,11 @@ fun AddConnectionScreen(
             modifier =
                 Modifier.fillMaxWidth(),
             label = {
-                Text("VLESS-ссылка")
+                Text(
+                    stringResource(
+                        R.string.add_connection_link_label
+                    )
+                )
             },
             minLines = 4
         )
@@ -87,7 +103,11 @@ fun AddConnectionScreen(
                 Modifier.fillMaxWidth(),
             onClick = onScanQr
         ) {
-            Text("Сканировать QR-код")
+            Text(
+                stringResource(
+                    R.string.add_connection_scan_qr
+                )
+            )
         }
 
         OutlinedButton(
@@ -113,7 +133,11 @@ fun AddConnectionScreen(
                 }
             }
         ) {
-            Text("Вставить из буфера")
+            Text(
+                stringResource(
+                    R.string.add_connection_paste
+                )
+            )
         }
 
         Button(
@@ -135,11 +159,15 @@ fun AddConnectionScreen(
                     .onFailure {
                         error =
                             it.message
-                                ?: "Не удалось добавить подключение"
+                                ?: addConnectionError
                     }
             }
         ) {
-            Text("Добавить")
+            Text(
+                stringResource(
+                    R.string.add_connection_add
+                )
+            )
         }
 
         error?.let {

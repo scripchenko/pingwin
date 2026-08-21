@@ -11,12 +11,15 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,6 +34,9 @@ fun AboutScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
+                .verticalScroll(
+                    rememberScrollState()
+                )
                 .padding(
                     horizontal = 20.dp
                 )
@@ -50,7 +56,10 @@ fun AboutScreen(
         )
 
         Text(
-            text = "О программе",
+            text =
+                stringResource(
+                    R.string.about_title
+                ),
             fontSize = 30.sp,
             color = Color(0xFF17191F)
         )
@@ -67,7 +76,10 @@ fun AboutScreen(
         )
 
         Text(
-            text = "Версия 0.1.0",
+            text =
+                stringResource(
+                    R.string.about_version_line
+                ),
             fontSize = 15.sp,
             color = Color(0xFF777D89),
             modifier = Modifier.padding(top = 4.dp)
@@ -79,29 +91,104 @@ fun AboutScreen(
 
         Text(
             text =
-                "Простой VPN-клиент для подключения к VLESS-серверам " +
-                    "с гибкой маршрутизацией приложений и сайтов.",
+                stringResource(
+                    R.string.about_description
+                ),
             fontSize = 17.sp,
             lineHeight = 25.sp,
             color = Color(0xFF343840)
         )
 
         Spacer(
-            modifier = Modifier.height(32.dp)
+            modifier = Modifier.height(28.dp)
+        )
+
+        Text(
+            text =
+                stringResource(
+                    R.string.about_features_title
+                ),
+            fontSize = 19.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color(0xFF1A1C21)
+        )
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        AboutFeature(
+            text =
+                stringResource(
+                    R.string.about_feature_connections
+                )
+        )
+
+        AboutFeature(
+            text =
+                stringResource(
+                    R.string.about_feature_routing
+                )
+        )
+
+        AboutFeature(
+            text =
+                stringResource(
+                    R.string.about_feature_automation
+                )
+        )
+
+        AboutFeature(
+            text =
+                stringResource(
+                    R.string.about_feature_macrodroid
+                )
+        )
+
+        AboutFeature(
+            text =
+                stringResource(
+                    R.string.about_feature_logs
+                )
+        )
+
+        AboutFeature(
+            text =
+                stringResource(
+                    R.string.about_feature_languages
+                )
+        )
+
+        Spacer(
+            modifier = Modifier.height(24.dp)
         )
 
         AboutRow(
-            title = "Версия",
+            title =
+                stringResource(
+                    R.string.about_version
+                ),
             value = "0.1.0"
         )
 
         AboutRow(
-            title = "Ядро",
+            title =
+                stringResource(
+                    R.string.about_core
+                ),
             value = "sing-box"
         )
 
+        AboutRow(
+            title =
+                stringResource(
+                    R.string.about_protocol
+                ),
+            value = "VLESS"
+        )
+
         Spacer(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.height(28.dp)
         )
 
         Text(
@@ -117,6 +204,40 @@ fun AboutScreen(
 }
 
 @Composable
+private fun AboutFeature(
+    text: String
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 5.dp),
+        verticalAlignment =
+            Alignment.Top
+    ) {
+        Text(
+            text = "•",
+            fontSize = 17.sp,
+            lineHeight = 24.sp,
+            color = Color(0xFF343840)
+        )
+
+        Spacer(
+            modifier = Modifier.width(10.dp)
+        )
+
+        Text(
+            text = text,
+            modifier =
+                Modifier.weight(1f),
+            fontSize = 16.sp,
+            lineHeight = 23.sp,
+            color = Color(0xFF343840)
+        )
+    }
+}
+
+@Composable
 private fun AboutRow(
     title: String,
     value: String
@@ -126,8 +247,10 @@ private fun AboutRow(
             Modifier
                 .fillMaxWidth()
                 .padding(vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        verticalAlignment =
+            Alignment.CenterVertically,
+        horizontalArrangement =
+            Arrangement.SpaceBetween
     ) {
         Text(
             text = title,

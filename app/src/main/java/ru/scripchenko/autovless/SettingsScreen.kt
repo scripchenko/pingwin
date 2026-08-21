@@ -19,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,7 +52,10 @@ fun SettingsScreen(
         )
 
         Text(
-            text = "Настройки",
+            text =
+                stringResource(
+                    R.string.settings_title
+                ),
             fontSize = 31.sp,
             fontWeight =
                 FontWeight.Normal,
@@ -65,30 +70,53 @@ fun SettingsScreen(
 
         SettingsRow(
             icon = "◉",
-            title = "Общие",
-            subtitle = "Язык и основные параметры",
+            title =
+                stringResource(
+                    R.string.settings_general
+                ),
+            subtitle =
+                stringResource(
+                    R.string.settings_general_subtitle
+                ),
             onClick = onGeneralClick
         )
 
         SettingsRow(
             icon = "↗",
-            title = "Маршрутизация",
-            subtitle = "Приложения и сайты",
+            title =
+                stringResource(
+                    R.string.settings_routing
+                ),
+            subtitle =
+                stringResource(
+                    R.string.settings_routing_subtitle
+                ),
             onClick = onRoutingClick
         )
 
         SettingsRow(
             icon = "⚡",
-            title = "Автоматизация",
-            subtitle = "Автовключение и правила",
+            title =
+                stringResource(
+                    R.string.settings_automation
+                ),
+            subtitle =
+                stringResource(
+                    R.string.settings_automation_subtitle
+                ),
             onClick = onAutomationClick
         )
 
         SettingsRow(
             icon = "▤",
-            title = "Подключения",
+            title =
+                stringResource(
+                    R.string.settings_connections
+                ),
             subtitle =
-                connectionCountText(
+                pluralStringResource(
+                    id = R.plurals.saved_servers,
+                    count = connectionCount,
                     connectionCount
                 ),
             onClick = onConnectionsClick
@@ -96,14 +124,23 @@ fun SettingsScreen(
 
         SettingsRow(
             icon = "≡",
-            title = "Логи",
-            subtitle = "Диагностика подключения",
+            title =
+                stringResource(
+                    R.string.settings_logs
+                ),
+            subtitle =
+                stringResource(
+                    R.string.settings_logs_subtitle
+                ),
             onClick = onLogsClick
         )
 
         SettingsRow(
             icon = "ⓘ",
-            title = "О программе",
+            title =
+                stringResource(
+                    R.string.settings_about
+                ),
             subtitle = "pingwin 0.1.0",
             onClick = onAboutClick
         )
@@ -151,7 +188,10 @@ fun SettingsScreen(
                 )
 
                 Text(
-                    text = "Главная",
+                    text =
+                        stringResource(
+                            R.string.settings_home
+                        ),
                     color =
                         Color(0xFF555B67),
                     fontSize = 15.sp
@@ -186,7 +226,10 @@ fun SettingsScreen(
                     )
 
                     Text(
-                        text = "Настройки",
+                        text =
+                            stringResource(
+                                R.string.settings_title
+                            ),
                         color =
                             Color(0xFF2450C8),
                         fontSize = 15.sp,
@@ -262,19 +305,3 @@ private fun SettingsRow(
         )
     }
 }
-
-private fun connectionCountText(
-    count: Int
-): String =
-    when {
-        count % 10 == 1 &&
-            count % 100 != 11 ->
-            "$count сохранённый сервер"
-
-        count % 10 in 2..4 &&
-            count % 100 !in 12..14 ->
-            "$count сохранённых сервера"
-
-        else ->
-            "$count сохранённых серверов"
-    }

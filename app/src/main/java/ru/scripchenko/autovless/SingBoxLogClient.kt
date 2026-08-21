@@ -85,7 +85,9 @@ class SingBoxLogClient(
 
                 DiagnosticLogStore.append(
                     appContext,
-                    "Подробный журнал sing-box подключён"
+                    appContext.getString(
+                        R.string.singbox_log_connected
+                    )
                 )
             } catch (e: Exception) {
                 synchronized(this) {
@@ -100,11 +102,12 @@ class SingBoxLogClient(
 
                 DiagnosticLogStore.append(
                     appContext,
-                    "Не удалось подключить журнал sing-box: " +
-                        (
-                            e.message
-                                ?: e.javaClass.simpleName
+                    appContext.getString(
+                        R.string.singbox_log_connect_error,
+                        e.localizedVpnMessage(
+                            appContext
                         )
+                    )
                 )
             }
         }
@@ -146,7 +149,10 @@ class SingBoxLogClient(
         ) {
             DiagnosticLogStore.append(
                 appContext,
-                "Журнал sing-box отключён: $message"
+                appContext.getString(
+                    R.string.singbox_log_disconnected,
+                    message
+                )
             )
         }
     }

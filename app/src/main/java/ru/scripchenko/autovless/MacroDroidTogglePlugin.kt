@@ -25,7 +25,9 @@ class MacroDroidToggleRunner :
             VpnConnectionState.CONNECTING -> {
                 DiagnosticLogStore.append(
                     context,
-                    "MacroDroid: переключение VPN — отключение"
+                    context.getString(
+                        R.string.macrodroid_log_toggle_disconnect
+                    )
                 )
 
                 AutoVlessVpnService.stop(
@@ -40,7 +42,9 @@ class MacroDroidToggleRunner :
                     null
                 ) {
                     throw IllegalStateException(
-                        "Сначала откройте pingwin и разрешите VPN-подключение"
+                        context.getString(
+                            R.string.macrodroid_vpn_permission_required
+                        )
                     )
                 }
 
@@ -49,13 +53,26 @@ class MacroDroidToggleRunner :
                         context
                     )
                         ?: throw IllegalStateException(
-                            "В pingwin не выбран сервер"
+                            context.getString(
+                                R.string.macrodroid_no_server_selected
+                            )
                         )
 
                 val profile =
-                    VlessProfile.parse(
-                        connection.link
-                    )
+                    try {
+                        VlessProfile.parse(
+                            connection.link
+                        )
+                    } catch (
+                        error: VlessParseException
+                    ) {
+                        throw IllegalStateException(
+                            error.localizedVpnMessage(
+                                context
+                            ),
+                            error
+                        )
+                    }
 
                 val routing =
                     RoutingSettingsStore.load(
@@ -63,18 +80,31 @@ class MacroDroidToggleRunner :
                     )
 
                 val config =
-                    SingBoxConfigBuilder.build(
-                        profile,
-                        routing,
-                        DiagnosticLogStore
-                            .isDetailedEnabled(
+                    try {
+                        SingBoxConfigBuilder.build(
+                            profile,
+                            routing,
+                            DiagnosticLogStore
+                                .isDetailedEnabled(
+                                    context
+                                )
+                        )
+                    } catch (
+                        error: SingBoxConfigException
+                    ) {
+                        throw IllegalStateException(
+                            error.localizedVpnMessage(
                                 context
-                            )
-                    )
+                            ),
+                            error
+                        )
+                    }
 
                 DiagnosticLogStore.append(
                     context,
-                    "MacroDroid: переключение VPN — включение"
+                    context.getString(
+                        R.string.macrodroid_log_toggle_connect
+                    )
                 )
 
                 AutoVlessVpnService.start(
@@ -89,11 +119,11 @@ class MacroDroidToggleRunner :
 }
 
 class MacroDroidToggleHelper(
-    config: TaskerPluginConfig<Unit>
+    private val pluginConfig: TaskerPluginConfig<Unit>
 ) :
     TaskerPluginConfigHelperNoOutputOrInput<
         MacroDroidToggleRunner
-    >(config) {
+    >(pluginConfig) {
 
     override val runnerClass =
         MacroDroidToggleRunner::class.java
@@ -103,7 +133,9 @@ class MacroDroidToggleHelper(
         blurbBuilder: StringBuilder
     ) {
         blurbBuilder.append(
-            "Переключить состояние VPN pingwin"
+            pluginConfig.context.getString(
+                R.string.macrodroid_blurb_toggle
+            )
         )
     }
 }

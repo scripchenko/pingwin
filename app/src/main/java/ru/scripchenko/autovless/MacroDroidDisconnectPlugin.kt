@@ -31,7 +31,9 @@ class MacroDroidDisconnectRunner :
 
         DiagnosticLogStore.append(
             context,
-            "MacroDroid: отключение VPN"
+            context.getString(
+                R.string.macrodroid_log_disconnect
+            )
         )
 
         AutoVlessVpnService.stop(
@@ -43,11 +45,11 @@ class MacroDroidDisconnectRunner :
 }
 
 class MacroDroidDisconnectHelper(
-    config: TaskerPluginConfig<Unit>
+    private val pluginConfig: TaskerPluginConfig<Unit>
 ) :
     TaskerPluginConfigHelperNoOutputOrInput<
         MacroDroidDisconnectRunner
-    >(config) {
+    >(pluginConfig) {
 
     override val runnerClass =
         MacroDroidDisconnectRunner::class.java
@@ -57,7 +59,9 @@ class MacroDroidDisconnectHelper(
         blurbBuilder: StringBuilder
     ) {
         blurbBuilder.append(
-            "Отключить VPN pingwin"
+            pluginConfig.context.getString(
+                R.string.macrodroid_blurb_disconnect
+            )
         )
     }
 }

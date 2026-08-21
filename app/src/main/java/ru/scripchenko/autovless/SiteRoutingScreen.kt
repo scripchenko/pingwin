@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -100,7 +101,10 @@ fun SiteRoutingScreen(
                 Alignment.CenterVertically
         ) {
             Text(
-                text = "Маршрутизация сайтов",
+                text =
+                    stringResource(
+                        R.string.site_routing_title
+                    ),
                 modifier =
                     Modifier.weight(1f),
                 style =
@@ -122,9 +126,13 @@ fun SiteRoutingScreen(
         Text(
             text =
                 if (routing.siteEnabled) {
-                    "Правила действуют во всех приложениях и браузерах."
+                    stringResource(
+                        R.string.site_routing_enabled
+                    )
                 } else {
-                    "Отключено. Все сайты открываются через VPN."
+                    stringResource(
+                        R.string.site_routing_disabled
+                    )
                 },
             style =
                 MaterialTheme.typography.bodyMedium
@@ -143,10 +151,14 @@ fun SiteRoutingScreen(
                 Text(
                     when (routing.siteMode) {
                         RoutingMode.ONLY_SELECTED_VIA_VPN ->
-                            "Только адреса из списка — через VPN"
+                            stringResource(
+                                R.string.site_routing_mode_only_selected
+                            )
 
                         RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
-                            "Адреса из списка — без VPN"
+                            stringResource(
+                                R.string.site_routing_mode_exclude_selected
+                            )
                     }
                 )
             }
@@ -160,7 +172,9 @@ fun SiteRoutingScreen(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            "Только адреса из списка должны открываться через VPN"
+                            stringResource(
+                                R.string.site_routing_mode_only_selected_description
+                            )
                         )
                     },
                     onClick = {
@@ -177,7 +191,9 @@ fun SiteRoutingScreen(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            "Адреса из списка не должны открываться через VPN"
+                            stringResource(
+                                R.string.site_routing_mode_exclude_selected_description
+                            )
                         )
                     },
                     onClick = {
@@ -202,7 +218,11 @@ fun SiteRoutingScreen(
                 Modifier.fillMaxWidth(),
             singleLine = true,
             label = {
-                Text("Адрес, например youtube.com")
+                Text(
+                    stringResource(
+                        R.string.site_routing_address_hint
+                    )
+                )
             }
         )
 
@@ -226,12 +246,19 @@ fun SiteRoutingScreen(
                 }
             }
         ) {
-            Text("Добавить")
+            Text(
+                stringResource(
+                    R.string.site_routing_add
+                )
+            )
         }
 
         Text(
             text =
-                "Адресов в списке: ${routing.domains.size}",
+                stringResource(
+                    R.string.site_routing_count,
+                    routing.domains.size
+                ),
             style =
                 MaterialTheme.typography.bodySmall
         )
@@ -264,7 +291,10 @@ fun SiteRoutingScreen(
                     )
 
                     Text(
-                        text = "Удалить",
+                        text =
+                            stringResource(
+                                R.string.site_routing_delete
+                            ),
                         modifier =
                             Modifier.clickable {
                                 save(

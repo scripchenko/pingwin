@@ -4,6 +4,16 @@ import java.net.URI
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
+enum class VlessParseError {
+    INVALID_SCHEME,
+    MISSING_UUID,
+    MISSING_HOST
+}
+
+class VlessParseException(
+    val error: VlessParseError
+) : IllegalArgumentException()
+
 data class VlessProfile(
     val uuid: String,
     val host: String,
@@ -24,21 +34,35 @@ data class VlessProfile(
         fun parse(link: String): VlessProfile {
             val trimmed = link.trim()
 
-            require(trimmed.startsWith("vless://")) {
-                "Ссылка должна начинаться с vless://"
+            if (!trimmed.startsWith("vless://")) {
+                throw VlessParseException(
+                    VlessParseError.INVALID_SCHEME
+                )
             }
 
             val uri = URI(trimmed)
 
-            val uuid = uri.userInfo
-                ?: throw IllegalArgumentException("В ссылке отсутствует UUID")
+            val uuid =
+                uri.userInfo
+                    ?: throw VlessParseException(
+                        VlessParseError.MISSING_UUID
+                    )
 
-            val host = uri.host
-                ?: throw IllegalArgumentException("В ссылке отсутствует адрес сервера")
+            val host =
+                uri.host
+                    ?: throw VlessParseException(
+                        VlessParseError.MISSING_HOST
+                    )
 
-            val port = if (uri.port != -1) uri.port else 443
+            val port =
+                if (uri.port != -1) {
+                    uri.port
+                } else {
+                    443
+                }
 
-            val params = parseQuery(uri.rawQuery)
+            val params =
+                parseQuery(uri.rawQuery)
 
             return VlessProfile(
                 uuid = uuid,
@@ -57,7 +81,9 @@ data class VlessProfile(
             )
         }
 
-        private fun parseQuery(query: String?): Map<String, String> {
+        private fun parseQuery(
+            query: String?
+        ): Map<String, String> {
             if (query.isNullOrBlank()) {
                 return emptyMap()
             }
@@ -68,14 +94,21 @@ data class VlessProfile(
                     if (parameter.isBlank()) {
                         null
                     } else {
-                        val parts = parameter.split("=", limit = 2)
+                        val parts =
+                            parameter.split(
+                                "=",
+                                limit = 2
+                            )
 
-                        val key = decode(parts[0])
-                        val value = if (parts.size == 2) {
-                            decode(parts[1])
-                        } else {
-                            ""
-                        }
+                        val key =
+                            decode(parts[0])
+
+                        val value =
+                            if (parts.size == 2) {
+                                decode(parts[1])
+                            } else {
+                                ""
+                            }
 
                         key to value
                     }
@@ -83,7 +116,9 @@ data class VlessProfile(
                 .toMap()
         }
 
-        private fun decode(value: String): String =
+        private fun decode(
+            value: String
+        ): String =
             URLDecoder.decode(
                 value,
                 StandardCharsets.UTF_8.name()

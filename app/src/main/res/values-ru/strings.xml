@@ -1,0 +1,193 @@
+<resources>
+    <string name="app_name">pingwin</string>
+
+    <string name="settings_title">Настройки</string>
+    <string name="settings_general">Общие</string>
+    <string name="settings_general_subtitle">Язык и основные параметры</string>
+    <string name="settings_routing">Маршрутизация</string>
+    <string name="settings_routing_subtitle">Приложения и сайты</string>
+    <string name="settings_automation">Автоматизация</string>
+    <string name="settings_automation_subtitle">Автовключение и правила</string>
+    <string name="settings_connections">Подключения</string>
+    <string name="settings_logs">Логи</string>
+    <string name="settings_logs_subtitle">Диагностика подключения</string>
+    <string name="settings_about">О программе</string>
+    <string name="settings_home">Главная</string>
+
+    <string name="general_title">Общие</string>
+    <string name="language_title">Язык</string>
+    <string name="language_english">English</string>
+    <string name="language_russian">Русский</string>
+    <string name="cancel">Отмена</string>
+
+    <string name="home_add_qr">QR-код</string>
+    <string name="home_add_clipboard">Буфер обмена</string>
+    <string name="home_add_manual">Вручную</string>
+    <string name="home_status_disconnected">Нажмите для подключения</string>
+    <string name="home_status_connecting">Подключение…</string>
+    <string name="home_status_connected">Подключено</string>
+    <string name="home_status_error">Ошибка подключения</string>
+
+    <string name="connections_title">Подключения</string>
+    <string name="connections_empty">Сохранённых подключений пока нет.</string>
+    <string name="connections_add">Добавить подключение</string>
+
+    <string name="add_connection_title">Добавить подключение</string>
+    <string name="add_connection_hint">Вставьте VLESS-ссылку.</string>
+    <string name="add_connection_link_label">VLESS-ссылка</string>
+    <string name="add_connection_scan_qr">Сканировать QR-код</string>
+    <string name="add_connection_paste">Вставить из буфера</string>
+    <string name="add_connection_add">Добавить</string>
+    <string name="add_connection_error">Не удалось добавить подключение</string>
+
+    <string name="qr_scanner_prompt">Наведите камеру на QR-код</string>
+    <string name="qr_scanner_status">Поместите QR-код в рамку</string>
+
+    <string name="routing_title">Маршрутизация</string>
+    <string name="routing_intro">Настройте, какой трафик должен идти через VPN. Правила для приложений и сайтов задаются отдельно.</string>
+    <string name="routing_applications">Приложения</string>
+    <string name="routing_sites">Сайты</string>
+    <string name="routing_changes_reconnect">Изменения применяются после переподключения VPN.</string>
+    <string name="routing_all_apps_vpn">Все приложения идут через VPN</string>
+    <string name="routing_no_apps_for_vpn">Через VPN приложения не выбраны</string>
+    <string name="routing_all_sites_vpn">Все сайты идут через VPN</string>
+    <string name="routing_no_sites_for_vpn">Через VPN сайты не выбраны</string>
+    <string name="routing_only_selected_vpn">Только выбранные — через VPN</string>
+    <string name="routing_selected_without_vpn">Выбранные — без VPN</string>
+    <string name="routing_via_vpn_list">Через VPN: %1$s</string>
+    <string name="routing_without_vpn_list">Без VPN: %1$s</string>
+
+    <string name="app_routing_title">Маршрутизация приложений</string>
+    <string name="app_routing_enabled">Включено</string>
+    <string name="app_routing_disabled">Отключено. Все приложения работают через VPN.</string>
+    <string name="app_routing_mode_only_selected">Только приложения из списка — через VPN</string>
+    <string name="app_routing_mode_exclude_selected">Приложения из списка — без VPN</string>
+    <string name="app_routing_mode_only_selected_description">Только приложения из списка должны работать через VPN</string>
+    <string name="app_routing_mode_exclude_selected_description">Приложения из списка не должны работать через VPN</string>
+    <string name="app_routing_hide_system">Скрыть системные приложения</string>
+    <string name="app_routing_search">Поиск приложения</string>
+    <string name="app_routing_selected_count">Выбрано: %1$d</string>
+
+    <string name="site_routing_title">Маршрутизация сайтов</string>
+    <string name="site_routing_enabled">Правила действуют во всех приложениях и браузерах.</string>
+    <string name="site_routing_disabled">Отключено. Все сайты открываются через VPN.</string>
+    <string name="site_routing_mode_only_selected">Только адреса из списка — через VPN</string>
+    <string name="site_routing_mode_exclude_selected">Адреса из списка — без VPN</string>
+    <string name="site_routing_mode_only_selected_description">Только адреса из списка должны открываться через VPN</string>
+    <string name="site_routing_mode_exclude_selected_description">Адреса из списка не должны открываться через VPN</string>
+    <string name="site_routing_address_hint">Адрес, например youtube.com</string>
+    <string name="site_routing_add">Добавить</string>
+    <string name="site_routing_count">Адресов в списке: %1$d</string>
+    <string name="site_routing_delete">Удалить</string>
+
+    <string name="automation_title">Автоматизация</string>
+    <string name="automation_description">Автоматическое управление VPN в зависимости от сети.</string>
+    <string name="automation_enabled">Включена</string>
+    <string name="automation_disabled">Выключена</string>
+    <string name="automation_when_to_enable">Когда включать VPN</string>
+    <string name="automation_mobile_data">Мобильный интернет</string>
+    <string name="automation_mobile_data_subtitle">Включать VPN при использовании мобильной сети</string>
+    <string name="automation_untrusted_wifi">Недоверенный Wi-Fi</string>
+    <string name="automation_untrusted_wifi_subtitle">Включать VPN в Wi-Fi сетях, которых нет в списке доверенных</string>
+    <string name="automation_trusted_wifi">Доверенные Wi-Fi</string>
+    <string name="automation_trusted_wifi_example">Например: домашняя или офисная сеть.</string>
+    <string name="automation_add_current_wifi">Добавить текущую Wi-Fi сеть</string>
+    <string name="automation_wifi_ssid">Название Wi-Fi (SSID)</string>
+    <string name="automation_add_trusted_wifi">Добавить доверенную сеть</string>
+    <string name="automation_no_trusted_wifi">Доверенных Wi-Fi сетей пока нет.</string>
+    <string name="automation_disconnect_vpn">Отключать VPN</string>
+    <string name="automation_disconnect_vpn_subtitle">Отключать VPN при подключении к доверенной Wi-Fi сети</string>
+    <string name="automation_location_permission_required">Для доверенных Wi-Fi нужен доступ к местоположению</string>
+    <string name="automation_current_wifi_error">Не удалось определить текущую Wi-Fi сеть</string>
+    <string name="automation_trusted_wifi_added">Сеть «%1$s» добавлена в доверенные</string>
+
+    <string name="logs_title">Логи</string>
+    <string name="logs_detailed_logging">Подробное логирование</string>
+    <string name="logs_enabled">Включено</string>
+    <string name="logs_disabled">Выключено</string>
+    <string name="logs_recent_events">Последние события</string>
+    <string name="logs_refresh">Обновить</string>
+    <string name="logs_empty">Журнал пока пуст.</string>
+    <string name="logs_copy">Скопировать</string>
+    <string name="logs_share">Поделиться</string>
+    <string name="logs_clear">Очистить журнал</string>
+    <string name="logs_copied">Логи скопированы</string>
+    <string name="logs_share_chooser">Поделиться логами</string>
+    <string name="logs_file_error">Не удалось создать файл логов</string>
+    <string name="logs_device">Устройство: %1$s %2$s</string>
+    <string name="logs_created">Создано: %1$s</string>
+    <string name="logs_journal">Журнал:</string>
+
+    <string name="about_title">О программе</string>
+    <string name="about_version_line">Версия 0.1.0</string>
+    <string name="about_description">pingwin — лёгкий VPN-клиент для VLESS-подключений на базе sing-box. Основной акцент сделан на простом управлении подключениями, гибкой маршрутизации и автоматизации.</string>
+    <string name="about_features_title">Возможности</string>
+    <string name="about_feature_connections">VLESS-подключения со сканированием QR-кодов и импортом из буфера обмена</string>
+    <string name="about_feature_routing">Раздельные правила маршрутизации для приложений и сайтов</string>
+    <string name="about_feature_automation">Автоматическое управление VPN для мобильной сети, доверенных и недоверенных Wi-Fi</string>
+    <string name="about_feature_macrodroid">Интеграция с MacroDroid: подключение, отключение и переключение VPN</string>
+    <string name="about_feature_logs">Диагностические логи для поиска проблем с подключением</string>
+    <string name="about_feature_languages">Интерфейс на английском и русском языках</string>
+    <string name="about_version">Версия</string>
+    <string name="about_core">Ядро</string>
+    <string name="about_protocol">Протокол</string>
+
+    <string name="qr_invalid_vless">QR-код не содержит корректную VLESS-ссылку</string>
+
+    <string name="vless_error_invalid_scheme">Ссылка должна начинаться с vless://</string>
+    <string name="vless_error_missing_uuid">В ссылке отсутствует UUID</string>
+    <string name="vless_error_missing_host">В ссылке отсутствует адрес сервера</string>
+
+    <string name="singbox_error_unsupported_security">Пока поддерживается только security=reality</string>
+    <string name="singbox_error_unsupported_network">Пока поддерживается только type=tcp</string>
+    <string name="singbox_error_missing_public_key">Для Reality отсутствует public key (pbk)</string>
+    <string name="singbox_error_missing_server_name">Для Reality отсутствует server name (sni)</string>
+
+    <string name="macrodroid_vpn_permission_required">Сначала откройте pingwin и разрешите VPN-подключение</string>
+    <string name="macrodroid_no_server_selected">В pingwin не выбран сервер</string>
+    <string name="macrodroid_log_connect">MacroDroid: включение VPN</string>
+    <string name="macrodroid_log_disconnect">MacroDroid: отключение VPN</string>
+    <string name="macrodroid_log_toggle_connect">MacroDroid: переключение VPN — включение</string>
+    <string name="macrodroid_log_toggle_disconnect">MacroDroid: переключение VPN — отключение</string>
+    <string name="macrodroid_blurb_connect">Подключить pingwin к выбранному серверу</string>
+    <string name="macrodroid_blurb_disconnect">Отключить VPN pingwin</string>
+    <string name="macrodroid_blurb_toggle">Переключить состояние VPN pingwin</string>
+
+    <string name="automation_service_enabled">Автоматизация включена</string>
+    <string name="automation_service_wifi_unknown">Не удалось определить Wi-Fi сеть</string>
+    <string name="automation_log_ssid_unavailable">Автоматизация: SSID недоступен — правило Wi-Fi не применено</string>
+    <string name="automation_reason_trusted_wifi">Доверенный Wi-Fi: %1$s</string>
+    <string name="automation_reason_untrusted_wifi">Недоверенный Wi-Fi: %1$s</string>
+    <string name="automation_reason_mobile_data">Мобильный интернет</string>
+    <string name="automation_log_vpn_permission_required">Автоматизация: требуется разрешение VPN</string>
+    <string name="automation_service_open_for_permission">Откройте pingwin и разрешите VPN</string>
+    <string name="automation_log_no_saved_server">Автоматизация: нет сохранённого сервера</string>
+    <string name="automation_service_no_saved_server">Нет сохранённого сервера</string>
+    <string name="automation_log_start_vpn">Автоматизация: включение VPN — %1$s</string>
+    <string name="automation_log_start_error">Автоматизация: ошибка запуска — %1$s</string>
+    <string name="automation_log_stop_vpn">Автоматизация: отключение VPN — %1$s</string>
+    <string name="automation_notification_channel">Автоматизация pingwin</string>
+
+    <string name="vpn_service_starting">VPN запускается</string>
+    <string name="vpn_log_start">Запуск VPN</string>
+    <string name="vpn_log_connected">VPN подключён</string>
+    <string name="vpn_service_running">VPN работает</string>
+    <string name="vpn_log_connection_error">Ошибка подключения: %1$s</string>
+    <string name="vpn_log_disconnected">VPN отключён</string>
+    <string name="vpn_notification_channel_description">Состояние VPN-соединения pingwin</string>
+
+    <string name="singbox_log_connected">Подробный журнал sing-box подключён</string>
+    <string name="singbox_log_connect_error">Не удалось подключить журнал sing-box: %1$s</string>
+    <string name="singbox_log_disconnected">Журнал sing-box отключён: %1$s</string>
+
+    <string name="macrodroid_action_connect">Подключить</string>
+    <string name="macrodroid_action_disconnect">Отключить</string>
+    <string name="macrodroid_action_toggle">Переключить</string>
+
+    <plurals name="saved_servers">
+        <item quantity="one">%d сохранённый сервер</item>
+        <item quantity="few">%d сохранённых сервера</item>
+        <item quantity="many">%d сохранённых серверов</item>
+        <item quantity="other">%d сохранённых серверов</item>
+    </plurals>
+</resources>

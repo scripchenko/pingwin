@@ -87,7 +87,7 @@ class AutomationService : Service() {
             NOTIFICATION_ID,
             AutomationNotification.build(
                 this,
-                "Автоматизация включена"
+                getString(R.string.automation_service_enabled)
             )
         )
 
@@ -305,12 +305,12 @@ class AutomationService : Service() {
                         "wifi:unknown"
 
                     updateNotification(
-                        "Не удалось определить Wi-Fi сеть"
+                        getString(R.string.automation_service_wifi_unknown)
                     )
 
                     DiagnosticLogStore.append(
                         this,
-                        "Автоматизация: SSID недоступен — правило Wi-Fi не применено"
+                        getString(R.string.automation_log_ssid_unavailable)
                     )
 
                     return
@@ -346,7 +346,7 @@ class AutomationService : Service() {
 
                 if (trusted) {
                     updateNotification(
-                        "Доверенный Wi-Fi: $ssid"
+                        getString(R.string.automation_reason_trusted_wifi, ssid)
                     )
 
                     if (
@@ -354,12 +354,12 @@ class AutomationService : Service() {
                             .disconnectOnTrustedWifi
                     ) {
                         stopVpn(
-                            "Доверенный Wi-Fi: $ssid"
+                            getString(R.string.automation_reason_trusted_wifi, ssid)
                         )
                     }
                 } else {
                     updateNotification(
-                        "Недоверенный Wi-Fi: $ssid"
+                        getString(R.string.automation_reason_untrusted_wifi, ssid)
                     )
 
                     if (
@@ -367,7 +367,7 @@ class AutomationService : Service() {
                             .connectOnUntrustedWifi
                     ) {
                         startVpn(
-                            "Недоверенный Wi-Fi: $ssid"
+                            getString(R.string.automation_reason_untrusted_wifi, ssid)
                         )
                     }
                 }
@@ -391,14 +391,14 @@ class AutomationService : Service() {
                     key
 
                 updateNotification(
-                    "Мобильный интернет"
+                    getString(R.string.automation_reason_mobile_data)
                 )
 
                 if (
                     settings.connectOnMobile
                 ) {
                     startVpn(
-                        "Мобильный интернет"
+                        getString(R.string.automation_reason_mobile_data)
                     )
                 }
             }
@@ -470,11 +470,11 @@ class AutomationService : Service() {
         ) {
             DiagnosticLogStore.append(
                 this,
-                "Автоматизация: требуется разрешение VPN"
+                getString(R.string.automation_log_vpn_permission_required)
             )
 
             updateNotification(
-                "Откройте pingwin и разрешите VPN"
+                getString(R.string.automation_service_open_for_permission)
             )
 
             return
@@ -485,11 +485,11 @@ class AutomationService : Service() {
                 ?: run {
                     DiagnosticLogStore.append(
                         this,
-                        "Автоматизация: нет сохранённого сервера"
+                        getString(R.string.automation_log_no_saved_server)
                     )
 
                     updateNotification(
-                        "Нет сохранённого сервера"
+                        getString(R.string.automation_service_no_saved_server)
                     )
 
                     return
@@ -518,7 +518,7 @@ class AutomationService : Service() {
 
             DiagnosticLogStore.append(
                 this,
-                "Автоматизация: включение VPN — $reason"
+                getString(R.string.automation_log_start_vpn, reason)
             )
 
             AutoVlessVpnService.start(
@@ -528,11 +528,10 @@ class AutomationService : Service() {
         }.onFailure {
             DiagnosticLogStore.append(
                 this,
-                "Автоматизация: ошибка запуска — " +
-                    (
-                        it.message
-                            ?: it.javaClass.simpleName
-                    )
+                getString(
+                    R.string.automation_log_start_error,
+                    it.localizedVpnMessage(this)
+                )
             )
         }
     }
@@ -554,7 +553,7 @@ class AutomationService : Service() {
 
         DiagnosticLogStore.append(
             this,
-            "Автоматизация: отключение VPN — $reason"
+            getString(R.string.automation_log_stop_vpn, reason)
         )
 
         AutoVlessVpnService.stop(
@@ -598,7 +597,7 @@ class AutomationService : Service() {
         manager.createNotificationChannel(
             NotificationChannel(
                 CHANNEL_ID,
-                "Автоматизация pingwin",
+                getString(R.string.automation_notification_channel),
                 NotificationManager
                     .IMPORTANCE_LOW
             )

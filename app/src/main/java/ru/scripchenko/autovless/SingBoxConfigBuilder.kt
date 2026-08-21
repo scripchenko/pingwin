@@ -1,5 +1,16 @@
 package ru.scripchenko.autovless
 
+enum class SingBoxConfigError {
+    UNSUPPORTED_SECURITY,
+    UNSUPPORTED_NETWORK,
+    MISSING_PUBLIC_KEY,
+    MISSING_SERVER_NAME
+}
+
+class SingBoxConfigException(
+    val error: SingBoxConfigError
+) : IllegalArgumentException()
+
 object SingBoxConfigBuilder {
 
     fun build(
@@ -7,20 +18,28 @@ object SingBoxConfigBuilder {
         routing: RoutingSettings = RoutingSettings(),
         detailedLogging: Boolean = false
     ): String {
-        require(profile.security == "reality") {
-            "Пока поддерживается только security=reality"
+        if (profile.security != "reality") {
+            throw SingBoxConfigException(
+                SingBoxConfigError.UNSUPPORTED_SECURITY
+            )
         }
 
-        require(profile.network == "tcp") {
-            "Пока поддерживается только type=tcp"
+        if (profile.network != "tcp") {
+            throw SingBoxConfigException(
+                SingBoxConfigError.UNSUPPORTED_NETWORK
+            )
         }
 
-        require(!profile.publicKey.isNullOrBlank()) {
-            "Для Reality отсутствует public key (pbk)"
+        if (profile.publicKey.isNullOrBlank()) {
+            throw SingBoxConfigException(
+                SingBoxConfigError.MISSING_PUBLIC_KEY
+            )
         }
 
-        require(!profile.serverName.isNullOrBlank()) {
-            "Для Reality отсутствует server name (sni)"
+        if (profile.serverName.isNullOrBlank()) {
+            throw SingBoxConfigException(
+                SingBoxConfigError.MISSING_SERVER_NAME
+            )
         }
 
         val logLevel =
@@ -92,7 +111,7 @@ object SingBoxConfigBuilder {
         routing: RoutingSettings
     ): String {
         if (!routing.enabled) {
-        return """
+            return """
                 {
                   "auto_detect_interface": true,
                   "final": "proxy"
@@ -212,7 +231,7 @@ object SingBoxConfigBuilder {
         }
 
         if (rules.isEmpty()) {
-        return """
+            return """
                 {
                   "auto_detect_interface": true,
                   "final": "$finalOutbound"
@@ -227,6 +246,7 @@ object SingBoxConfigBuilder {
                     8
                 )
             }
+
         return """
             {
               "auto_detect_interface": true,
@@ -247,6 +267,7 @@ $rulesJson
                 packages,
                 18
             )
+
         return """
             {
               "package_name": [
@@ -267,6 +288,7 @@ $packageJson
                 domains,
                 18
             )
+
         return """
             {
               "domain": [

@@ -17,12 +17,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.scripchenko.autovless.ui.theme.AutoVLESSTheme
 
 class MainActivity : ComponentActivity() {
+
+    override fun attachBaseContext(
+        newBase: Context
+    ) {
+        super.attachBaseContext(
+            AppLocale.wrap(newBase)
+        )
+    }
 
     private enum class Screen {
         HOME,
@@ -72,7 +81,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             AutoVLESSTheme {
-                var screen by remember {
+                var screen by rememberSaveable {
+                    mutableStateOf(Screen.HOME)
+                }
+
+                var connectionsBackScreen by rememberSaveable {
                     mutableStateOf(Screen.HOME)
                 }
 
@@ -152,7 +165,7 @@ class MainActivity : ComponentActivity() {
                             .onFailure {
                                 Toast.makeText(
                                     this@MainActivity,
-                                    "QR-код не содержит корректную VLESS-ссылку",
+                                    getString(R.string.qr_invalid_vless),
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
@@ -237,6 +250,8 @@ class MainActivity : ComponentActivity() {
                                 screen = Screen.AUTOMATION
                             },
                             onConnectionsClick = {
+                                connectionsBackScreen =
+                                    Screen.SETTINGS
                                 screen = Screen.CONNECTIONS
                             },
                             onLogsClick = {
@@ -320,7 +335,7 @@ class MainActivity : ComponentActivity() {
                                             ScanOptions.QR_CODE
                                         )
                                         setPrompt(
-                                            "Наведите камеру на QR-код"
+                                            getString(R.string.qr_scanner_prompt)
                                         )
                                         setBeepEnabled(false)
                                         setBarcodeImageEnabled(false)
@@ -349,7 +364,8 @@ class MainActivity : ComponentActivity() {
 
                     Screen.CONNECTIONS -> {
                         BackHandler {
-                            screen = Screen.HOME
+                            screen =
+                                connectionsBackScreen
                         }
 
                         ConnectionListScreen(
@@ -375,7 +391,8 @@ class MainActivity : ComponentActivity() {
                                     null
                                 },
                             onBack = {
-                                screen = Screen.HOME
+                                screen =
+                                    connectionsBackScreen
                             },
                             onSelect = { connection ->
                                 ConnectionStore.select(
@@ -412,12 +429,12 @@ class MainActivity : ComponentActivity() {
 
                     Screen.ROUTING -> {
                         BackHandler {
-                            screen = Screen.HOME
+                            screen = Screen.SETTINGS
                         }
 
                         RoutingScreen(
                             onBack = {
-                                screen = Screen.HOME
+                                screen = Screen.SETTINGS
                             },
                             onApplications = {
                                 screen = Screen.APP_ROUTING
@@ -474,7 +491,7 @@ class MainActivity : ComponentActivity() {
                                         ScanOptions.QR_CODE
                                     )
                                     setPrompt(
-                                        "Наведите камеру на QR-код"
+                                        getString(R.string.qr_scanner_prompt)
                                     )
                                     setBeepEnabled(false)
                                     setBarcodeImageEnabled(false)
@@ -600,6 +617,8 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     onConnectionsClick = {
+                        connectionsBackScreen =
+                            Screen.HOME
                         screen =
                             Screen.CONNECTIONS
                     },
@@ -610,7 +629,7 @@ class MainActivity : ComponentActivity() {
                                     ScanOptions.QR_CODE
                                 )
                                 setPrompt(
-                                    "Наведите камеру на QR-код"
+                                    getString(R.string.qr_scanner_prompt)
                                 )
                                 setBeepEnabled(false)
                                 setBarcodeImageEnabled(false)

@@ -1,3 +1,191 @@
 <resources>
     <string name="app_name">pingwin</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_general">General</string>
+    <string name="settings_general_subtitle">Language and basic settings</string>
+    <string name="settings_routing">Routing</string>
+    <string name="settings_routing_subtitle">Apps and websites</string>
+    <string name="settings_automation">Automation</string>
+    <string name="settings_automation_subtitle">Auto-connect and rules</string>
+    <string name="settings_connections">Connections</string>
+    <string name="settings_logs">Logs</string>
+    <string name="settings_logs_subtitle">Connection diagnostics</string>
+    <string name="settings_about">About</string>
+    <string name="settings_home">Home</string>
+
+    <string name="general_title">General</string>
+    <string name="language_title">Language</string>
+    <string name="language_english">English</string>
+    <string name="language_russian">Русский</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="home_add_qr">QR code</string>
+    <string name="home_add_clipboard">Clipboard</string>
+    <string name="home_add_manual">Enter manually</string>
+    <string name="home_status_disconnected">Tap to connect</string>
+    <string name="home_status_connecting">Connecting…</string>
+    <string name="home_status_connected">Connected</string>
+    <string name="home_status_error">Connection error</string>
+
+    <string name="connections_title">Connections</string>
+    <string name="connections_empty">No saved connections yet.</string>
+    <string name="connections_add">Add connection</string>
+
+    <string name="add_connection_title">Add connection</string>
+    <string name="add_connection_hint">Paste a VLESS link.</string>
+    <string name="add_connection_link_label">VLESS link</string>
+    <string name="add_connection_scan_qr">Scan QR code</string>
+    <string name="add_connection_paste">Paste from clipboard</string>
+    <string name="add_connection_add">Add</string>
+    <string name="add_connection_error">Could not add connection</string>
+
+    <string name="qr_scanner_prompt">Point the camera at a QR code</string>
+    <string name="qr_scanner_status">Place the QR code inside the frame</string>
+
+    <string name="routing_title">Routing</string>
+    <string name="routing_intro">Choose which traffic should go through VPN. Rules for apps and websites are configured separately.</string>
+    <string name="routing_applications">Applications</string>
+    <string name="routing_sites">Websites</string>
+    <string name="routing_changes_reconnect">Changes apply after reconnecting VPN.</string>
+    <string name="routing_all_apps_vpn">All applications go through VPN</string>
+    <string name="routing_no_apps_for_vpn">No applications selected for VPN</string>
+    <string name="routing_all_sites_vpn">All websites go through VPN</string>
+    <string name="routing_no_sites_for_vpn">No websites selected for VPN</string>
+    <string name="routing_only_selected_vpn">Only selected — via VPN</string>
+    <string name="routing_selected_without_vpn">Selected — without VPN</string>
+    <string name="routing_via_vpn_list">Via VPN: %1$s</string>
+    <string name="routing_without_vpn_list">Without VPN: %1$s</string>
+
+    <string name="app_routing_title">Application routing</string>
+    <string name="app_routing_enabled">Enabled</string>
+    <string name="app_routing_disabled">Disabled. All applications use VPN.</string>
+    <string name="app_routing_mode_only_selected">Only selected applications — via VPN</string>
+    <string name="app_routing_mode_exclude_selected">Selected applications — without VPN</string>
+    <string name="app_routing_mode_only_selected_description">Only applications in the list should use VPN</string>
+    <string name="app_routing_mode_exclude_selected_description">Applications in the list should not use VPN</string>
+    <string name="app_routing_hide_system">Hide system applications</string>
+    <string name="app_routing_search">Search applications</string>
+    <string name="app_routing_selected_count">Selected: %1$d</string>
+
+    <string name="site_routing_title">Website routing</string>
+    <string name="site_routing_enabled">Rules apply in all applications and browsers.</string>
+    <string name="site_routing_disabled">Disabled. All websites open through VPN.</string>
+    <string name="site_routing_mode_only_selected">Only addresses in the list — via VPN</string>
+    <string name="site_routing_mode_exclude_selected">Addresses in the list — without VPN</string>
+    <string name="site_routing_mode_only_selected_description">Only addresses in the list should open through VPN</string>
+    <string name="site_routing_mode_exclude_selected_description">Addresses in the list should not open through VPN</string>
+    <string name="site_routing_address_hint">Address, for example youtube.com</string>
+    <string name="site_routing_add">Add</string>
+    <string name="site_routing_count">Addresses in list: %1$d</string>
+    <string name="site_routing_delete">Delete</string>
+
+    <string name="automation_title">Automation</string>
+    <string name="automation_description">Automatic VPN control depending on the network.</string>
+    <string name="automation_enabled">Enabled</string>
+    <string name="automation_disabled">Disabled</string>
+    <string name="automation_when_to_enable">When to enable VPN</string>
+    <string name="automation_mobile_data">Mobile data</string>
+    <string name="automation_mobile_data_subtitle">Enable VPN when using a mobile network</string>
+    <string name="automation_untrusted_wifi">Untrusted Wi-Fi</string>
+    <string name="automation_untrusted_wifi_subtitle">Enable VPN on Wi-Fi networks that are not in the trusted list</string>
+    <string name="automation_trusted_wifi">Trusted Wi-Fi</string>
+    <string name="automation_trusted_wifi_example">For example: your home or office network.</string>
+    <string name="automation_add_current_wifi">Add current Wi-Fi network</string>
+    <string name="automation_wifi_ssid">Wi-Fi name (SSID)</string>
+    <string name="automation_add_trusted_wifi">Add trusted network</string>
+    <string name="automation_no_trusted_wifi">No trusted Wi-Fi networks yet.</string>
+    <string name="automation_disconnect_vpn">Disable VPN</string>
+    <string name="automation_disconnect_vpn_subtitle">Disable VPN when connected to a trusted Wi-Fi network</string>
+    <string name="automation_location_permission_required">Location access is required for trusted Wi-Fi networks</string>
+    <string name="automation_current_wifi_error">Could not determine the current Wi-Fi network</string>
+    <string name="automation_trusted_wifi_added">Network “%1$s” added to trusted networks</string>
+
+    <string name="logs_title">Logs</string>
+    <string name="logs_detailed_logging">Detailed logging</string>
+    <string name="logs_enabled">Enabled</string>
+    <string name="logs_disabled">Disabled</string>
+    <string name="logs_recent_events">Recent events</string>
+    <string name="logs_refresh">Refresh</string>
+    <string name="logs_empty">The log is empty.</string>
+    <string name="logs_copy">Copy</string>
+    <string name="logs_share">Share</string>
+    <string name="logs_clear">Clear log</string>
+    <string name="logs_copied">Logs copied</string>
+    <string name="logs_share_chooser">Share logs</string>
+    <string name="logs_file_error">Could not create log file</string>
+    <string name="logs_device">Device: %1$s %2$s</string>
+    <string name="logs_created">Created: %1$s</string>
+    <string name="logs_journal">Log:</string>
+
+    <string name="about_title">About</string>
+    <string name="about_version_line">Version 0.1.0</string>
+    <string name="about_description">pingwin is a lightweight VPN client for VLESS connections powered by sing-box. It focuses on simple connection management, flexible routing and automation.</string>
+    <string name="about_features_title">Features</string>
+    <string name="about_feature_connections">VLESS connections with QR code scanning and clipboard import</string>
+    <string name="about_feature_routing">Separate routing rules for applications and websites</string>
+    <string name="about_feature_automation">Automatic VPN control for mobile data and trusted or untrusted Wi-Fi</string>
+    <string name="about_feature_macrodroid">MacroDroid integration for connect, disconnect and toggle actions</string>
+    <string name="about_feature_logs">Diagnostic logs for connection troubleshooting</string>
+    <string name="about_feature_languages">English and Russian interface</string>
+    <string name="about_version">Version</string>
+    <string name="about_core">Core</string>
+    <string name="about_protocol">Protocol</string>
+
+    <string name="qr_invalid_vless">The QR code does not contain a valid VLESS link</string>
+
+    <string name="vless_error_invalid_scheme">The link must start with vless://</string>
+    <string name="vless_error_missing_uuid">The link does not contain a UUID</string>
+    <string name="vless_error_missing_host">The link does not contain a server address</string>
+
+    <string name="singbox_error_unsupported_security">Only security=reality is currently supported</string>
+    <string name="singbox_error_unsupported_network">Only type=tcp is currently supported</string>
+    <string name="singbox_error_missing_public_key">Reality public key (pbk) is missing</string>
+    <string name="singbox_error_missing_server_name">Reality server name (sni) is missing</string>
+
+    <string name="macrodroid_vpn_permission_required">Open pingwin first and allow the VPN connection</string>
+    <string name="macrodroid_no_server_selected">No server is selected in pingwin</string>
+    <string name="macrodroid_log_connect">MacroDroid: connecting VPN</string>
+    <string name="macrodroid_log_disconnect">MacroDroid: disconnecting VPN</string>
+    <string name="macrodroid_log_toggle_connect">MacroDroid: toggling VPN — connecting</string>
+    <string name="macrodroid_log_toggle_disconnect">MacroDroid: toggling VPN — disconnecting</string>
+    <string name="macrodroid_blurb_connect">Connect pingwin to the selected server</string>
+    <string name="macrodroid_blurb_disconnect">Disconnect pingwin VPN</string>
+    <string name="macrodroid_blurb_toggle">Toggle pingwin VPN</string>
+
+    <string name="automation_service_enabled">Automation enabled</string>
+    <string name="automation_service_wifi_unknown">Could not determine the Wi-Fi network</string>
+    <string name="automation_log_ssid_unavailable">Automation: SSID unavailable — Wi-Fi rule was not applied</string>
+    <string name="automation_reason_trusted_wifi">Trusted Wi-Fi: %1$s</string>
+    <string name="automation_reason_untrusted_wifi">Untrusted Wi-Fi: %1$s</string>
+    <string name="automation_reason_mobile_data">Mobile data</string>
+    <string name="automation_log_vpn_permission_required">Automation: VPN permission required</string>
+    <string name="automation_service_open_for_permission">Open pingwin and allow VPN access</string>
+    <string name="automation_log_no_saved_server">Automation: no saved server</string>
+    <string name="automation_service_no_saved_server">No saved server</string>
+    <string name="automation_log_start_vpn">Automation: starting VPN — %1$s</string>
+    <string name="automation_log_start_error">Automation: start error — %1$s</string>
+    <string name="automation_log_stop_vpn">Automation: stopping VPN — %1$s</string>
+    <string name="automation_notification_channel">pingwin automation</string>
+
+    <string name="vpn_service_starting">VPN is starting</string>
+    <string name="vpn_log_start">Starting VPN</string>
+    <string name="vpn_log_connected">VPN connected</string>
+    <string name="vpn_service_running">VPN is running</string>
+    <string name="vpn_log_connection_error">Connection error: %1$s</string>
+    <string name="vpn_log_disconnected">VPN disconnected</string>
+    <string name="vpn_notification_channel_description">pingwin VPN connection status</string>
+
+    <string name="singbox_log_connected">Detailed sing-box log connected</string>
+    <string name="singbox_log_connect_error">Could not connect sing-box log: %1$s</string>
+    <string name="singbox_log_disconnected">sing-box log disconnected: %1$s</string>
+
+    <string name="macrodroid_action_connect">Connect</string>
+    <string name="macrodroid_action_disconnect">Disconnect</string>
+    <string name="macrodroid_action_toggle">Toggle</string>
+
+    <plurals name="saved_servers">
+        <item quantity="one">%d saved server</item>
+        <item quantity="other">%d saved servers</item>
+    </plurals>
 </resources>

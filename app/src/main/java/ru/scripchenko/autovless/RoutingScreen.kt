@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -64,15 +65,19 @@ fun RoutingScreen(
         }
 
         Text(
-            text = "Маршрутизация",
+            text =
+                stringResource(
+                    R.string.routing_title
+                ),
             style =
                 MaterialTheme.typography.headlineMedium
         )
 
         Text(
             text =
-                "Настройте, какой трафик должен идти через VPN. " +
-                    "Правила для приложений и сайтов задаются отдельно.",
+                stringResource(
+                    R.string.routing_intro
+                ),
             style =
                 MaterialTheme.typography.bodyMedium
         )
@@ -80,9 +85,13 @@ fun RoutingScreen(
         HorizontalDivider()
 
         RoutingSection(
-            title = "Приложения",
+            title =
+                stringResource(
+                    R.string.routing_applications
+                ),
             status =
                 applicationStatus(
+                    context = context,
                     enabled = routing.appEnabled,
                     mode = routing.appMode,
                     selectedCount =
@@ -90,6 +99,7 @@ fun RoutingScreen(
                 ),
             selectedText =
                 applicationSelectionText(
+                    context = context,
                     enabled = routing.appEnabled,
                     mode = routing.appMode,
                     applications =
@@ -101,9 +111,13 @@ fun RoutingScreen(
         HorizontalDivider()
 
         RoutingSection(
-            title = "Сайты",
+            title =
+                stringResource(
+                    R.string.routing_sites
+                ),
             status =
                 siteStatus(
+                    context = context,
                     enabled = routing.siteEnabled,
                     mode = routing.siteMode,
                     selectedCount =
@@ -111,6 +125,7 @@ fun RoutingScreen(
                 ),
             selectedText =
                 siteSelectionText(
+                    context = context,
                     enabled = routing.siteEnabled,
                     mode = routing.siteMode,
                     sites = selectedSites
@@ -122,7 +137,9 @@ fun RoutingScreen(
 
         Text(
             text =
-                "Изменения применяются после переподключения VPN.",
+                stringResource(
+                    R.string.routing_changes_reconnect
+                ),
             style =
                 MaterialTheme.typography.bodySmall
         )
@@ -181,62 +198,85 @@ private fun RoutingSection(
 }
 
 private fun applicationStatus(
+    context: Context,
     enabled: Boolean,
     mode: RoutingMode,
     selectedCount: Int
 ): String {
     if (!enabled) {
-        return "Все приложения идут через VPN"
+        return context.getString(
+            R.string.routing_all_apps_vpn
+        )
     }
 
     if (selectedCount == 0) {
         return when (mode) {
             RoutingMode.ONLY_SELECTED_VIA_VPN ->
-                "Через VPN приложения не выбраны"
+                context.getString(
+                    R.string.routing_no_apps_for_vpn
+                )
 
             RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
-                "Все приложения идут через VPN"
+                context.getString(
+                    R.string.routing_all_apps_vpn
+                )
         }
     }
 
     return when (mode) {
         RoutingMode.ONLY_SELECTED_VIA_VPN ->
-            "Только выбранные — через VPN"
+            context.getString(
+                R.string.routing_only_selected_vpn
+            )
 
         RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
-            "Выбранные — без VPN"
+            context.getString(
+                R.string.routing_selected_without_vpn
+            )
     }
 }
 
 private fun siteStatus(
+    context: Context,
     enabled: Boolean,
     mode: RoutingMode,
     selectedCount: Int
 ): String {
     if (!enabled) {
-        return "Все сайты идут через VPN"
+        return context.getString(
+            R.string.routing_all_sites_vpn
+        )
     }
 
     if (selectedCount == 0) {
         return when (mode) {
             RoutingMode.ONLY_SELECTED_VIA_VPN ->
-                "Через VPN сайты не выбраны"
+                context.getString(
+                    R.string.routing_no_sites_for_vpn
+                )
 
             RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
-                "Все сайты идут через VPN"
+                context.getString(
+                    R.string.routing_all_sites_vpn
+                )
         }
     }
 
     return when (mode) {
         RoutingMode.ONLY_SELECTED_VIA_VPN ->
-            "Только выбранные — через VPN"
+            context.getString(
+                R.string.routing_only_selected_vpn
+            )
 
         RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
-            "Выбранные — без VPN"
+            context.getString(
+                R.string.routing_selected_without_vpn
+            )
     }
 }
 
 private fun applicationSelectionText(
+    context: Context,
     enabled: Boolean,
     mode: RoutingMode,
     applications: List<String>
@@ -248,20 +288,26 @@ private fun applicationSelectionText(
         return null
     }
 
-    val prefix =
-        when (mode) {
-            RoutingMode.ONLY_SELECTED_VIA_VPN ->
-                "Через VPN: "
-
-            RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
-                "Без VPN: "
-        }
-
-    return prefix +
+    val applicationsText =
         applications.joinToString(", ")
+
+    return when (mode) {
+        RoutingMode.ONLY_SELECTED_VIA_VPN ->
+            context.getString(
+                R.string.routing_via_vpn_list,
+                applicationsText
+            )
+
+        RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
+            context.getString(
+                R.string.routing_without_vpn_list,
+                applicationsText
+            )
+    }
 }
 
 private fun siteSelectionText(
+    context: Context,
     enabled: Boolean,
     mode: RoutingMode,
     sites: List<String>
@@ -273,17 +319,22 @@ private fun siteSelectionText(
         return null
     }
 
-    val prefix =
-        when (mode) {
-            RoutingMode.ONLY_SELECTED_VIA_VPN ->
-                "Через VPN: "
-
-            RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
-                "Без VPN: "
-        }
-
-    return prefix +
+    val sitesText =
         sites.joinToString(", ")
+
+    return when (mode) {
+        RoutingMode.ONLY_SELECTED_VIA_VPN ->
+            context.getString(
+                R.string.routing_via_vpn_list,
+                sitesText
+            )
+
+        RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
+            context.getString(
+                R.string.routing_without_vpn_list,
+                sitesText
+            )
+    }
 }
 
 private fun applicationName(

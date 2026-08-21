@@ -34,7 +34,9 @@ class MacroDroidConnectRunner :
             VpnService.prepare(context) != null
         ) {
             throw IllegalStateException(
-                "Сначала откройте pingwin и разрешите VPN-подключение"
+                context.getString(
+                    R.string.macrodroid_vpn_permission_required
+                )
             )
         }
 
@@ -43,13 +45,26 @@ class MacroDroidConnectRunner :
                 context
             )
                 ?: throw IllegalStateException(
-                    "В pingwin не выбран сервер"
+                    context.getString(
+                        R.string.macrodroid_no_server_selected
+                    )
                 )
 
         val profile =
-            VlessProfile.parse(
-                connection.link
-            )
+            try {
+                VlessProfile.parse(
+                    connection.link
+                )
+            } catch (
+                error: VlessParseException
+            ) {
+                throw IllegalStateException(
+                    error.localizedVpnMessage(
+                        context
+                    ),
+                    error
+                )
+            }
 
         val routing =
             RoutingSettingsStore.load(
@@ -57,18 +72,31 @@ class MacroDroidConnectRunner :
             )
 
         val config =
-            SingBoxConfigBuilder.build(
-                profile,
-                routing,
-                DiagnosticLogStore
-                    .isDetailedEnabled(
+            try {
+                SingBoxConfigBuilder.build(
+                    profile,
+                    routing,
+                    DiagnosticLogStore
+                        .isDetailedEnabled(
+                            context
+                        )
+                )
+            } catch (
+                error: SingBoxConfigException
+            ) {
+                throw IllegalStateException(
+                    error.localizedVpnMessage(
                         context
-                    )
-            )
+                    ),
+                    error
+                )
+            }
 
         DiagnosticLogStore.append(
             context,
-            "MacroDroid: включение VPN"
+            context.getString(
+                R.string.macrodroid_log_connect
+            )
         )
 
         AutoVlessVpnService.start(
@@ -81,11 +109,11 @@ class MacroDroidConnectRunner :
 }
 
 class MacroDroidConnectHelper(
-    config: TaskerPluginConfig<Unit>
+    private val pluginConfig: TaskerPluginConfig<Unit>
 ) :
     TaskerPluginConfigHelperNoOutputOrInput<
         MacroDroidConnectRunner
-    >(config) {
+    >(pluginConfig) {
 
     override val runnerClass =
         MacroDroidConnectRunner::class.java
@@ -95,7 +123,9 @@ class MacroDroidConnectHelper(
         blurbBuilder: StringBuilder
     ) {
         blurbBuilder.append(
-            "Подключить pingwin к выбранному серверу"
+            pluginConfig.context.getString(
+                R.string.macrodroid_blurb_connect
+            )
         )
     }
 }

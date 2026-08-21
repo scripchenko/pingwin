@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,9 +57,25 @@ fun AutomationScreen(
     var newSsid by remember {
         mutableStateOf("")
     }
+
     var pendingEnable by remember {
         mutableStateOf(false)
     }
+
+    val trustedWifiPermissionMessage =
+        stringResource(
+            R.string.automation_location_permission_required
+        )
+
+    val currentWifiErrorMessage =
+        stringResource(
+            R.string.automation_current_wifi_error
+        )
+
+    val trustedWifiAddedTemplate =
+        stringResource(
+            R.string.automation_trusted_wifi_added
+        )
 
     val locationPermissionLauncher =
         rememberLauncherForActivityResult(
@@ -83,7 +100,7 @@ fun AutomationScreen(
             } else if (!granted) {
                 Toast.makeText(
                     context,
-                    "Для доверенных Wi-Fi нужен доступ к местоположению",
+                    trustedWifiPermissionMessage,
                     Toast.LENGTH_LONG
                 ).show()
             }
@@ -131,7 +148,10 @@ fun AutomationScreen(
         )
 
         Text(
-            text = "Автоматизация",
+            text =
+                stringResource(
+                    R.string.automation_title
+                ),
             fontSize = 30.sp,
             color = Color(0xFF17191F)
         )
@@ -142,7 +162,9 @@ fun AutomationScreen(
 
         Text(
             text =
-                "Автоматическое управление VPN в зависимости от сети.",
+                stringResource(
+                    R.string.automation_description
+                ),
             fontSize = 15.sp,
             lineHeight = 21.sp,
             color = Color(0xFF777D89)
@@ -165,7 +187,10 @@ fun AutomationScreen(
                     Modifier.weight(1f)
             ) {
                 Text(
-                    text = "Автоматизация",
+                    text =
+                        stringResource(
+                            R.string.automation_title
+                        ),
                     fontSize = 19.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF1A1C21)
@@ -174,9 +199,13 @@ fun AutomationScreen(
                 Text(
                     text =
                         if (settings.enabled) {
-                            "Включена"
+                            stringResource(
+                                R.string.automation_enabled
+                            )
                         } else {
-                            "Выключена"
+                            stringResource(
+                                R.string.automation_disabled
+                            )
                         },
                     fontSize = 14.sp,
                     color = Color(0xFF777D89),
@@ -236,7 +265,10 @@ fun AutomationScreen(
                     )
         ) {
             Text(
-                text = "Когда включать VPN",
+                text =
+                    stringResource(
+                        R.string.automation_when_to_enable
+                    ),
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFF343840)
@@ -247,8 +279,14 @@ fun AutomationScreen(
             )
 
             AutomationSwitchRow(
-                title = "Мобильный интернет",
-                subtitle = "Включать VPN при использовании мобильной сети",
+                title =
+                    stringResource(
+                        R.string.automation_mobile_data
+                    ),
+                subtitle =
+                    stringResource(
+                        R.string.automation_mobile_data_subtitle
+                    ),
                 checked = settings.connectOnMobile,
                 enabled = settings.enabled,
                 onCheckedChange = {
@@ -261,9 +299,14 @@ fun AutomationScreen(
             )
 
             AutomationSwitchRow(
-                title = "Недоверенный Wi-Fi",
+                title =
+                    stringResource(
+                        R.string.automation_untrusted_wifi
+                    ),
                 subtitle =
-                    "Включать VPN в Wi-Fi сетях, которых нет в списке доверенных",
+                    stringResource(
+                        R.string.automation_untrusted_wifi_subtitle
+                    ),
                 checked =
                     settings.connectOnUntrustedWifi,
                 enabled = settings.enabled,
@@ -281,7 +324,10 @@ fun AutomationScreen(
             )
 
             Text(
-                text = "Доверенные Wi-Fi",
+                text =
+                    stringResource(
+                        R.string.automation_trusted_wifi
+                    ),
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFF343840)
@@ -293,7 +339,9 @@ fun AutomationScreen(
 
             Text(
                 text =
-                    "Например: домашняя или офисная сеть.",
+                    stringResource(
+                        R.string.automation_trusted_wifi_example
+                    ),
                 fontSize = 14.sp,
                 color = Color(0xFF777D89)
             )
@@ -315,7 +363,7 @@ fun AutomationScreen(
                     if (ssid == null) {
                         Toast.makeText(
                             context,
-                            "Не удалось определить текущую Wi-Fi сеть",
+                            currentWifiErrorMessage,
                             Toast.LENGTH_LONG
                         ).show()
                     } else {
@@ -330,13 +378,19 @@ fun AutomationScreen(
 
                         Toast.makeText(
                             context,
-                            "Сеть «$ssid» добавлена в доверенные",
+                            trustedWifiAddedTemplate.format(
+                                ssid
+                            ),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
                 }
             ) {
-                Text("Добавить текущую Wi-Fi сеть")
+                Text(
+                    stringResource(
+                        R.string.automation_add_current_wifi
+                    )
+                )
             }
 
             Spacer(
@@ -353,7 +407,11 @@ fun AutomationScreen(
                     Modifier.fillMaxWidth(),
                 singleLine = true,
                 label = {
-                    Text("Название Wi-Fi (SSID)")
+                    Text(
+                        stringResource(
+                            R.string.automation_wifi_ssid
+                        )
+                    )
                 }
             )
 
@@ -385,7 +443,11 @@ fun AutomationScreen(
                     }
                 }
             ) {
-                Text("Добавить доверенную сеть")
+                Text(
+                    stringResource(
+                        R.string.automation_add_trusted_wifi
+                    )
+                )
             }
 
             Spacer(
@@ -397,7 +459,9 @@ fun AutomationScreen(
             ) {
                 Text(
                     text =
-                        "Доверенных Wi-Fi сетей пока нет.",
+                        stringResource(
+                            R.string.automation_no_trusted_wifi
+                        ),
                     fontSize = 14.sp,
                     color = Color(0xFF8A8F99)
                 )
@@ -455,9 +519,14 @@ fun AutomationScreen(
             )
 
             AutomationSwitchRow(
-                title = "Отключать VPN",
+                title =
+                    stringResource(
+                        R.string.automation_disconnect_vpn
+                    ),
                 subtitle =
-                    "Отключать VPN при подключении к доверенной Wi-Fi сети",
+                    stringResource(
+                        R.string.automation_disconnect_vpn_subtitle
+                    ),
                 checked =
                     settings.disconnectOnTrustedWifi,
                 enabled = settings.enabled,

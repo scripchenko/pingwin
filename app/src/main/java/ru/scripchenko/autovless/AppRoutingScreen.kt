@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -132,7 +133,10 @@ fun AppRoutingScreen(
                 Alignment.CenterVertically
         ) {
             Text(
-                text = "Маршрутизация приложений",
+                text =
+                    stringResource(
+                        R.string.app_routing_title
+                    ),
                 modifier =
                     Modifier.weight(1f),
                 style =
@@ -154,9 +158,13 @@ fun AppRoutingScreen(
         Text(
             text =
                 if (routing.appEnabled) {
-                    "Включено"
+                    stringResource(
+                        R.string.app_routing_enabled
+                    )
                 } else {
-                    "Отключено. Все приложения работают через VPN."
+                    stringResource(
+                        R.string.app_routing_disabled
+                    )
                 },
             style =
                 MaterialTheme.typography.bodyMedium
@@ -175,10 +183,14 @@ fun AppRoutingScreen(
                 Text(
                     when (routing.appMode) {
                         RoutingMode.ONLY_SELECTED_VIA_VPN ->
-                            "Только приложения из списка — через VPN"
+                            stringResource(
+                                R.string.app_routing_mode_only_selected
+                            )
 
                         RoutingMode.EXCLUDE_SELECTED_FROM_VPN ->
-                            "Приложения из списка — без VPN"
+                            stringResource(
+                                R.string.app_routing_mode_exclude_selected
+                            )
                     }
                 )
             }
@@ -192,7 +204,9 @@ fun AppRoutingScreen(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            "Только приложения из списка должны работать через VPN"
+                            stringResource(
+                                R.string.app_routing_mode_only_selected_description
+                            )
                         )
                     },
                     onClick = {
@@ -209,7 +223,9 @@ fun AppRoutingScreen(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            "Приложения из списка не должны работать через VPN"
+                            stringResource(
+                                R.string.app_routing_mode_exclude_selected_description
+                            )
                         )
                     },
                     onClick = {
@@ -237,7 +253,10 @@ fun AppRoutingScreen(
                 Alignment.CenterVertically
         ) {
             Text(
-                text = "Скрыть системные приложения",
+                text =
+                    stringResource(
+                        R.string.app_routing_hide_system
+                    ),
                 modifier =
                     Modifier.weight(1f),
                 style =
@@ -261,13 +280,20 @@ fun AppRoutingScreen(
                 Modifier.fillMaxWidth(),
             singleLine = true,
             label = {
-                Text("Поиск приложения")
+                Text(
+                    stringResource(
+                        R.string.app_routing_search
+                    )
+                )
             }
         )
 
         Text(
             text =
-                "Выбрано: ${routing.packages.size}",
+                stringResource(
+                    R.string.app_routing_selected_count,
+                    routing.packages.size
+                ),
             style =
                 MaterialTheme.typography.bodySmall
         )

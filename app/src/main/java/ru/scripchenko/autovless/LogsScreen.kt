@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -88,7 +89,10 @@ fun LogsScreen(
         )
 
         Text(
-            text = "Логи",
+            text =
+                stringResource(
+                    R.string.logs_title
+                ),
             fontSize = 30.sp,
             color = Color(0xFF17191F)
         )
@@ -111,7 +115,10 @@ fun LogsScreen(
                     Modifier.weight(1f)
             ) {
                 Text(
-                    text = "Подробное логирование",
+                    text =
+                        stringResource(
+                            R.string.logs_detailed_logging
+                        ),
                     fontSize = 18.sp,
                     color = Color(0xFF1A1C21)
                 )
@@ -119,9 +126,13 @@ fun LogsScreen(
                 Text(
                     text =
                         if (detailedEnabled) {
-                            "Включено"
+                            stringResource(
+                                R.string.logs_enabled
+                            )
                         } else {
-                            "Выключено"
+                            stringResource(
+                                R.string.logs_disabled
+                            )
                         },
                     fontSize = 14.sp,
                     color = Color(0xFF777D89),
@@ -160,7 +171,10 @@ fun LogsScreen(
                 Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Последние события",
+                text =
+                    stringResource(
+                        R.string.logs_recent_events
+                    ),
                 fontSize = 18.sp,
                 color = Color(0xFF1A1C21)
             )
@@ -173,7 +187,11 @@ fun LogsScreen(
                         )
                 }
             ) {
-                Text("Обновить")
+                Text(
+                    stringResource(
+                        R.string.logs_refresh
+                    )
+                )
             }
         }
 
@@ -184,7 +202,10 @@ fun LogsScreen(
 
         if (entries.isEmpty()) {
             Text(
-                text = "Журнал пока пуст.",
+                text =
+                    stringResource(
+                        R.string.logs_empty
+                    ),
                 fontSize = 15.sp,
                 color = Color(0xFF777D89)
             )
@@ -234,7 +255,11 @@ fun LogsScreen(
                         )
                     }
                 ) {
-                    Text("Скопировать")
+                    Text(
+                        stringResource(
+                            R.string.logs_copy
+                        )
+                    )
                 }
 
                 OutlinedButton(
@@ -247,7 +272,11 @@ fun LogsScreen(
                         )
                     }
                 ) {
-                    Text("Поделиться")
+                    Text(
+                        stringResource(
+                            R.string.logs_share
+                        )
+                    )
                 }
             }
 
@@ -267,7 +296,11 @@ fun LogsScreen(
                     entries = emptyList()
                 }
             ) {
-                Text("Очистить журнал")
+                Text(
+                    stringResource(
+                        R.string.logs_clear
+                    )
+                )
             }
         }
 
@@ -290,13 +323,18 @@ private fun copyLogs(
     clipboard.setPrimaryClip(
         ClipData.newPlainText(
             "pingwin logs",
-            buildLogText(entries)
+            buildLogText(
+                context,
+                entries
+            )
         )
     )
 
     Toast.makeText(
         context,
-        "Логи скопированы",
+        context.getString(
+            R.string.logs_copied
+        ),
         Toast.LENGTH_SHORT
     ).show()
 }
@@ -329,7 +367,10 @@ private fun shareLogs(
             )
 
         file.writeText(
-            buildLogText(entries),
+            buildLogText(
+                context,
+                entries
+            ),
             Charsets.UTF_8
         )
 
@@ -357,19 +398,24 @@ private fun shareLogs(
         context.startActivity(
             Intent.createChooser(
                 sendIntent,
-                "Поделиться логами"
+                context.getString(
+                    R.string.logs_share_chooser
+                )
             )
         )
     }.onFailure {
         Toast.makeText(
             context,
-            "Не удалось создать файл логов",
+            context.getString(
+                R.string.logs_file_error
+            ),
             Toast.LENGTH_LONG
         ).show()
     }
 }
 
 private fun buildLogText(
+    context: Context,
     entries: List<String>
 ): String {
     val created =
@@ -387,13 +433,24 @@ private fun buildLogText(
                 "(SDK ${Build.VERSION.SDK_INT})"
         )
         appendLine(
-            "Устройство: ${Build.MANUFACTURER} ${Build.MODEL}"
+            context.getString(
+                R.string.logs_device,
+                Build.MANUFACTURER,
+                Build.MODEL
+            )
         )
         appendLine(
-            "Создано: $created"
+            context.getString(
+                R.string.logs_created,
+                created
+            )
         )
         appendLine()
-        appendLine("Журнал:")
+        appendLine(
+            context.getString(
+                R.string.logs_journal
+            )
+        )
         append(
             entries.joinToString("\n")
         )

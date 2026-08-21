@@ -1,4 +1,4 @@
-plugins {
+﻿plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 }
@@ -14,7 +14,7 @@ android {
         minSdk = 24
         targetSdk = 37
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -55,3 +55,4 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 	implementation(files("libs/libbox.aar"))
 }
+

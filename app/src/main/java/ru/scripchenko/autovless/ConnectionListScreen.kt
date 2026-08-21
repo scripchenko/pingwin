@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -59,14 +60,20 @@ fun ConnectionListScreen(
         }
 
         Text(
-            text = "Подключения",
+            text =
+                stringResource(
+                    R.string.connections_title
+                ),
             fontSize = 30.sp,
             color = Color(0xFF17191F)
         )
 
         if (connections.isEmpty()) {
             Text(
-                text = "Сохранённых подключений пока нет.",
+                text =
+                    stringResource(
+                        R.string.connections_empty
+                    ),
                 color = Color(0xFF777D89),
                 fontSize = 16.sp
             )
@@ -200,7 +207,11 @@ fun ConnectionListScreen(
                 Modifier.fillMaxWidth(),
             onClick = onAdd
         ) {
-            Text("Добавить подключение")
+            Text(
+                stringResource(
+                    R.string.connections_add
+                )
+            )
         }
     }
 }

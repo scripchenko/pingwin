@@ -1,6 +1,6 @@
 package ru.scripchenko.autovless
 
-import android.content.Context
+import android.app.Activity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,12 +21,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-
-private const val GENERAL_PREFS = "general_settings"
-private const val LANGUAGE_KEY = "language"
-private const val LANGUAGE_ENGLISH = "en"
-private const val LANGUAGE_RUSSIAN = "ru"
 
 @Composable
 fun GeneralScreen(
@@ -37,15 +33,9 @@ fun GeneralScreen(
     var selectedLanguage by
         remember {
             mutableStateOf(
-                context
-                    .getSharedPreferences(
-                        GENERAL_PREFS,
-                        Context.MODE_PRIVATE
-                    )
-                    .getString(
-                        LANGUAGE_KEY,
-                        LANGUAGE_ENGLISH
-                    ) ?: LANGUAGE_ENGLISH
+                AppLocale.currentLanguage(
+                    context
+                )
             )
         }
 
@@ -59,19 +49,15 @@ fun GeneralScreen(
     ) {
         selectedLanguage = language
 
-        context
-            .getSharedPreferences(
-                GENERAL_PREFS,
-                Context.MODE_PRIVATE
-            )
-            .edit()
-            .putString(
-                LANGUAGE_KEY,
-                language
-            )
-            .apply()
+        AppLocale.saveLanguage(
+            context = context,
+            language = language
+        )
 
         languageDialogVisible = false
+
+        (context as? Activity)
+            ?.recreate()
     }
 
     Column(
@@ -93,7 +79,10 @@ fun GeneralScreen(
         }
 
         Text(
-            text = "Общие",
+            text =
+                stringResource(
+                    R.string.general_title
+                ),
             style =
                 MaterialTheme.typography.headlineMedium
         )
@@ -118,7 +107,10 @@ fun GeneralScreen(
                     Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "Язык",
+                    text =
+                        stringResource(
+                            R.string.language_title
+                        ),
                     style =
                         MaterialTheme.typography.titleLarge
                 )
@@ -127,11 +119,15 @@ fun GeneralScreen(
                     text =
                         if (
                             selectedLanguage ==
-                                LANGUAGE_RUSSIAN
+                                AppLocale.RUSSIAN
                         ) {
-                            "Русский"
+                            stringResource(
+                                R.string.language_russian
+                            )
                         } else {
-                            "English"
+                            stringResource(
+                                R.string.language_english
+                            )
                         },
                     style =
                         MaterialTheme.typography.bodyMedium
@@ -152,30 +148,40 @@ fun GeneralScreen(
                 languageDialogVisible = false
             },
             title = {
-                Text("Язык")
+                Text(
+                    stringResource(
+                        R.string.language_title
+                    )
+                )
             },
             text = {
                 Column {
                     LanguageOption(
-                        title = "English",
+                        title =
+                            stringResource(
+                                R.string.language_english
+                            ),
                         selected =
                             selectedLanguage ==
-                                LANGUAGE_ENGLISH,
+                                AppLocale.ENGLISH,
                         onClick = {
                             selectLanguage(
-                                LANGUAGE_ENGLISH
+                                AppLocale.ENGLISH
                             )
                         }
                     )
 
                     LanguageOption(
-                        title = "Русский",
+                        title =
+                            stringResource(
+                                R.string.language_russian
+                            ),
                         selected =
                             selectedLanguage ==
-                                LANGUAGE_RUSSIAN,
+                                AppLocale.RUSSIAN,
                         onClick = {
                             selectLanguage(
-                                LANGUAGE_RUSSIAN
+                                AppLocale.RUSSIAN
                             )
                         }
                     )
@@ -188,7 +194,11 @@ fun GeneralScreen(
                         languageDialogVisible = false
                     }
                 ) {
-                    Text("Отмена")
+                    Text(
+                        stringResource(
+                            R.string.cancel
+                        )
+                    )
                 }
             }
         )

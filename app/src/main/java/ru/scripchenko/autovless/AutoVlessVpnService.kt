@@ -1,4 +1,4 @@
-package ru.scripchenko.autovless
+﻿package ru.scripchenko.autovless
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -186,7 +186,7 @@ class AutoVlessVpnService :
     ): Int {
 
         startForegroundNotification(
-            "VPN запускается"
+            getString(R.string.vpn_service_starting)
         )
 
         when (intent?.action) {
@@ -194,7 +194,7 @@ class AutoVlessVpnService :
             ACTION_START -> {
                 DiagnosticLogStore.append(
                     this,
-                    "Запуск VPN"
+                    getString(R.string.vpn_log_start)
                 )
 
                 VpnStatus.set(
@@ -308,7 +308,7 @@ class AutoVlessVpnService :
 
                 DiagnosticLogStore.append(
                     this,
-                    "VPN подключён"
+                    getString(R.string.vpn_log_connected)
                 )
 
                 VpnStatus.set(
@@ -325,7 +325,7 @@ class AutoVlessVpnService :
 
 
                 updateForegroundNotification(
-                    "VPN работает"
+                    getString(R.string.vpn_service_running)
                 )
 
             } catch (e: Exception) {
@@ -338,7 +338,7 @@ class AutoVlessVpnService :
 
                 DiagnosticLogStore.append(
                     this,
-                    "Ошибка подключения: ${e.message ?: e.javaClass.simpleName}"
+                    getString(R.string.vpn_log_connection_error, e.localizedVpnMessage(this))
                 )
 
                 stopVpn()
@@ -411,7 +411,7 @@ class AutoVlessVpnService :
 
             DiagnosticLogStore.append(
                 this,
-                "VPN отключён"
+                getString(R.string.vpn_log_disconnected)
             )
 
             VpnStatus.set(
@@ -504,7 +504,7 @@ class AutoVlessVpnService :
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
                 description =
-                    "Состояние VPN-соединения AutoVLESS"
+                    getString(R.string.vpn_notification_channel_description)
             }
 
         manager.createNotificationChannel(
@@ -744,8 +744,8 @@ class AutoVlessVpnService :
     }
 
     /*
-     * На Android не используем /proc для определения
-     * процесса-создателя соединения.
+     * On Android, do not use /proc to determine
+     * the process that created the connection.
      */
     override fun useProcFS(): Boolean =
         false
@@ -1331,11 +1331,11 @@ class AutoVlessVpnService :
         }
 
         /*
-         * На некоторых Honor имя rmnet-интерфейса видно через
-         * ConnectivityManager, но NetworkInterface и if_nametoindex()
-         * не дают индекс. Тогда используем numeric scopeId IPv6-адреса
-         * из LinkProperties. Для link-local IPv6 он соответствует
-         * системному индексу интерфейса.
+         * On some Honor devices, the rmnet interface name is visible via
+         * ConnectivityManager, while NetworkInterface and if_nametoindex()
+         * do not provide an index. In that case, use the numeric scopeId
+         * of the IPv6 address from LinkProperties. For link-local IPv6,
+         * it corresponds to the system interface index.
          */
         val interfaceIndex =
             resolveInterfaceIndex(
