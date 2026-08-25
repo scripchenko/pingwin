@@ -2,6 +2,10 @@ package com.pingwin.vpn
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import android.net.wifi.WifiManager
 import android.content.pm.PackageManager
 import android.widget.Toast
@@ -67,6 +71,11 @@ fun AutomationScreen(
             R.string.automation_location_permission_required
         )
 
+    val backgroundLocationPermissionMessage =
+        stringResource(
+            R.string.automation_background_location_required
+        )
+
     val currentWifiErrorMessage =
         stringResource(
             R.string.automation_current_wifi_error
@@ -77,35 +86,106 @@ fun AutomationScreen(
             R.string.automation_trusted_wifi_added
         )
 
+    val backgroundLocationSettingsLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) {
+            if (pendingEnable) {
+                val granted =
+                    Build.VERSION.SDK_INT <
+                        Build.VERSION_CODES.Q ||
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                        ) ==
+                        PackageManager.PERMISSION_GRANTED
+
+                if (granted) {
+                    val updated =
+                        settings.copy(
+                            enabled = true
+                        )
+
+                    settings = updated
+
+                    AutomationSettingsStore.save(
+                        context,
+                        updated
+                    )
+
+                    AutomationService.sync(
+                        context
+                    )
+                } else {
+                    Toast.makeText(
+                        context,
+                        backgroundLocationPermissionMessage,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                pendingEnable = false
+            }
+        }
     val locationPermissionLauncher =
         rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { granted ->
             if (granted && pendingEnable) {
-                val updated =
-                    settings.copy(
-                        enabled = true
+                val backgroundGranted =
+                    Build.VERSION.SDK_INT <
+                        Build.VERSION_CODES.Q ||
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                        ) ==
+                        PackageManager.PERMISSION_GRANTED
+
+                if (backgroundGranted) {
+                    val updated =
+                        settings.copy(
+                            enabled = true
+                        )
+
+                    settings = updated
+
+                    AutomationSettingsStore.save(
+                        context,
+                        updated
                     )
 
-                settings = updated
+                    AutomationService.sync(
+                        context
+                    )
 
-                AutomationSettingsStore.save(
-                    context,
-                    updated
-                )
+                    pendingEnable = false
+                } else {
+                    Toast.makeText(
+                        context,
+                        backgroundLocationPermissionMessage,
+                        Toast.LENGTH_LONG
+                    ).show()
 
-                AutomationService.sync(
-                    context
-                )
-            } else if (!granted) {
-                Toast.makeText(
-                    context,
-                    trustedWifiPermissionMessage,
-                    Toast.LENGTH_LONG
-                ).show()
+                    backgroundLocationSettingsLauncher.launch(
+                        Intent(
+                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.parse(
+                                "package:${context.packageName}"
+                            )
+                        )
+                    )
+                }
+            } else {
+                if (!granted) {
+                    Toast.makeText(
+                        context,
+                        trustedWifiPermissionMessage,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                pendingEnable = false
             }
-
-            pendingEnable = false
         }
 
     fun save(
@@ -171,6 +251,20 @@ fun AutomationScreen(
         )
 
         Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        Text(
+            text =
+                stringResource(
+                    R.string.automation_location_explanation
+                ),
+            fontSize = 13.sp,
+            lineHeight = 18.sp,
+            color = Color(0xFF777D89)
+        )
+
+        Spacer(
             modifier = Modifier.height(24.dp)
         )
 
@@ -226,25 +320,57 @@ fun AutomationScreen(
                             )
                         )
                     } else {
-                        val granted =
+                        val fineLocationGranted =
                             ContextCompat.checkSelfPermission(
                                 context,
                                 Manifest.permission.ACCESS_FINE_LOCATION
                             ) ==
                                 PackageManager.PERMISSION_GRANTED
 
-                        if (granted) {
-                            save(
-                                settings.copy(
-                                    enabled = true
-                                )
-                            )
-                        } else {
-                            pendingEnable = true
+                        val backgroundLocationGranted =
+                            Build.VERSION.SDK_INT <
+                                Build.VERSION_CODES.Q ||
+                                ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                                ) ==
+                                PackageManager.PERMISSION_GRANTED
 
-                            locationPermissionLauncher.launch(
-                                Manifest.permission.ACCESS_FINE_LOCATION
-                            )
+                        when {
+                            !fineLocationGranted -> {
+                                pendingEnable = true
+
+                                locationPermissionLauncher.launch(
+                                    Manifest.permission.ACCESS_FINE_LOCATION
+                                )
+                            }
+
+                            !backgroundLocationGranted -> {
+                                pendingEnable = true
+
+                                Toast.makeText(
+                                    context,
+                                    backgroundLocationPermissionMessage,
+                                    Toast.LENGTH_LONG
+                                ).show()
+
+                                backgroundLocationSettingsLauncher.launch(
+                                    Intent(
+                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                        Uri.parse(
+                                            "package:${context.packageName}"
+                                        )
+                                    )
+                                )
+                            }
+
+                            else -> {
+                                save(
+                                    settings.copy(
+                                        enabled = true
+                                    )
+                                )
+                            }
                         }
                     }
                 }

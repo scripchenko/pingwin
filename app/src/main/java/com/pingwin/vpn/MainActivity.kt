@@ -54,6 +54,8 @@ class MainActivity : ComponentActivity() {
         AppVisibility.setForeground(
             true
         )
+
+        AutomationService.sync(this)
     }
 
     override fun onStop() {

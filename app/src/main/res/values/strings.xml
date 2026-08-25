@@ -82,6 +82,7 @@
 
     <string name="automation_title">Automation</string>
     <string name="automation_description">Automatic VPN control depending on the network.</string>
+    <string name="automation_location_explanation">To identify trusted Wi-Fi networks, Android requires location access. Allow location all the time (the option name may vary by device) and enable precise location. pingwin uses this only to read the Wi-Fi network name.</string>
     <string name="automation_enabled">Enabled</string>
     <string name="automation_disabled">Disabled</string>
     <string name="automation_when_to_enable">When to enable VPN</string>
@@ -98,6 +99,7 @@
     <string name="automation_disconnect_vpn">Disable VPN</string>
     <string name="automation_disconnect_vpn_subtitle">Disable VPN when connected to a trusted Wi-Fi network</string>
     <string name="automation_location_permission_required">Location access is required for trusted Wi-Fi networks</string>
+    <string name="automation_background_location_required">For Wi-Fi automation, allow location access all the time in the app permissions</string>
     <string name="automation_current_wifi_error">Could not determine the current Wi-Fi network</string>
     <string name="automation_trusted_wifi_added">Network “%1$s” added to trusted networks</string>
 

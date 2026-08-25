@@ -82,6 +82,7 @@
 
     <string name="automation_title">Автоматизация</string>
     <string name="automation_description">Автоматическое управление VPN в зависимости от сети.</string>
+    <string name="automation_location_explanation">Чтобы определять доверенную Wi-Fi сеть, Android требует доступ к геоданным. Разрешите доступ в любом режиме (на некоторых устройствах — «Всегда») и включите «Точное местоположение». pingwin использует это разрешение только для определения имени Wi-Fi сети.</string>
     <string name="automation_enabled">Включена</string>
     <string name="automation_disabled">Выключена</string>
     <string name="automation_when_to_enable">Когда включать VPN</string>
@@ -98,6 +99,7 @@
     <string name="automation_disconnect_vpn">Отключать VPN</string>
     <string name="automation_disconnect_vpn_subtitle">Отключать VPN при подключении к доверенной Wi-Fi сети</string>
     <string name="automation_location_permission_required">Для доверенных Wi-Fi нужен доступ к местоположению</string>
+    <string name="automation_background_location_required">Для автоматизации Wi-Fi разрешите доступ к местоположению «Всегда» в разрешениях приложения</string>
     <string name="automation_current_wifi_error">Не удалось определить текущую Wi-Fi сеть</string>
     <string name="automation_trusted_wifi_added">Сеть «%1$s» добавлена в доверенные</string>
 
