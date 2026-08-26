@@ -30,7 +30,7 @@ Build the debug APK with Gradle.
 ## Project information
 
 - Package: `com.pingwin.vpn`
-- Current version: `0.1.0`
+- Current version: `0.1.1`
 - sing-box/libbox: `1.13.12`
 
 ## Servers
