@@ -78,7 +78,8 @@ fun AboutScreen(
         Text(
             text =
                 stringResource(
-                    R.string.about_version_line
+                    R.string.about_version_line,
+                    BuildConfig.VERSION_NAME
                 ),
             fontSize = 15.sp,
             color = Color(0xFF777D89),
@@ -168,7 +169,7 @@ fun AboutScreen(
                 stringResource(
                     R.string.about_version
                 ),
-            value = "0.1.0"
+            value = BuildConfig.VERSION_NAME
         )
 
         AboutRow(

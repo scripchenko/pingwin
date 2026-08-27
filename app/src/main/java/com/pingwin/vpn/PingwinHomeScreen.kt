@@ -146,7 +146,7 @@ fun PingwinHomeScreen(
                     Color(0xFFE9EDF6)
             ) {
                 Text(
-                    text = "0.1.0",
+                    text = BuildConfig.VERSION_NAME,
                     color =
                         Color(0xFF667085),
                     fontSize = 12.sp,

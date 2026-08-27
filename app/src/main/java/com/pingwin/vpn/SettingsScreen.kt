@@ -141,7 +141,7 @@ fun SettingsScreen(
                 stringResource(
                     R.string.settings_about
                 ),
-            subtitle = "pingwin 0.1.0",
+            subtitle = "pingwin ${BuildConfig.VERSION_NAME}",
             onClick = onAboutClick
         )
 

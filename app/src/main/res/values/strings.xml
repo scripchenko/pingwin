@@ -121,7 +121,7 @@
     <string name="logs_journal">Log:</string>
 
     <string name="about_title">About</string>
-    <string name="about_version_line">Version 0.1.0</string>
+    <string name="about_version_line">Version %1$s</string>
     <string name="about_description">pingwin is a lightweight VPN client for VLESS connections powered by sing-box. It focuses on simple connection management, flexible routing and automation.</string>
     <string name="about_features_title">Features</string>
     <string name="about_feature_connections">VLESS connections with QR code scanning and clipboard import</string>

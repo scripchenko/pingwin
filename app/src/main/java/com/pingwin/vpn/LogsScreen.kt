@@ -427,7 +427,7 @@ private fun buildLogText(
         )
 
     return buildString {
-        appendLine("pingwin 0.1.0")
+        appendLine("pingwin ${BuildConfig.VERSION_NAME}")
         appendLine(
             "Android ${Build.VERSION.RELEASE} " +
                 "(SDK ${Build.VERSION.SDK_INT})"
