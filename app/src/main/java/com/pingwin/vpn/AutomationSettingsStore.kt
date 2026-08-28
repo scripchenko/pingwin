@@ -75,6 +75,18 @@ object AutomationSettingsStore {
                         "disconnectOnTrustedWifi",
                         true
                     ),
+                disconnectWhenAbroad =
+                    json.optBoolean(
+                        "disconnectWhenAbroad",
+                        false
+                    ),
+                homeCountryCode =
+                    json.optString(
+                        "homeCountryCode",
+                        ""
+                    ).takeIf {
+                        it.isNotBlank()
+                    },
                 serverId =
                     json.optString(
                         "serverId",
@@ -124,6 +136,19 @@ object AutomationSettingsStore {
                     "disconnectOnTrustedWifi",
                     settings.disconnectOnTrustedWifi
                 )
+                put(
+                    "disconnectWhenAbroad",
+                    settings.disconnectWhenAbroad
+                )
+
+                if (
+                    settings.homeCountryCode != null
+                ) {
+                    put(
+                        "homeCountryCode",
+                        settings.homeCountryCode
+                    )
+                }
 
                 if (
                     settings.serverId != null

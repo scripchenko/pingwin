@@ -6,5 +6,7 @@ data class AutomationSettings(
     val connectOnUntrustedWifi: Boolean = true,
     val connectOnMobile: Boolean = true,
     val disconnectOnTrustedWifi: Boolean = true,
+    val disconnectWhenAbroad: Boolean = false,
+    val homeCountryCode: String? = null,
     val serverId: String? = null
 )

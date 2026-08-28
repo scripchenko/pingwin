@@ -106,6 +106,9 @@
     <string name="automation_enabled">Включена</string>
     <string name="automation_disabled">Выключена</string>
     <string name="automation_when_to_enable">Когда включать VPN</string>
+    <string name="automation_when_to_disable">Когда отключать VPN</string>
+    <string name="automation_disconnect_abroad">Местонахождение за границей</string>
+    <string name="automation_disconnect_abroad_subtitle">Отключать VPN, когда устройство зарегистрировано в мобильной сети другой страны</string>
     <string name="automation_mobile_data">Мобильный интернет</string>
     <string name="automation_mobile_data_subtitle">Включать VPN при использовании мобильной сети</string>
     <string name="automation_untrusted_wifi">Недоверенный Wi-Fi</string>
@@ -116,7 +119,7 @@
     <string name="automation_wifi_ssid">Название Wi-Fi (SSID)</string>
     <string name="automation_add_trusted_wifi">Добавить доверенную сеть</string>
     <string name="automation_no_trusted_wifi">Доверенных Wi-Fi сетей пока нет.</string>
-    <string name="automation_disconnect_vpn">Отключать VPN</string>
+    <string name="automation_disconnect_vpn">Доверенная Wi-Fi сеть</string>
     <string name="automation_disconnect_vpn_subtitle">Отключать VPN при подключении к доверенной Wi-Fi сети</string>
     <string name="automation_location_permission_required">Для доверенных Wi-Fi нужен доступ к местоположению</string>
     <string name="automation_background_location_required">Для автоматизации Wi-Fi разрешите доступ к местоположению «Всегда» в разрешениях приложения</string>
@@ -181,6 +184,7 @@
     <string name="automation_reason_trusted_wifi">Доверенный Wi-Fi: %1$s</string>
     <string name="automation_reason_untrusted_wifi">Недоверенный Wi-Fi: %1$s</string>
     <string name="automation_reason_mobile_data">Мобильный интернет</string>
+    <string name="automation_reason_abroad">За границей: страна мобильной сети отличается от домашней страны</string>
     <string name="automation_log_vpn_permission_required">Автоматизация: требуется разрешение VPN</string>
     <string name="automation_service_open_for_permission">Откройте pingwin и разрешите VPN</string>
     <string name="automation_log_no_saved_server">Автоматизация: нет сохранённого сервера</string>

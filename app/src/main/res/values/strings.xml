@@ -102,6 +102,9 @@
     <string name="automation_enabled">Enabled</string>
     <string name="automation_disabled">Disabled</string>
     <string name="automation_when_to_enable">When to enable VPN</string>
+    <string name="automation_when_to_disable">When to disable VPN</string>
+    <string name="automation_disconnect_abroad">Being abroad</string>
+    <string name="automation_disconnect_abroad_subtitle">Disable VPN when the device is registered on a mobile network in another country</string>
     <string name="automation_mobile_data">Mobile data</string>
     <string name="automation_mobile_data_subtitle">Enable VPN when using a mobile network</string>
     <string name="automation_untrusted_wifi">Untrusted Wi-Fi</string>
@@ -112,7 +115,7 @@
     <string name="automation_wifi_ssid">Wi-Fi name (SSID)</string>
     <string name="automation_add_trusted_wifi">Add trusted network</string>
     <string name="automation_no_trusted_wifi">No trusted Wi-Fi networks yet.</string>
-    <string name="automation_disconnect_vpn">Disable VPN</string>
+    <string name="automation_disconnect_vpn">Trusted Wi-Fi network</string>
     <string name="automation_disconnect_vpn_subtitle">Disable VPN when connected to a trusted Wi-Fi network</string>
     <string name="automation_location_permission_required">Location access is required for trusted Wi-Fi networks</string>
     <string name="automation_background_location_required">For Wi-Fi automation, allow location access all the time in the app permissions</string>
@@ -177,6 +180,7 @@
     <string name="automation_reason_trusted_wifi">Trusted Wi-Fi: %1$s</string>
     <string name="automation_reason_untrusted_wifi">Untrusted Wi-Fi: %1$s</string>
     <string name="automation_reason_mobile_data">Mobile data</string>
+    <string name="automation_reason_abroad">Abroad: mobile network country differs from home country</string>
     <string name="automation_log_vpn_permission_required">Automation: VPN permission required</string>
     <string name="automation_service_open_for_permission">Open pingwin and allow VPN access</string>
     <string name="automation_log_no_saved_server">Automation: no saved server</string>

@@ -3,8 +3,10 @@ package com.pingwin.vpn
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -16,6 +18,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.telephony.TelephonyManager
 import androidx.core.content.ContextCompat
 
 class AutomationService : Service() {
@@ -70,6 +73,10 @@ class AutomationService : Service() {
         ConnectivityManager.NetworkCallback? =
         null
 
+    private var countryReceiver:
+        BroadcastReceiver? =
+        null
+
     private var currentNetwork:
         Network? =
         null
@@ -92,6 +99,7 @@ class AutomationService : Service() {
         )
 
         registerNetworkMonitor()
+        registerCountryMonitor()
     }
 
     override fun onStartCommand(
@@ -109,10 +117,13 @@ class AutomationService : Service() {
             return START_NOT_STICKY
         }
 
+        evaluateCurrentNetwork()
+
         return START_STICKY
     }
 
     override fun onDestroy() {
+        unregisterCountryMonitor()
         unregisterNetworkMonitor()
         super.onDestroy()
     }
@@ -122,6 +133,73 @@ class AutomationService : Service() {
     ): IBinder? =
         null
 
+    private fun registerCountryMonitor() {
+        if (
+            Build.VERSION.SDK_INT <
+            Build.VERSION_CODES.Q ||
+            countryReceiver != null
+        ) {
+            return
+        }
+
+        val receiver =
+            object : BroadcastReceiver() {
+                override fun onReceive(
+                    context: Context?,
+                    intent: Intent?
+                ) {
+                    lastDecisionKey =
+                        null
+
+                    evaluateCurrentNetwork()
+                }
+            }
+
+        countryReceiver =
+            receiver
+
+        ContextCompat.registerReceiver(
+            this,
+            receiver,
+            IntentFilter(
+                TelephonyManager
+                    .ACTION_NETWORK_COUNTRY_CHANGED
+            ),
+            ContextCompat.RECEIVER_EXPORTED
+        )
+    }
+
+    private fun unregisterCountryMonitor() {
+        val receiver =
+            countryReceiver
+                ?: return
+
+        runCatching {
+            unregisterReceiver(
+                receiver
+            )
+        }
+
+        countryReceiver =
+            null
+    }
+
+    private fun evaluateCurrentNetwork() {
+        val network =
+            currentNetwork
+                ?: return
+
+        val capabilities =
+            connectivityManager
+                .getNetworkCapabilities(
+                    network
+                )
+                ?: return
+
+        evaluate(
+            capabilities
+        )
+    }
     private fun registerNetworkMonitor() {
         if (networkCallback != null) {
             return
@@ -288,6 +366,56 @@ class AutomationService : Service() {
         if (!settings.enabled) {
             stopSelf()
             return
+        }
+
+        if (
+            settings.disconnectWhenAbroad
+        ) {
+            val countries =
+                TelephonyCountryResolver.resolve(
+                    this,
+                    settings
+                )
+
+            val abroadStatus =
+                AbroadDetector.determine(
+                    countries.homeCountryCode,
+                    countries.networkCountryCode
+                )
+
+            if (
+                abroadStatus ==
+                AbroadStatus.ABROAD
+            ) {
+                val reason =
+                    getString(
+                        R.string.automation_reason_abroad
+                    )
+
+                val key =
+                    "abroad:" +
+                        countries.homeCountryCode +
+                        ":" +
+                        countries.networkCountryCode
+
+                if (
+                    key !=
+                    lastDecisionKey
+                ) {
+                    lastDecisionKey =
+                        key
+
+                    updateNotification(
+                        reason
+                    )
+                }
+
+                stopVpn(
+                    reason
+                )
+
+                return
+            }
         }
 
         when {

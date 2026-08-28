@@ -452,6 +452,69 @@ fun AutomationScreen(
             Text(
                 text =
                     stringResource(
+                        R.string.automation_when_to_disable
+                    ),
+                fontSize = 17.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF343840)
+            )
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+            AutomationSwitchRow(
+                title =
+                    stringResource(
+                        R.string.automation_disconnect_vpn
+                    ),
+                subtitle =
+                    stringResource(
+                        R.string.automation_disconnect_vpn_subtitle
+                    ),
+                checked =
+                    settings.disconnectOnTrustedWifi,
+                enabled = settings.enabled,
+                onCheckedChange = {
+                    save(
+                        settings.copy(
+                            disconnectOnTrustedWifi = it
+                        )
+                    )
+                }
+            )
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+            AutomationSwitchRow(
+                title =
+                    stringResource(
+                        R.string.automation_disconnect_abroad
+                    ),
+                subtitle =
+                    stringResource(
+                        R.string.automation_disconnect_abroad_subtitle
+                    ),
+                checked =
+                    settings.disconnectWhenAbroad,
+                enabled = settings.enabled,
+                onCheckedChange = {
+                    save(
+                        settings.copy(
+                            disconnectWhenAbroad = it
+                        )
+                    )
+                }
+            )
+
+            Spacer(
+                modifier = Modifier.height(28.dp)
+            )
+            Text(
+                text =
+                    stringResource(
                         R.string.automation_trusted_wifi
                     ),
                 fontSize = 17.sp,
@@ -643,28 +706,6 @@ fun AutomationScreen(
             Spacer(
                 modifier = Modifier.height(22.dp)
             )
-
-            AutomationSwitchRow(
-                title =
-                    stringResource(
-                        R.string.automation_disconnect_vpn
-                    ),
-                subtitle =
-                    stringResource(
-                        R.string.automation_disconnect_vpn_subtitle
-                    ),
-                checked =
-                    settings.disconnectOnTrustedWifi,
-                enabled = settings.enabled,
-                onCheckedChange = {
-                    save(
-                        settings.copy(
-                            disconnectOnTrustedWifi = it
-                        )
-                    )
-                }
-            )
-
             Spacer(
                 modifier = Modifier.height(26.dp)
             )
