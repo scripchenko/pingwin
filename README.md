@@ -118,7 +118,7 @@ The following behavior is confirmed by the current source code:
 - **Notifications:** The VPN connection and network automation run as Android foreground services. Their notifications show service status while those services are active.
 - **Stored data:** Saved VLESS links, routing rules, automation settings, cached server location information, and diagnostic logs are stored in regular app-private Android preferences. These preferences are not additionally encrypted by pingwin. VLESS links contain connection credentials.
 - **Android backup:** Android backup is enabled in the application manifest. Actual backup behavior depends on the Android version, device, and backup settings.
-- **Server location lookup:** To display a country flag, pingwin may send the configured server host name or IP address to [`ipwho.is`](https://ipwho.is/) when no cached result is available. The returned country information is cached in the application preferences.
+- **Server location lookup:** To display a country flag, pingwin may send the configured server IP address (or the IP address resolved from its host name) to [`ipwho.is`](https://ipwho.is/), [`ipapi.co`](https://ipapi.co/), and [`api.country.is`](https://api.country.is/) when no valid cached result is available. The results are compared to determine the server country and are cached in the application preferences for up to 24 hours.
 - **Diagnostic logs:** Shared logs can include the pingwin version, Android version, device manufacturer and model, and recorded events. Review logs and remove sensitive information before copying, sharing, or attaching them to an issue.
 
 If the Wi-Fi SSID cannot be determined, the corresponding Wi-Fi automation rule is not applied.
