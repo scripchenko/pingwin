@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,11 +18,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,8 +45,13 @@ fun PingwinHomeScreen(
     location: ServerLocation?,
     vpnState: VpnConnectionState,
     pingMs: Int?,
+    routingSettings: RoutingSettings,
+    automationSettings: AutomationSettings,
     onPowerClick: () -> Unit,
     onConnectionsClick: () -> Unit,
+    onAppRoutingClick: () -> Unit,
+    onSiteRoutingClick: () -> Unit,
+    onAutomationClick: () -> Unit,
     onAddQr: () -> Unit,
     onAddClipboard: () -> Unit,
     onAddManual: () -> Unit,
@@ -67,7 +69,7 @@ fun PingwinHomeScreen(
         if (connected) {
             Color(0xFF2BAE57)
         } else {
-            Color(0xFF69B4FF)
+            Color(0xFF4C8DFF)
         }
 
     val profile =
@@ -84,7 +86,94 @@ fun PingwinHomeScreen(
             ?.takeIf {
                 it.isNotBlank()
             }
-            ?: "—"
+
+    val defaultConnectionName =
+        if (host != null) {
+            "VLESS · $host"
+        } else {
+            "VLESS"
+        }
+
+    val displayConnectionName =
+        if (
+            connection.name == defaultConnectionName ||
+            connection.name == "VLESS"
+        ) {
+            stringResource(
+                R.string.home_primary_server
+            )
+        } else {
+            connection.name
+        }
+
+    val locationName =
+        location?.countryName
+            ?.takeIf {
+                it.isNotBlank()
+            }
+            ?: stringResource(
+                R.string.home_location_unknown
+            )
+
+    val appsSubtitle =
+        if (routingSettings.appEnabled) {
+            pluralStringResource(
+                R.plurals.home_apps_count,
+                routingSettings.packages.size,
+                routingSettings.packages.size
+            )
+        } else {
+            stringResource(
+                R.string.home_routing_disabled
+            )
+        }
+
+    val sitesSubtitle =
+        if (routingSettings.siteEnabled) {
+            pluralStringResource(
+                R.plurals.home_sites_count,
+                routingSettings.domains.size,
+                routingSettings.domains.size
+            )
+        } else {
+            stringResource(
+                R.string.home_routing_disabled
+            )
+        }
+
+    val wifiAutomationEnabled =
+        automationSettings.connectOnUntrustedWifi ||
+            automationSettings.disconnectOnTrustedWifi
+
+    val automationSubtitle =
+        if (!automationSettings.enabled) {
+            stringResource(
+                R.string.automation_disabled
+            )
+        } else {
+            when {
+                wifiAutomationEnabled &&
+                    automationSettings.connectOnMobile ->
+                    stringResource(
+                        R.string.home_automation_wifi_mobile
+                    )
+
+                wifiAutomationEnabled ->
+                    stringResource(
+                        R.string.home_automation_wifi
+                    )
+
+                automationSettings.connectOnMobile ->
+                    stringResource(
+                        R.string.home_automation_mobile
+                    )
+
+                else ->
+                    stringResource(
+                        R.string.automation_enabled
+                    )
+            }
+        }
 
     Column(
         modifier =
@@ -146,7 +235,8 @@ fun PingwinHomeScreen(
                     Color(0xFFE9EDF6)
             ) {
                 Text(
-                    text = BuildConfig.VERSION_NAME,
+                    text =
+                        BuildConfig.VERSION_NAME,
                     color =
                         Color(0xFF667085),
                     fontSize = 12.sp,
@@ -191,7 +281,11 @@ fun PingwinHomeScreen(
                 ) {
                     DropdownMenuItem(
                         text = {
-                            Text(stringResource(R.string.home_add_qr))
+                            Text(
+                                stringResource(
+                                    R.string.home_add_qr
+                                )
+                            )
                         },
                         onClick = {
                             addMenuExpanded = false
@@ -201,7 +295,11 @@ fun PingwinHomeScreen(
 
                     DropdownMenuItem(
                         text = {
-                            Text(stringResource(R.string.home_add_clipboard))
+                            Text(
+                                stringResource(
+                                    R.string.home_add_clipboard
+                                )
+                            )
                         },
                         onClick = {
                             addMenuExpanded = false
@@ -211,7 +309,11 @@ fun PingwinHomeScreen(
 
                     DropdownMenuItem(
                         text = {
-                            Text(stringResource(R.string.home_add_manual))
+                            Text(
+                                stringResource(
+                                    R.string.home_add_manual
+                                )
+                            )
                         },
                         onClick = {
                             addMenuExpanded = false
@@ -238,49 +340,87 @@ fun PingwinHomeScreen(
                 RoundedCornerShape(22.dp),
             color =
                 Color.White,
-            tonalElevation = 0.dp,
-            shadowElevation = 0.dp,
-            border =
-                androidx.compose.foundation.BorderStroke(
-                    1.dp,
-                    Color(0xFF858A94)
-                )
+            shadowElevation = 3.dp
         ) {
             Row(
                 modifier =
                     Modifier.padding(
                         horizontal = 18.dp,
-                        vertical = 16.dp
+                        vertical = 15.dp
                     ),
                 verticalAlignment =
                     Alignment.CenterVertically
             ) {
                 Text(
-                    text = connection.name,
+                    text =
+                        location?.flagEmoji
+                            ?.takeIf {
+                                it.isNotBlank()
+                            }
+                            ?: "🌐",
+                    fontSize = 28.sp
+                )
+
+                Spacer(
                     modifier =
-                        Modifier.weight(1f),
-                    maxLines = 1,
-                    overflow =
-                        TextOverflow.Ellipsis,
-                    fontSize = 17.sp,
-                    color =
-                        Color(0xFF202227)
+                        Modifier.width(13.dp)
+                )
+
+                Column(
+                    modifier =
+                        Modifier.weight(1f)
+                ) {
+                    Text(
+                        text =
+                            displayConnectionName,
+                        maxLines = 1,
+                        overflow =
+                            TextOverflow.Ellipsis,
+                        fontSize = 17.sp,
+                        color =
+                            Color(0xFF17191F),
+                        fontWeight =
+                            FontWeight.SemiBold
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(2.dp)
+                    )
+
+                    Text(
+                        text = locationName,
+                        maxLines = 1,
+                        overflow =
+                            TextOverflow.Ellipsis,
+                        fontSize = 14.sp,
+                        color =
+                            Color(0xFF697184)
+                    )
+                }
+
+                Spacer(
+                    modifier =
+                        Modifier.width(8.dp)
                 )
 
                 Text(
-                    text = "▾",
-                    fontSize = 20.sp,
+                    text = "⌄",
+                    fontSize = 22.sp,
                     color =
-                        Color(0xFF202227)
+                        Color(0xFF455064)
                 )
             }
         }
 
+        Spacer(
+            modifier =
+                Modifier.height(26.dp)
+        )
+
         Box(
             modifier =
-                Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
+                Modifier.fillMaxWidth(),
             contentAlignment =
                 Alignment.Center
         ) {
@@ -291,17 +431,17 @@ fun PingwinHomeScreen(
                 Box(
                     modifier =
                         Modifier
-                            .size(176.dp)
+                            .size(184.dp)
                             .shadow(
                                 elevation = 15.dp,
                                 shape = CircleShape,
                                 ambientColor =
                                     accent.copy(
-                                        alpha = 0.40f
+                                        alpha = 0.35f
                                     ),
                                 spotColor =
                                     accent.copy(
-                                        alpha = 0.40f
+                                        alpha = 0.35f
                                     )
                             )
                             .background(
@@ -335,75 +475,222 @@ fun PingwinHomeScreen(
                         contentDescription =
                             "VPN",
                         modifier =
-                            Modifier.size(104.dp)
+                            Modifier.size(110.dp)
                     )
                 }
 
                 Spacer(
                     modifier =
-                        Modifier.height(20.dp)
+                        Modifier.height(18.dp)
                 )
 
                 Text(
                     text =
                         when (vpnState) {
                             VpnConnectionState.DISCONNECTED ->
-                                stringResource(R.string.home_status_disconnected)
+                                stringResource(
+                                    R.string.home_status_disconnected
+                                )
 
                             VpnConnectionState.CONNECTING ->
-                                stringResource(R.string.home_status_connecting)
+                                stringResource(
+                                    R.string.home_status_connecting
+                                )
 
                             VpnConnectionState.CONNECTED ->
-                                stringResource(R.string.home_status_connected)
+                                stringResource(
+                                    R.string.home_status_connected
+                                )
 
                             VpnConnectionState.ERROR ->
-                                stringResource(R.string.home_status_error)
+                                stringResource(
+                                    R.string.home_status_error
+                                )
                         },
                     color =
                         Color(0xFF15171C),
                     fontSize = 18.sp,
                     fontWeight =
-                        if (connected) {
-                            FontWeight.SemiBold
-                        } else {
-                            FontWeight.Normal
-                        }
+                        FontWeight.SemiBold
                 )
 
-                if (connected) {
-                    Spacer(
-                        modifier =
-                            Modifier.height(9.dp)
+                Spacer(
+                    modifier =
+                        Modifier.height(8.dp)
+                )
+
+                Row(
+                    verticalAlignment =
+                        Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "ϟ",
+                        fontSize = 21.sp,
+                        color =
+                            if (connected) {
+                                Color(0xFF2BAE57)
+                            } else {
+                                Color(0xFF8B94A5)
+                            }
                     )
 
-                    Row(
-                        verticalAlignment =
-                            Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "⌁",
-                            fontSize = 23.sp,
-                            color =
-                                Color(0xFF17191F)
-                        )
+                    Spacer(
+                        modifier =
+                            Modifier.width(7.dp)
+                    )
 
-                        Spacer(
-                            modifier =
-                                Modifier.width(7.dp)
-                        )
-
-                        Text(
-                            text =
+                    Text(
+                        text =
+                            if (connected) {
                                 pingMs
                                     ?.let {
                                         "$it ms"
                                     }
-                                    ?: "— ms",
-                            fontSize = 17.sp,
+                                    ?: "— ms"
+                            } else {
+                                "— ms"
+                            },
+                        fontSize = 17.sp,
+                        color =
+                            if (connected) {
+                                Color(0xFF17191F)
+                            } else {
+                                Color(0xFF8B94A5)
+                            },
+                        fontWeight =
+                            FontWeight.SemiBold
+                    )
+
+                    Spacer(
+                        modifier =
+                            Modifier.width(8.dp)
+                    )
+
+                    Text(
+                        text = "↻",
+                        fontSize = 19.sp,
+                        color =
+                            if (connected) {
+                                Color(0xFF657084)
+                            } else {
+                                Color(0xFFB0B6C1)
+                            },
+                        modifier =
+                            Modifier
+                                .clickable(
+                                    enabled = connected
+                                ) {
+                                    onRefreshPing()
+                                }
+                                .padding(
+                                    horizontal = 4.dp,
+                                    vertical = 2.dp
+                                )
+                    )
+                }
+            }
+        }
+
+        Spacer(
+            modifier =
+                Modifier.height(18.dp)
+        )
+
+        Surface(
+            modifier =
+                Modifier.fillMaxWidth(),
+            shape =
+                RoundedCornerShape(22.dp),
+            color =
+                Color.White,
+            shadowElevation = 4.dp
+        ) {
+            Column {
+                HomeInfoRow(
+                    icon = "⇄",
+                    iconColor =
+                        Color(0xFF2F6FED),
+                    iconBackground =
+                        Color(0xFFEAF1FF),
+                    title =
+                        stringResource(
+                            R.string.home_app_rules
+                        ),
+                    subtitle =
+                        appsSubtitle,
+                    onClick =
+                        onAppRoutingClick
+                )
+
+                HomeDivider()
+
+                HomeInfoRow(
+                    icon = "◎",
+                    iconColor =
+                        Color(0xFF2BAE57),
+                    iconBackground =
+                        Color(0xFFEAF8EF),
+                    title =
+                        stringResource(
+                            R.string.home_site_rules
+                        ),
+                    subtitle =
+                        sitesSubtitle,
+                    onClick =
+                        onSiteRoutingClick
+                )
+
+
+            }
+        }
+
+        Spacer(
+            modifier =
+                Modifier.height(18.dp)
+        )
+
+        Surface(
+            modifier =
+                Modifier.fillMaxWidth(),
+            shape =
+                RoundedCornerShape(26.dp),
+            color =
+                Color.White,
+            shadowElevation = 3.dp
+        ) {
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = 12.dp,
+                            vertical = 8.dp
+                        ),
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+                Surface(
+                    modifier =
+                        Modifier.weight(1f),
+                    shape =
+                        RoundedCornerShape(18.dp),
+                    color =
+                        Color(0xFFE9EEFF)
+                ) {
+                    Row(
+                        modifier =
+                            Modifier.padding(
+                                horizontal = 14.dp,
+                                vertical = 10.dp
+                            ),
+                        verticalAlignment =
+                            Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "⌂",
+                            fontSize = 22.sp,
                             color =
-                                Color(0xFF17191F),
-                            fontWeight =
-                                FontWeight.SemiBold
+                                Color(0xFF2450C8)
                         )
 
                         Spacer(
@@ -412,166 +699,38 @@ fun PingwinHomeScreen(
                         )
 
                         Text(
-                            text = "↻",
-                            fontSize = 19.sp,
+                            text =
+                                stringResource(
+                                    R.string.settings_home
+                                ),
                             color =
-                                Color(0xFF657084),
-                            modifier =
-                                Modifier
-                                    .clickable {
-                                        onRefreshPing()
-                                    }
-                                    .padding(
-                                        horizontal = 4.dp,
-                                        vertical = 2.dp
-                                    )
+                                Color(0xFF2450C8),
+                            fontSize = 15.sp,
+                            fontWeight =
+                                FontWeight.SemiBold
                         )
                     }
                 }
-            }
-        }
 
-        if (connected) {
-            Card(
-                modifier =
-                    Modifier.fillMaxWidth(),
-                shape =
-                    RoundedCornerShape(24.dp),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            Color.White
-                    ),
-                elevation =
-                    CardDefaults.cardElevation(
-                        defaultElevation = 7.dp
-                    )
-            ) {
                 Row(
                     modifier =
                         Modifier
-                            .fillMaxWidth()
+                            .weight(1f)
+                            .clickable {
+                                onSettingsClick()
+                            }
                             .padding(
-                                horizontal = 16.dp,
-                                vertical = 14.dp
+                                horizontal = 14.dp,
+                                vertical = 10.dp
                             ),
                     verticalAlignment =
                         Alignment.CenterVertically
                 ) {
                     Text(
-                        text =
-                            location?.flagEmoji
-                                ?.takeIf {
-                                    it.isNotBlank()
-                                }
-                                ?: "🌐",
-                        fontSize = 32.sp
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.width(14.dp)
-                    )
-
-                    Column(
-                        modifier =
-                            Modifier.weight(1f),
-                        verticalArrangement =
-                            Arrangement.spacedBy(3.dp)
-                    ) {
-                        Text(
-                            text = connection.name,
-                            maxLines = 1,
-                            overflow =
-                                TextOverflow.Ellipsis,
-                            color =
-                                Color(0xFF17191F),
-                            fontSize = 15.sp,
-                            fontWeight =
-                                FontWeight.SemiBold
-                        )
-
-                        Text(
-                            text = host,
-                            color =
-                                Color(0xFF697184),
-                            fontSize = 14.sp
-                        )
-                    }
-
-                    Spacer(
-                        modifier =
-                            Modifier.width(10.dp)
-                    )
-
-                    Text(
-                        text = "VLESS",
-                        color =
-                            Color(0xFF17191F),
-                        fontSize = 14.sp,
-                        fontWeight =
-                            FontWeight.SemiBold
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.width(8.dp)
-                    )
-
-                    Text(
-                        text = "›",
-                        color =
-                            Color(0xFF1594F6),
-                        fontSize = 34.sp,
-                        fontWeight =
-                            FontWeight.Light
-                    )
-                }
-            }
-
-            Spacer(
-                modifier =
-                    Modifier.height(32.dp)
-            )
-        } else {
-            Spacer(
-                modifier =
-                    Modifier.height(8.dp)
-            )
-        }
-
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = 14.dp
-                    ),
-            horizontalArrangement =
-                Arrangement.SpaceBetween,
-            verticalAlignment =
-                Alignment.CenterVertically
-        ) {
-            Surface(
-                shape =
-                    RoundedCornerShape(18.dp),
-                color =
-                    Color(0xFFE9EEFF)
-            ) {
-                Row(
-                    modifier =
-                        Modifier.padding(
-                            horizontal = 18.dp,
-                            vertical = 10.dp
-                        ),
-                    verticalAlignment =
-                        Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "⌂",
+                        text = "⚙",
                         fontSize = 22.sp,
                         color =
-                            Color(0xFF2450C8)
+                            Color(0xFF555B67)
                     )
 
                     Spacer(
@@ -580,53 +739,133 @@ fun PingwinHomeScreen(
                     )
 
                     Text(
-                        text = stringResource(R.string.settings_home),
+                        text =
+                            stringResource(
+                                R.string.settings_title
+                            ),
                         color =
-                            Color(0xFF2450C8),
-                        fontSize = 15.sp,
-                        fontWeight =
-                            FontWeight.SemiBold
+                            Color(0xFF555B67),
+                        fontSize = 15.sp
                     )
                 }
             }
+        }
 
-            Row(
+        Spacer(
+            modifier =
+                Modifier.height(18.dp)
+        )
+    }
+}
+
+@Composable
+private fun HomeInfoRow(
+    icon: String,
+    iconColor: Color,
+    iconBackground: Color,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable {
+                    onClick()
+                }
+                .padding(
+                    horizontal = 16.dp,
+                    vertical = 12.dp
+                ),
+        verticalAlignment =
+            Alignment.CenterVertically
+    ) {
+        Surface(
+            shape =
+                RoundedCornerShape(11.dp),
+            color =
+                iconBackground
+        ) {
+            Box(
                 modifier =
-                    Modifier
-                        .clickable {
-                            onSettingsClick()
-                        }
-                        .padding(
-                            horizontal = 14.dp,
-                            vertical = 10.dp
-                        ),
-                verticalAlignment =
-                    Alignment.CenterVertically
+                    Modifier.size(40.dp),
+                contentAlignment =
+                    Alignment.Center
             ) {
                 Text(
-                    text = "⚙",
+                    text = icon,
+                    color = iconColor,
                     fontSize = 22.sp,
-                    color =
-                        Color(0xFF555B67)
-                )
-
-                Spacer(
-                    modifier =
-                        Modifier.width(8.dp)
-                )
-
-                Text(
-                    text = stringResource(R.string.settings_title),
-                    color =
-                        Color(0xFF555B67),
-                    fontSize = 15.sp
+                    fontWeight =
+                        FontWeight.SemiBold
                 )
             }
         }
 
         Spacer(
             modifier =
-                Modifier.height(24.dp)
+                Modifier.width(13.dp)
+        )
+
+        Column(
+            modifier =
+                Modifier.weight(1f)
+        ) {
+            Text(
+                text = title,
+                color =
+                    Color(0xFF17191F),
+                fontSize = 15.sp,
+                fontWeight =
+                    FontWeight.SemiBold
+            )
+
+            Spacer(
+                modifier =
+                    Modifier.height(2.dp)
+            )
+
+            Text(
+                text = subtitle,
+                color =
+                    Color(0xFF697184),
+                fontSize = 13.sp,
+                maxLines = 1,
+                overflow =
+                    TextOverflow.Ellipsis
+            )
+        }
+
+        Spacer(
+            modifier =
+                Modifier.width(8.dp)
+        )
+
+        Text(
+            text = "›",
+            color =
+                Color(0xFF657084),
+            fontSize = 26.sp,
+            fontWeight =
+                FontWeight.Light
         )
     }
+}
+
+@Composable
+private fun HomeDivider() {
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = 69.dp,
+                    end = 16.dp
+                )
+                .height(1.dp)
+                .background(
+                    Color(0xFFE9ECF1)
+                )
+    )
 }

@@ -23,10 +23,30 @@
     <string name="home_add_qr">QR-код</string>
     <string name="home_add_clipboard">Буфер обмена</string>
     <string name="home_add_manual">Вручную</string>
-    <string name="home_status_disconnected">Нажмите для подключения</string>
+    <string name="home_status_disconnected">Отключено</string>
     <string name="home_status_connecting">Подключение…</string>
     <string name="home_status_connected">Подключено</string>
     <string name="home_status_error">Ошибка подключения</string>
+    <plurals name="home_apps_count">
+        <item quantity="one">%1$d приложение</item>
+        <item quantity="few">%1$d приложения</item>
+        <item quantity="many">%1$d приложений</item>
+        <item quantity="other">%1$d приложения</item>
+    </plurals>
+    <plurals name="home_sites_count">
+        <item quantity="one">%1$d домен</item>
+        <item quantity="few">%1$d домена</item>
+        <item quantity="many">%1$d доменов</item>
+        <item quantity="other">%1$d домена</item>
+    </plurals>
+    <string name="home_routing_disabled">Выключена</string>
+    <string name="home_automation_wifi_mobile">Wi-Fi + мобильная сеть</string>
+    <string name="home_automation_wifi">Wi-Fi</string>
+    <string name="home_automation_mobile">Мобильная сеть</string>
+    <string name="home_primary_server">Основной сервер</string>
+    <string name="home_app_rules">Правила приложений</string>
+    <string name="home_site_rules">Правила сайтов</string>
+    <string name="home_location_unknown">Местоположение не определено</string>
 
     <string name="connections_title">Подключения</string>
     <string name="connections_empty">Сохранённых подключений пока нет.</string>

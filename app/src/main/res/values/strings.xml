@@ -23,10 +23,26 @@
     <string name="home_add_qr">QR code</string>
     <string name="home_add_clipboard">Clipboard</string>
     <string name="home_add_manual">Enter manually</string>
-    <string name="home_status_disconnected">Tap to connect</string>
+    <string name="home_status_disconnected">Disconnected</string>
     <string name="home_status_connecting">Connecting…</string>
     <string name="home_status_connected">Connected</string>
     <string name="home_status_error">Connection error</string>
+    <plurals name="home_apps_count">
+        <item quantity="one">%1$d application</item>
+        <item quantity="other">%1$d applications</item>
+    </plurals>
+    <plurals name="home_sites_count">
+        <item quantity="one">%1$d domain</item>
+        <item quantity="other">%1$d domains</item>
+    </plurals>
+    <string name="home_routing_disabled">Disabled</string>
+    <string name="home_automation_wifi_mobile">Wi-Fi + mobile data</string>
+    <string name="home_automation_wifi">Wi-Fi</string>
+    <string name="home_automation_mobile">Mobile data</string>
+    <string name="home_primary_server">Primary server</string>
+    <string name="home_app_rules">App rules</string>
+    <string name="home_site_rules">Website rules</string>
+    <string name="home_location_unknown">Location unknown</string>
 
     <string name="connections_title">Connections</string>
     <string name="connections_empty">No saved connections yet.</string>

@@ -91,6 +91,22 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf(Screen.HOME)
                 }
 
+                var routingBackScreen by rememberSaveable {
+                    mutableStateOf(Screen.SETTINGS)
+                }
+
+                var automationBackScreen by rememberSaveable {
+                    mutableStateOf(Screen.SETTINGS)
+                }
+
+                var siteRoutingBackScreen by rememberSaveable {
+                    mutableStateOf(Screen.ROUTING)
+                }
+
+                var appRoutingBackScreen by rememberSaveable {
+                    mutableStateOf(Screen.ROUTING)
+                }
+
                 var selectedConnection by remember {
                     mutableStateOf(
                         ConnectionStore.selected(
@@ -246,9 +262,11 @@ class MainActivity : ComponentActivity() {
                                 screen = Screen.GENERAL
                             },
                             onRoutingClick = {
+                                routingBackScreen = Screen.SETTINGS
                                 screen = Screen.ROUTING
                             },
                             onAutomationClick = {
+                                automationBackScreen = Screen.SETTINGS
                                 screen = Screen.AUTOMATION
                             },
                             onConnectionsClick = {
@@ -283,12 +301,12 @@ class MainActivity : ComponentActivity() {
 
                     Screen.AUTOMATION -> {
                         BackHandler {
-                            screen = Screen.SETTINGS
+                            screen = automationBackScreen
                         }
 
                         AutomationScreen(
                             onBack = {
-                                screen = Screen.SETTINGS
+                                screen = automationBackScreen
                             }
                         )
 
@@ -431,17 +449,19 @@ class MainActivity : ComponentActivity() {
 
                     Screen.ROUTING -> {
                         BackHandler {
-                            screen = Screen.SETTINGS
+                            screen = routingBackScreen
                         }
 
                         RoutingScreen(
                             onBack = {
-                                screen = Screen.SETTINGS
+                                screen = routingBackScreen
                             },
                             onApplications = {
+                                appRoutingBackScreen = Screen.ROUTING
                                 screen = Screen.APP_ROUTING
                             },
                             onSites = {
+                                siteRoutingBackScreen = Screen.ROUTING
                                 screen = Screen.SITE_ROUTING
                             }
                         )
@@ -451,12 +471,12 @@ class MainActivity : ComponentActivity() {
 
                     Screen.APP_ROUTING -> {
                         BackHandler {
-                            screen = Screen.ROUTING
+                            screen = appRoutingBackScreen
                         }
 
                         AppRoutingScreen(
                             onBack = {
-                                screen = Screen.ROUTING
+                                screen = appRoutingBackScreen
                             }
                         )
 
@@ -465,12 +485,12 @@ class MainActivity : ComponentActivity() {
 
                     Screen.SITE_ROUTING -> {
                         BackHandler {
-                            screen = Screen.ROUTING
+                            screen = siteRoutingBackScreen
                         }
 
                         SiteRoutingScreen(
                             onBack = {
-                                screen = Screen.ROUTING
+                                screen = siteRoutingBackScreen
                             }
                         )
 
@@ -594,11 +614,23 @@ class MainActivity : ComponentActivity() {
                         )
                 }
 
+                val routingSettings =
+                    RoutingSettingsStore.load(
+                        this@MainActivity
+                    )
+
+                val automationSettings =
+                    AutomationSettingsStore.load(
+                        this@MainActivity
+                    )
+
                 PingwinHomeScreen(
                     connection = connection,
                     location = serverLocation,
                     vpnState = vpnState,
                     pingMs = pingMs,
+                    routingSettings = routingSettings,
+                    automationSettings = automationSettings,
                     onPowerClick = {
                         when (vpnState) {
                             VpnConnectionState.CONNECTED -> {
@@ -623,6 +655,24 @@ class MainActivity : ComponentActivity() {
                             Screen.HOME
                         screen =
                             Screen.CONNECTIONS
+                    },
+                    onAppRoutingClick = {
+                        appRoutingBackScreen =
+                            Screen.HOME
+                        screen =
+                            Screen.APP_ROUTING
+                    },
+                    onSiteRoutingClick = {
+                        siteRoutingBackScreen =
+                            Screen.HOME
+                        screen =
+                            Screen.SITE_ROUTING
+                    },
+                    onAutomationClick = {
+                        automationBackScreen =
+                            Screen.HOME
+                        screen =
+                            Screen.AUTOMATION
                     },
                     onAddQr = {
                         val options =
