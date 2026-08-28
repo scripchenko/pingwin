@@ -9,52 +9,49 @@ class ExampleUnitTest {
     @Test
     fun parseWorking3xUiVlessLink() {
         val link =
-            "vless://79ffee41-ab87-44c2-8f53-fd0afe05fa11@95.164.93.212:443" +
+            "vless://11111111-1111-4111-8111-111111111111@203.0.113.10:443" +
                     "?encryption=none" +
                     "&flow=xtls-rprx-vision" +
                     "&fp=chrome" +
-                    "&pbk=lSPik24zP7ion8DrfLkvoTrVnT7J2VOEbouTq3uTcho" +
+                    "&pbk=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
                     "&security=reality" +
-                    "&sid=50" +
+                    "&sid=0123456789abcdef" +
                     "&sni=amazon.com" +
-                    "&spx=%2F4b01c62261fac66" +
+                    "&spx=%2Ftest-spider" +
                     "&type=tcp" +
-                    "#VLESS-Reality-dmitry_scripchenko"
+                    "#Test-Reality"
 
         val profile = VlessProfile.parse(link)
 
-        assertEquals("79ffee41-ab87-44c2-8f53-fd0afe05fa11", profile.uuid)
-        assertEquals("95.164.93.212", profile.host)
+        assertEquals("11111111-1111-4111-8111-111111111111", profile.uuid)
+        assertEquals("203.0.113.10", profile.host)
         assertEquals(443, profile.port)
         assertEquals("none", profile.encryption)
         assertEquals("xtls-rprx-vision", profile.flow)
         assertEquals("chrome", profile.fingerprint)
-        assertEquals(
-            "lSPik24zP7ion8DrfLkvoTrVnT7J2VOEbouTq3uTcho",
-            profile.publicKey
-        )
+        assertEquals("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", profile.publicKey)
         assertEquals("reality", profile.security)
-        assertEquals("50", profile.shortId)
+        assertEquals("0123456789abcdef", profile.shortId)
         assertEquals("amazon.com", profile.serverName)
-        assertEquals("/4b01c62261fac66", profile.spiderX)
+        assertEquals("/test-spider", profile.spiderX)
         assertEquals("tcp", profile.network)
-        assertEquals("VLESS-Reality-dmitry_scripchenko", profile.name)
+        assertEquals("Test-Reality", profile.name)
     }
 
     @Test
     fun buildSingBoxConfigForWorkingProfile() {
         val link =
-            "vless://79ffee41-ab87-44c2-8f53-fd0afe05fa11@95.164.93.212:443" +
+            "vless://11111111-1111-4111-8111-111111111111@203.0.113.10:443" +
                     "?encryption=none" +
                     "&flow=xtls-rprx-vision" +
                     "&fp=chrome" +
-                    "&pbk=lSPik24zP7ion8DrfLkvoTrVnT7J2VOEbouTq3uTcho" +
+                    "&pbk=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
                     "&security=reality" +
-                    "&sid=50" +
+                    "&sid=0123456789abcdef" +
                     "&sni=amazon.com" +
-                    "&spx=%2F4b01c62261fac66" +
+                    "&spx=%2Ftest-spider" +
                     "&type=tcp" +
-                    "#VLESS-Reality-dmitry_scripchenko"
+                    "#Test-Reality"
 
         val profile = VlessProfile.parse(link)
         val config = SingBoxConfigBuilder.build(profile)
@@ -64,7 +61,7 @@ class ExampleUnitTest {
         assertTrue(config.contains("\"flow\": \"xtls-rprx-vision\""))
         assertTrue(config.contains("\"server_name\": \"amazon.com\""))
         assertTrue(config.contains("\"fingerprint\": \"chrome\""))
-        assertTrue(config.contains("\"short_id\": \"50\""))
+        assertTrue(config.contains("\"short_id\": \"0123456789abcdef\""))
         assertTrue(config.contains("\"final\": \"proxy\""))
     }
 }
