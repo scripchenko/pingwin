@@ -14,6 +14,8 @@
 
 Open the latest release, expand **Assets**, and download the file named `pingwin-<version>.apk`. The automatically generated source code archives are not Android installation packages.
 
+The APK is a universal build and includes native sing-box/libbox libraries for multiple Android CPU architectures. This makes the download larger, but allows the same APK to work across supported devices without requiring users to choose an architecture-specific build.
+
 > [!IMPORTANT]
 > pingwin is a client application. It does not provide VPN servers, subscriptions, or connection credentials.
 >
@@ -228,4 +230,3 @@ See [LICENSE](LICENSE) for the full license text.
 pingwin uses [sing-box](https://github.com/SagerNet/sing-box) and its Android libbox bindings for the VPN core.
 
 QR code scanning is provided by [ZXing Android Embedded](https://github.com/journeyapps/zxing-android-embedded).
-
