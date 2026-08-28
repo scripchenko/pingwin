@@ -61,6 +61,7 @@ Routing changes are applied after reconnecting the VPN.
 - Connect automatically when using mobile data
 - Connect automatically on Wi-Fi networks that are not in the trusted list
 - Disconnect automatically on trusted Wi-Fi networks
+- Optionally disconnect the VPN when the device is registered on a mobile network in a country different from its home country
 - Restore enabled automation after a device restart or application update
 - MacroDroid actions for connecting, disconnecting, and toggling the VPN
 
@@ -79,6 +80,12 @@ Routing changes are applied after reconnecting the VPN.
 - The VLESS link must contain the required server, UUID, REALITY public key (`pbk`), and server name (`sni`) values
 
 Android will ask for permission to create a VPN connection when pingwin connects for the first time.
+
+### REALITY compatibility
+
+Recent Xray-core versions may enforce a minimum REALITY client version on the server. If a previously working VLESS connection starts failing with `reality verification failed` after an Xray-core update, check the server's REALITY `minClientVer` setting.
+
+pingwin uses sing-box/libbox, so the server-side minimum client version policy must allow compatible sing-box clients. A known-tested server combination is 3x-ui 3.7.0 with Xray-core 26.7.28.
 
 ## Installation
 
@@ -112,6 +119,7 @@ The following behavior is confirmed by the current source code:
 - **VPN access:** Android VPN permission is required to create the local VPN interface and route traffic through sing-box.
 - **Camera:** Camera access is used when the QR code scanner is opened. It is not required for manual or clipboard import.
 - **Location:** Android protects access to the current Wi-Fi network name (SSID) with location permissions. Background location access is required for Wi-Fi automation to identify trusted and untrusted networks while pingwin is not in the foreground.
+- **Country detection for automation:** When the "Being abroad" automation rule is enabled, pingwin compares the home country reported by the SIM with the country of the currently registered mobile network. This check is performed locally on the device. If either country cannot be determined, the rule is not applied.
 - **Notifications:** The VPN connection and network automation run as Android foreground services. Their notifications show service status while those services are active.
 - **Stored data:** Saved VLESS links, routing rules, automation settings, cached server location information, and diagnostic logs are stored in regular app-private Android preferences. These preferences are not additionally encrypted by pingwin. VLESS links contain connection credentials.
 - **Android backup:** Android backup is enabled in the application manifest. Actual backup behavior depends on the Android version, device, and backup settings.
