@@ -19,3 +19,6 @@ tmp-libbox/
 # Signing keys
 *.jks
 *.keystore
+
+# Android Studio / IntelliJ
+/.idea/
