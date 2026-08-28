@@ -25,6 +25,19 @@ pingwin manages compatible VLESS connections and runs them through Android's VPN
 
 The application provides connection management, separate routing rules for applications and domains, network-based automation, MacroDroid actions, and diagnostic logs. The interface is available in English and Russian.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><strong>Home</strong><br><img src="docs/screenshots/home-connected.jpg" width="300"></td>
+    <td align="center"><strong>Settings</strong><br><img src="docs/screenshots/settings.jpg" width="300"></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Routing</strong><br><img src="docs/screenshots/routing.jpg" width="300"></td>
+    <td align="center"><strong>Automation</strong><br><img src="docs/screenshots/automation.jpg" width="300"></td>
+  </tr>
+</table>
+
 ## Features
 
 ### Connections
