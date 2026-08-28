@@ -29,12 +29,9 @@ The application provides connection management, separate routing rules for appli
 
 <table>
   <tr>
-    <td align="center"><strong>Home</strong><br><img src="docs/screenshots/home-connected.jpg" width="300"></td>
-    <td align="center"><strong>Settings</strong><br><img src="docs/screenshots/settings.jpg" width="300"></td>
-  </tr>
-  <tr>
-    <td align="center"><strong>Routing</strong><br><img src="docs/screenshots/routing.jpg" width="300"></td>
-    <td align="center"><strong>Automation</strong><br><img src="docs/screenshots/automation.jpg" width="300"></td>
+    <td align="center"><strong>Home</strong><br><img src="docs/screenshots/home-connected.jpg" width="220"></td>
+    <td align="center"><strong>Settings</strong><br><img src="docs/screenshots/settings.jpg" width="220"></td>
+    <td align="center"><strong>Routing</strong><br><img src="docs/screenshots/routing.jpg" width="220"></td>
   </tr>
 </table>
 
@@ -223,3 +220,4 @@ See [LICENSE](LICENSE) for the full license text.
 pingwin uses [sing-box](https://github.com/SagerNet/sing-box) and its Android libbox bindings for the VPN core.
 
 QR code scanning is provided by [ZXing Android Embedded](https://github.com/journeyapps/zxing-android-embedded).
+
