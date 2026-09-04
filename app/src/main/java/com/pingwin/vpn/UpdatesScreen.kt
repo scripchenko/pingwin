@@ -207,6 +207,54 @@ fun UpdatesScreen(
     }
 
     LaunchedEffect(Unit) {
+        val savedVersion =
+            UpdateSettingsStore.getAvailableVersion(
+                context
+            )
+
+        if (
+            savedVersion != null &&
+            UpdateChecker.isNewerVersion(
+                remoteVersion = savedVersion,
+                currentVersion = BuildConfig.VERSION_NAME
+            )
+        ) {
+            val result =
+                withContext(Dispatchers.IO) {
+                    runCatching {
+                        UpdateChecker.getLatestRelease()
+                    }
+                }
+
+            result.onSuccess { release ->
+                latestRelease = release
+                updateAvailable =
+                    UpdateChecker.isNewerVersion(
+                        remoteVersion = release.version,
+                        currentVersion = BuildConfig.VERSION_NAME
+                    )
+
+                if (updateAvailable) {
+                    UpdateSettingsStore.setAvailableVersion(
+                        context,
+                        release.version
+                    )
+                } else {
+                    UpdateSettingsStore.clearAvailableVersion(
+                        context
+                    )
+                }
+
+                checked = true
+            }
+        } else if (savedVersion != null) {
+            UpdateSettingsStore.clearAvailableVersion(
+                context
+            )
+        }
+    }
+
+    LaunchedEffect(Unit) {
         while (true) {
             val state =
                 withContext(
@@ -473,6 +521,17 @@ fun UpdatesScreen(
                                     currentVersion =
                                         BuildConfig.VERSION_NAME
                                 )
+
+                            if (updateAvailable) {
+                                UpdateSettingsStore.setAvailableVersion(
+                                    context,
+                                    release.version
+                                )
+                            } else {
+                                UpdateSettingsStore.clearAvailableVersion(
+                                    context
+                                )
+                            }
 
                             checked = true
                         }

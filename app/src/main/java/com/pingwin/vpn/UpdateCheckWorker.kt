@@ -39,6 +39,17 @@ class UpdateCheckWorker(
                         BuildConfig.VERSION_NAME
                 )
 
+            if (updateAvailable) {
+                UpdateSettingsStore.setAvailableVersion(
+                    applicationContext,
+                    release.version
+                )
+            } else {
+                UpdateSettingsStore.clearAvailableVersion(
+                    applicationContext
+                )
+            }
+
             val lastNotifiedVersion =
                 UpdateSettingsStore.getLastNotifiedVersion(
                     applicationContext

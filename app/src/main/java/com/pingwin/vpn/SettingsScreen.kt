@@ -1,5 +1,10 @@
 package com.pingwin.vpn
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +24,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +44,17 @@ fun SettingsScreen(
     onUpdatesClick: () -> Unit,
     onAboutClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val showUpdateDot =
+        UpdateSettingsStore
+            .getAvailableVersion(context)
+            ?.let { version ->
+                UpdateChecker.isNewerVersion(
+                    remoteVersion = version,
+                    currentVersion = BuildConfig.VERSION_NAME
+                )
+            } == true
+
     Column(
         modifier =
             Modifier
@@ -146,7 +164,8 @@ fun SettingsScreen(
                 stringResource(
                     R.string.settings_updates_subtitle
                 ),
-            onClick = onUpdatesClick
+            onClick = onUpdatesClick,
+            showDot = showUpdateDot
         )
 
         SettingsRow(
@@ -266,7 +285,8 @@ private fun SettingsRow(
     icon: String,
     title: String,
     subtitle: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    showDot: Boolean = false
 ) {
     Row(
         modifier =
@@ -296,12 +316,58 @@ private fun SettingsRow(
             verticalArrangement =
                 Arrangement.spacedBy(3.dp)
         ) {
-            Text(
-                text = title,
-                fontSize = 19.sp,
-                color =
-                    Color(0xFF1A1C21)
-            )
+            Row(
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+                Text(
+                    text = title,
+                    fontSize = 19.sp,
+                    color =
+                        Color(0xFF1A1C21)
+                )
+
+                if (showDot) {
+                    val transition =
+                        rememberInfiniteTransition(
+                            label = "updateDotPulse"
+                        )
+
+                    val pulse =
+                        transition.animateFloat(
+                            initialValue = 0.78f,
+                            targetValue = 1f,
+                            animationSpec =
+                                infiniteRepeatable(
+                                    animation =
+                                        tween(
+                                            durationMillis = 850
+                                        ),
+                                    repeatMode =
+                                        RepeatMode.Reverse
+                                ),
+                            label = "updateDotPulseValue"
+                        ).value
+
+                    Spacer(
+                        modifier =
+                            Modifier.width(7.dp)
+                    )
+
+                    Text(
+                        text = "●",
+                        fontSize = 12.sp,
+                        color =
+                            Color(0xFFE53935),
+                        modifier =
+                            Modifier.graphicsLayer {
+                                alpha = pulse
+                                scaleX = pulse
+                                scaleY = pulse
+                            }
+                    )
+                }
+            }
 
             Text(
                 text = subtitle,

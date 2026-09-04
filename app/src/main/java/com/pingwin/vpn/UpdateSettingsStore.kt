@@ -13,6 +13,9 @@ object UpdateSettingsStore {
     private const val KEY_LAST_NOTIFIED_VERSION =
         "last_notified_version"
 
+    private const val KEY_AVAILABLE_VERSION =
+        "available_version"
+
     fun isAutoCheckEnabled(
         context: Context
     ): Boolean =
@@ -69,6 +72,51 @@ object UpdateSettingsStore {
             .putString(
                 KEY_LAST_NOTIFIED_VERSION,
                 version
+            )
+            .apply()
+    }
+
+    fun getAvailableVersion(
+        context: Context
+    ): String? =
+        context
+            .getSharedPreferences(
+                PREFS_NAME,
+                Context.MODE_PRIVATE
+            )
+            .getString(
+                KEY_AVAILABLE_VERSION,
+                null
+            )
+
+    fun setAvailableVersion(
+        context: Context,
+        version: String
+    ) {
+        context
+            .getSharedPreferences(
+                PREFS_NAME,
+                Context.MODE_PRIVATE
+            )
+            .edit()
+            .putString(
+                KEY_AVAILABLE_VERSION,
+                version
+            )
+            .apply()
+    }
+
+    fun clearAvailableVersion(
+        context: Context
+    ) {
+        context
+            .getSharedPreferences(
+                PREFS_NAME,
+                Context.MODE_PRIVATE
+            )
+            .edit()
+            .remove(
+                KEY_AVAILABLE_VERSION
             )
             .apply()
     }
