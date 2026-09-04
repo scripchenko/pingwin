@@ -11,7 +11,23 @@
     <string name="settings_connections">Connections</string>
     <string name="settings_logs">Logs</string>
     <string name="settings_logs_subtitle">Connection diagnostics</string>
+    <string name="settings_updates">Updates</string>
+    <string name="settings_updates_subtitle">Check for new versions</string>
     <string name="settings_about">About</string>
+
+    <string name="updates_title">Updates</string>
+    <string name="updates_current_version">Installed version: %1$s</string>
+    <string name="updates_auto_check">Automatic updates</string>
+    <string name="updates_auto_check_subtitle">Look for new versions once a day and notify when one is available</string>
+    <string name="updates_check">Check now</string>
+    <string name="updates_checking">Checking for updates…</string>
+    <string name="updates_up_to_date">You have the latest version</string>
+    <string name="updates_available">A new version is available: %1$s</string>
+    <string name="updates_download">Download and update</string>
+    <string name="updates_downloading">Downloading update…</string>
+    <string name="updates_error">Could not check for updates</string>
+    <string name="updates_download_error">Could not download the update</string>
+    <string name="updates_install_permission">Allow pingwin to install updates, then try again</string>
     <string name="settings_home">Home</string>
 
     <string name="general_title">General</string>

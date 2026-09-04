@@ -34,6 +34,7 @@ fun SettingsScreen(
     onAutomationClick: () -> Unit,
     onConnectionsClick: () -> Unit,
     onLogsClick: () -> Unit,
+    onUpdatesClick: () -> Unit,
     onAboutClick: () -> Unit
 ) {
     Column(
@@ -133,6 +134,19 @@ fun SettingsScreen(
                     R.string.settings_logs_subtitle
                 ),
             onClick = onLogsClick
+        )
+
+        SettingsRow(
+            icon = "↻",
+            title =
+                stringResource(
+                    R.string.settings_updates
+                ),
+            subtitle =
+                stringResource(
+                    R.string.settings_updates_subtitle
+                ),
+            onClick = onUpdatesClick
         )
 
         SettingsRow(

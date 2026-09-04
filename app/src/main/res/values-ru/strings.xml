@@ -11,7 +11,23 @@
     <string name="settings_connections">Подключения</string>
     <string name="settings_logs">Логи</string>
     <string name="settings_logs_subtitle">Диагностика подключения</string>
+    <string name="settings_updates">Обновления</string>
+    <string name="settings_updates_subtitle">Проверка новых версий</string>
     <string name="settings_about">О программе</string>
+
+    <string name="updates_title">Обновления</string>
+    <string name="updates_current_version">Установленная версия: %1$s</string>
+    <string name="updates_auto_check">Проверять автоматически</string>
+    <string name="updates_auto_check_subtitle">Раз в сутки проверять новую версию и сообщать о доступном обновлении</string>
+    <string name="updates_check">Проверить обновления</string>
+    <string name="updates_checking">Проверка обновлений…</string>
+    <string name="updates_up_to_date">У вас установлена последняя версия</string>
+    <string name="updates_available">Доступна новая версия: %1$s</string>
+    <string name="updates_download">Скачать и обновить</string>
+    <string name="updates_downloading">Загрузка обновления…</string>
+    <string name="updates_error">Не удалось проверить обновления</string>
+    <string name="updates_download_error">Не удалось скачать обновление</string>
+    <string name="updates_install_permission">Разрешите pingwin устанавливать обновления и повторите попытку</string>
     <string name="settings_home">Главная</string>
 
     <string name="general_title">Общие</string>

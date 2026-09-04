@@ -2,6 +2,7 @@ package com.pingwin.vpn
 
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.net.VpnService
 import android.os.Bundle
 import android.widget.Toast
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
         AUTOMATION,
         ABOUT,
         LOGS,
+        UPDATES,
         ADD_CONNECTION,
         CONNECTIONS,
         ROUTING,
@@ -56,6 +58,7 @@ class MainActivity : ComponentActivity() {
         )
 
         AutomationService.sync(this)
+        UpdateScheduler.sync(this)
     }
 
     override fun onStop() {
@@ -78,13 +81,38 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+
+        setIntent(intent)
+
+        if (
+            intent.getBooleanExtra(
+                UpdateCheckWorker.EXTRA_OPEN_UPDATES,
+                false
+            )
+        ) {
+            recreate()
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             PingwinTheme {
                 var screen by rememberSaveable {
-                    mutableStateOf(Screen.HOME)
+                    mutableStateOf(
+                        if (
+                            intent.getBooleanExtra(
+                                UpdateCheckWorker.EXTRA_OPEN_UPDATES,
+                                false
+                            )
+                        ) {
+                            Screen.UPDATES
+                        } else {
+                            Screen.HOME
+                        }
+                    )
                 }
 
                 var connectionsBackScreen by rememberSaveable {
@@ -277,6 +305,9 @@ class MainActivity : ComponentActivity() {
                             onLogsClick = {
                                 screen = Screen.LOGS
                             },
+                            onUpdatesClick = {
+                                screen = Screen.UPDATES
+                            },
                             onAboutClick = {
                                 screen = Screen.ABOUT
                             }
@@ -325,6 +356,20 @@ class MainActivity : ComponentActivity() {
 
                         return@PingwinTheme
                     }
+                    Screen.UPDATES -> {
+                        BackHandler {
+                            screen = Screen.SETTINGS
+                        }
+
+                        UpdatesScreen(
+                            onBack = {
+                                screen = Screen.SETTINGS
+                            }
+                        )
+
+                        return@PingwinTheme
+                    }
+
                     Screen.ABOUT -> {
                         BackHandler {
                             screen = Screen.SETTINGS
