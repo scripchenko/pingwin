@@ -1,147 +1,239 @@
 package com.pingwin.vpn
 
+import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.Settings
 import androidx.core.content.FileProvider
 import java.io.File
-import java.net.HttpURLConnection
-import java.net.URL
+
+data class UpdateDownloadState(
+    val status: Int,
+    val progress: Int?,
+    val apkFile: File?
+)
 
 object UpdateInstaller {
 
-    fun downloadApk(
+    private const val PREFS_NAME =
+        "pingwin_update_download"
+
+    private const val KEY_DOWNLOAD_ID =
+        "download_id"
+
+    private const val NO_DOWNLOAD =
+        -1L
+
+    fun startDownload(
         context: Context,
-        apkUrl: String,
-        onProgress: (Int?) -> Unit = {}
-    ): File {
-        val updatesDir =
-            File(
-                context.cacheDir,
-                "updates"
-            ).apply {
-                mkdirs()
-            }
+        apkUrl: String
+    ): Long {
+        cancelCurrentDownload(
+            context
+        )
 
         val apkFile =
-            File(
-                updatesDir,
-                "pingwin-update.apk"
+            getDownloadFile(
+                context
             )
 
-        val connection =
-            (URL(apkUrl).openConnection() as HttpURLConnection).apply {
-                requestMethod = "GET"
-                connectTimeout = 15_000
-                readTimeout = 60_000
-                instanceFollowRedirects = true
-                setRequestProperty(
-                    "User-Agent",
-                    "pingwin-android"
+        apkFile.parentFile
+            ?.mkdirs()
+
+        if (apkFile.exists()) {
+            apkFile.delete()
+        }
+
+        val request =
+            DownloadManager.Request(
+                Uri.parse(
+                    apkUrl
                 )
+            )
+                .setTitle(
+                    "pingwin"
+                )
+                .setDescription(
+                    "Downloading update"
+                )
+                .setMimeType(
+                    "application/vnd.android.package-archive"
+                )
+                .setNotificationVisibility(
+                    DownloadManager.Request
+                        .VISIBILITY_VISIBLE
+                )
+                .setAllowedOverMetered(
+                    true
+                )
+                .setAllowedOverRoaming(
+                    true
+                )
+                .setDestinationInExternalFilesDir(
+                    context,
+                    Environment.DIRECTORY_DOWNLOADS,
+                    "updates/pingwin-update.apk"
+                )
+
+        val manager =
+            context.getSystemService(
+                DownloadManager::class.java
+            )
+
+        val downloadId =
+            manager.enqueue(
+                request
+            )
+
+        prefs(context)
+            .edit()
+            .putLong(
+                KEY_DOWNLOAD_ID,
+                downloadId
+            )
+            .apply()
+
+        return downloadId
+    }
+
+    fun getDownloadState(
+        context: Context
+    ): UpdateDownloadState? {
+        val downloadId =
+            getDownloadId(
+                context
+            )
+
+        if (downloadId == NO_DOWNLOAD) {
+            return null
+        }
+
+        val manager =
+            context.getSystemService(
+                DownloadManager::class.java
+            )
+
+        val query =
+            DownloadManager.Query()
+                .setFilterById(
+                    downloadId
+                )
+
+        manager.query(query).use { cursor ->
+            if (!cursor.moveToFirst()) {
+                clearStoredDownload(
+                    context
+                )
+
+                return null
             }
 
-        try {
-            val responseCode =
-                connection.responseCode
-
-            if (responseCode !in 200..299) {
-                error(
-                    "APK download returned HTTP $responseCode"
+            val status =
+                cursor.getInt(
+                    cursor.getColumnIndexOrThrow(
+                        DownloadManager.COLUMN_STATUS
+                    )
                 )
-            }
+
+            val downloadedBytes =
+                cursor.getLong(
+                    cursor.getColumnIndexOrThrow(
+                        DownloadManager
+                            .COLUMN_BYTES_DOWNLOADED_SO_FAR
+                    )
+                )
 
             val totalBytes =
-                connection.contentLengthLong
+                cursor.getLong(
+                    cursor.getColumnIndexOrThrow(
+                        DownloadManager
+                            .COLUMN_TOTAL_SIZE_BYTES
+                    )
+                )
 
-            var downloadedBytes =
-                0L
-
-            var lastProgress =
-                -1
-
-            onProgress(
-                if (totalBytes > 0L) {
-                    0
+            val progress =
+                if (
+                    totalBytes > 0L &&
+                    downloadedBytes >= 0L
+                ) {
+                    (
+                        downloadedBytes *
+                            100L /
+                            totalBytes
+                        )
+                        .toInt()
+                        .coerceIn(
+                            0,
+                            100
+                        )
                 } else {
                     null
                 }
+
+            val apkFile =
+                if (
+                    status ==
+                        DownloadManager.STATUS_SUCCESSFUL
+                ) {
+                    getDownloadFile(
+                        context
+                    )
+                } else {
+                    null
+                }
+
+            return UpdateDownloadState(
+                status = status,
+                progress = progress,
+                apkFile = apkFile
+            )
+        }
+    }
+
+    fun getDownloadId(
+        context: Context
+    ): Long =
+        prefs(context)
+            .getLong(
+                KEY_DOWNLOAD_ID,
+                NO_DOWNLOAD
             )
 
-            connection.inputStream.use { input ->
-                apkFile.outputStream().use { output ->
-                    val buffer =
-                        ByteArray(
-                            64 * 1024
-                        )
+    fun clearStoredDownload(
+        context: Context
+    ) {
+        prefs(context)
+            .edit()
+            .remove(
+                KEY_DOWNLOAD_ID
+            )
+            .apply()
+    }
 
-                    while (true) {
-                        val read =
-                            input.read(
-                                buffer
-                            )
+    fun cancelCurrentDownload(
+        context: Context
+    ) {
+        val downloadId =
+            getDownloadId(
+                context
+            )
 
-                        if (read < 0) {
-                            break
-                        }
-
-                        output.write(
-                            buffer,
-                            0,
-                            read
-                        )
-
-                        downloadedBytes +=
-                            read
-
-                        if (totalBytes > 0L) {
-                            val progress =
-                                (
-                                    downloadedBytes *
-                                        100L /
-                                        totalBytes
-                                    )
-                                    .toInt()
-                                    .coerceIn(
-                                        0,
-                                        100
-                                    )
-
-                            if (
-                                progress !=
-                                    lastProgress
-                            ) {
-                                lastProgress =
-                                    progress
-
-                                onProgress(
-                                    progress
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            require(
-                apkFile.exists() &&
-                    apkFile.length() > 0L
-            ) {
-                "Downloaded APK is empty"
-            }
-
-            if (totalBytes > 0L) {
-                onProgress(
-                    100
+        if (downloadId != NO_DOWNLOAD) {
+            context
+                .getSystemService(
+                    DownloadManager::class.java
                 )
-            }
-
-            return apkFile
-        } finally {
-            connection.disconnect()
+                .remove(
+                    downloadId
+                )
         }
+
+        clearStoredDownload(
+            context
+        )
     }
 
     fun canInstallPackages(
@@ -180,7 +272,9 @@ object UpdateInstaller {
                 )
             }
 
-        context.startActivity(intent)
+        context.startActivity(
+            intent
+        )
     }
 
     fun installApk(
@@ -210,6 +304,26 @@ object UpdateInstaller {
                 )
             }
 
-        context.startActivity(intent)
+        context.startActivity(
+            intent
+        )
     }
+
+    private fun getDownloadFile(
+        context: Context
+    ): File =
+        File(
+            context.getExternalFilesDir(
+                Environment.DIRECTORY_DOWNLOADS
+            ),
+            "updates/pingwin-update.apk"
+        )
+
+    private fun prefs(
+        context: Context
+    ) =
+        context.getSharedPreferences(
+            PREFS_NAME,
+            Context.MODE_PRIVATE
+        )
 }

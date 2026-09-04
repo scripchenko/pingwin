@@ -1,11 +1,15 @@
 package com.pingwin.vpn
 
 import android.Manifest
+import android.app.DownloadManager
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
@@ -25,11 +30,13 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +49,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -173,6 +181,12 @@ fun UpdatesScreen(
                     ) {
                         installPermissionNeeded = false
 
+                        UpdateInstaller.clearStoredDownload(
+                            context
+                        )
+
+                        downloadedApk = null
+
                         UpdateInstaller.installApk(
                             context,
                             apkFile
@@ -189,6 +203,93 @@ fun UpdatesScreen(
             activity.lifecycle.removeObserver(
                 observer
             )
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            val state =
+                withContext(
+                    Dispatchers.IO
+                ) {
+                    UpdateInstaller.getDownloadState(
+                        context.applicationContext
+                    )
+                }
+
+            when (state?.status) {
+                DownloadManager.STATUS_PENDING,
+                DownloadManager.STATUS_RUNNING,
+                DownloadManager.STATUS_PAUSED -> {
+                    downloading = true
+                    downloadFailed = false
+                    downloadProgress =
+                        state.progress
+                }
+
+                DownloadManager.STATUS_SUCCESSFUL -> {
+                    downloading = false
+                    downloadProgress = 100
+
+                    val apkFile =
+                        state.apkFile
+
+                    if (
+                        apkFile != null &&
+                        apkFile.exists()
+                    ) {
+                        downloadedApk =
+                            apkFile
+
+                        val resumed =
+                            activity
+                                ?.lifecycle
+                                ?.currentState
+                                ?.isAtLeast(
+                                    androidx.lifecycle.Lifecycle.State.RESUMED
+                                ) == true
+
+                        if (resumed) {
+                            if (
+                                UpdateInstaller.canInstallPackages(
+                                    context
+                                )
+                            ) {
+                                UpdateInstaller.clearStoredDownload(
+                                    context
+                                )
+
+                                downloadedApk = null
+
+                                UpdateInstaller.installApk(
+                                    context,
+                                    apkFile
+                                )
+                            } else if (
+                                !installPermissionNeeded
+                            ) {
+                                installPermissionNeeded = true
+
+                                UpdateInstaller.openInstallPermission(
+                                    context
+                                )
+                            }
+                        }
+                    }
+                }
+
+                DownloadManager.STATUS_FAILED -> {
+                    downloading = false
+                    downloadProgress = null
+                    downloadFailed = true
+
+                    UpdateInstaller.clearStoredDownload(
+                        context
+                    )
+                }
+            }
+
+            delay(500)
         }
     }
 
@@ -436,6 +537,7 @@ fun UpdatesScreen(
                     modifier = Modifier.height(12.dp)
                 )
 
+                if (!downloading) {
                 Button(
                     modifier =
                         Modifier.fillMaxWidth(),
@@ -468,54 +570,19 @@ fun UpdatesScreen(
                                 )
                             }
                         } else {
+                            downloadFailed = false
                             downloading = true
-                            downloadProgress = null
+                            downloadProgress = 0
 
-                            scope.launch {
-                                val result =
-                                    withContext(
-                                        Dispatchers.IO
-                                    ) {
-                                        runCatching {
-                                            UpdateInstaller.downloadApk(
-                                                context.applicationContext,
-                                                release.apkUrl
-                                            ) { progress ->
-                                                scope.launch {
-                                                    downloadProgress =
-                                                        progress
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                result
-                                    .onSuccess { apkFile ->
-                                        downloadedApk =
-                                            apkFile
-
-                                        if (
-                                            UpdateInstaller.canInstallPackages(
-                                                context
-                                            )
-                                        ) {
-                                            UpdateInstaller.installApk(
-                                                context,
-                                                apkFile
-                                            )
-                                        } else {
-                                            installPermissionNeeded = true
-
-                                            UpdateInstaller.openInstallPermission(
-                                                context
-                                            )
-                                        }
-                                    }
-                                    .onFailure {
-                                        downloadFailed = true
-                                    }
-
+                            runCatching {
+                                UpdateInstaller.startDownload(
+                                    context.applicationContext,
+                                    release.apkUrl
+                                )
+                            }.onFailure {
                                 downloading = false
+                                downloadProgress = null
+                                downloadFailed = true
                             }
                         }
                     }
@@ -534,28 +601,45 @@ fun UpdatesScreen(
                     )
                 }
 
+                }
                 if (downloading) {
                     val progress =
-                        downloadProgress
+                        downloadProgress ?: 0
 
-                    if (progress != null) {
-                        LinearProgressIndicator(
-                            progress = {
-                                progress / 100f
-                            },
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(52.dp)
+                                .clip(
+                                    RoundedCornerShape(26.dp)
+                                )
+                                .background(
+                                    Color(0xFF10285A)
+                                )
+                    ) {
+                        Box(
                             modifier =
-                                Modifier.fillMaxWidth()
+                                Modifier
+                                    .fillMaxHeight()
+                                    .fillMaxWidth(
+                                        progress / 100f
+                                    )
+                                    .background(
+                                        Color(0xFF3568C0)
+                                    )
                         )
 
                         Text(
-                            text = "$progress%",
-                            fontSize = 14.sp,
-                            color = Color(0xFF777D89)
-                        )
-                    } else {
-                        LinearProgressIndicator(
+                            text =
+                                stringResource(
+                                    R.string.updates_downloading
+                                ) + " $progress%",
+                            color = Color.White,
                             modifier =
-                                Modifier.fillMaxWidth()
+                                Modifier.align(
+                                    Alignment.Center
+                                )
                         )
                     }
                 }
