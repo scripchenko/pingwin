@@ -1,5 +1,6 @@
 package com.pingwin.vpn
 
+import android.os.Build
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -15,6 +16,11 @@ object UpdateChecker {
 
     private const val LATEST_RELEASE_URL =
         "https://api.github.com/repos/scripchenko/pingwin/releases/latest"
+
+    private data class ApkAsset(
+        val name: String,
+        val url: String
+    )
 
     fun getLatestRelease(): UpdateRelease {
         val connection =
@@ -57,50 +63,130 @@ object UpdateChecker {
                 json.getString("tag_name")
                     .removePrefix("v")
 
-            val assets =
+            val assetsJson =
                 json.getJSONArray("assets")
 
-            var apkUrl: String? = null
+            val apkAssets =
+                buildList {
+                    for (
+                        index in 0 until
+                            assetsJson.length()
+                    ) {
+                        val asset =
+                            assetsJson.getJSONObject(
+                                index
+                            )
 
-            for (index in 0 until assets.length()) {
-                val asset =
-                    assets.getJSONObject(index)
+                        val name =
+                            asset.getString(
+                                "name"
+                            )
 
-                val name =
-                    asset.getString("name")
-
-                if (
-                    name.endsWith(
-                        ".apk",
-                        ignoreCase = true
-                    )
-                ) {
-                    apkUrl =
-                        asset.getString(
-                            "browser_download_url"
-                        )
-
-                    break
+                        if (
+                            name.endsWith(
+                                ".apk",
+                                ignoreCase = true
+                            )
+                        ) {
+                            add(
+                                ApkAsset(
+                                    name = name,
+                                    url =
+                                        asset.getString(
+                                            "browser_download_url"
+                                        )
+                                )
+                            )
+                        }
+                    }
                 }
-            }
 
             require(
-                !apkUrl.isNullOrBlank()
+                apkAssets.isNotEmpty()
             ) {
                 "The latest GitHub release does not contain an APK"
             }
 
+            val selectedAsset =
+                selectApkAsset(
+                    assets = apkAssets,
+                    supportedAbis =
+                        Build.SUPPORTED_ABIS
+                            .toList()
+                )
+
             return UpdateRelease(
                 version = version,
-                apkUrl = apkUrl,
+                apkUrl = selectedAsset.url,
                 releaseUrl =
-                    json.getString("html_url"),
+                    json.getString(
+                        "html_url"
+                    ),
                 releaseNotes =
-                    json.optString("body")
+                    json.optString(
+                        "body"
+                    )
             )
         } finally {
             connection.disconnect()
         }
+    }
+
+    private fun selectApkAsset(
+        assets: List<ApkAsset>,
+        supportedAbis: List<String>
+    ): ApkAsset {
+        if (assets.size == 1) {
+            return assets.first()
+        }
+
+        fun findByName(
+            part: String
+        ): ApkAsset? =
+            assets.firstOrNull {
+                it.name.contains(
+                    part,
+                    ignoreCase = true
+                )
+            }
+
+        if (
+            supportedAbis.any {
+                it.equals(
+                    "arm64-v8a",
+                    ignoreCase = true
+                )
+            }
+        ) {
+            findByName(
+                "arm64-v8a"
+            )?.let {
+                return it
+            }
+        }
+
+        if (
+            supportedAbis.any {
+                it.equals(
+                    "armeabi-v7a",
+                    ignoreCase = true
+                )
+            }
+        ) {
+            findByName(
+                "armeabi-v7a"
+            )?.let {
+                return it
+            }
+        }
+
+        findByName(
+            "universal"
+        )?.let {
+            return it
+        }
+
+        return assets.first()
     }
 
     fun isNewerVersion(
