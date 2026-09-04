@@ -12,9 +12,13 @@
 
 ## [Download latest APK](https://github.com/scripchenko/pingwin/releases/latest)
 
-Open the latest release, expand **Assets**, and download the file named `pingwin-<version>.apk`. The automatically generated source code archives are not Android installation packages.
+Open the latest release, expand **Assets**, and choose the APK that matches your device:
 
-The APK is a universal build and includes native sing-box/libbox libraries for multiple Android CPU architectures. This makes the download larger, but allows the same APK to work across supported devices without requiring users to choose an architecture-specific build.
+- **`app-arm64-v8a-release.apk`** — recommended for most modern Android phones and tablets.
+- **`app-armeabi-v7a-release.apk`** — for older 32-bit ARM devices.
+- **`app-universal-release.apk`** — universal build for users who are unsure which architecture they need.
+
+The automatically generated source code archives are not Android installation packages.
 
 > [!IMPORTANT]
 > pingwin is a client application. It does not provide VPN servers, subscriptions, or connection credentials.
@@ -93,7 +97,7 @@ pingwin uses sing-box/libbox, so the server-side minimum client version policy m
 
 1. Open the [latest release](https://github.com/scripchenko/pingwin/releases/latest).
 2. Expand the **Assets** section.
-3. Download `pingwin-<version>.apk`.
+3. Download the APK for your device: `app-arm64-v8a-release.apk` for most modern phones, `app-armeabi-v7a-release.apk` for older 32-bit ARM devices, or `app-universal-release.apk` if you are unsure.
 4. Open the downloaded APK.
 5. If Android asks for permission, allow your browser or file manager to install applications from that source.
 6. Start pingwin and add your VLESS configuration.
@@ -183,24 +187,24 @@ Run local unit tests on Windows:
 
 Official APK files are published in [GitHub Releases](https://github.com/scripchenko/pingwin/releases).
 
-Each release provides a SHA-256 checksum. After downloading the APK, calculate its checksum and compare it with the value published for that release.
+Each release includes a `SHA256SUMS.txt` file. After downloading an APK, calculate its SHA-256 checksum and compare it with the corresponding value in `SHA256SUMS.txt`.
 
 Windows PowerShell:
 
 ```powershell
-Get-FileHash .\pingwin-*.apk -Algorithm SHA256
+Get-FileHash .\app-*-release.apk -Algorithm SHA256
 ```
 
 Linux:
 
 ```bash
-sha256sum pingwin-*.apk
+sha256sum app-*-release.apk
 ```
 
 macOS:
 
 ```bash
-shasum -a 256 pingwin-*.apk
+shasum -a 256 app-*-release.apk
 ```
 
 Do not install the file if the calculated checksum does not match the published checksum.
