@@ -222,7 +222,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     try {
                         val profile =
-                            VlessProfile.parse(
+                            ConnectionProfileParser.parse(
                                 connection.link
                             )
 
@@ -232,7 +232,7 @@ class MainActivity : ComponentActivity() {
                             )
 
                         val config =
-                            SingBoxConfigBuilder.build(
+                            ConnectionConfigBuilder.build(
                                 profile,
                                 routing,
                                 DiagnosticLogStore.isDetailedEnabled(
@@ -586,7 +586,7 @@ class MainActivity : ComponentActivity() {
                 val profile =
                     remember(connection.id) {
                         runCatching {
-                            VlessProfile.parse(
+                            ConnectionProfileParser.parse(
                                 connection.link
                             )
                         }.getOrNull()

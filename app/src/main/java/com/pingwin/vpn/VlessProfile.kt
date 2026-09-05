@@ -16,8 +16,8 @@ class VlessParseException(
 
 data class VlessProfile(
     val uuid: String,
-    val host: String,
-    val port: Int,
+    override val host: String,
+    override val port: Int,
     val encryption: String,
     val flow: String?,
     val fingerprint: String?,
@@ -27,8 +27,10 @@ data class VlessProfile(
     val serverName: String?,
     val spiderX: String?,
     val network: String?,
-    val name: String?
-) {
+    override val name: String?
+) : ConnectionProfile {
+    override val protocol = ConnectionProtocol.VLESS
+
     companion object {
 
         fun parse(link: String): VlessProfile {

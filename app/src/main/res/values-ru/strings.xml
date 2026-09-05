@@ -175,6 +175,7 @@
 
     <string name="qr_invalid_vless">QR-код не содержит корректную VLESS-ссылку</string>
 
+    <string name="connection_error_unsupported_protocol">Этот протокол подключения не поддерживается</string>
     <string name="vless_error_invalid_scheme">Ссылка должна начинаться с vless://</string>
     <string name="vless_error_missing_uuid">В ссылке отсутствует UUID</string>
     <string name="vless_error_missing_host">В ссылке отсутствует адрес сервера</string>

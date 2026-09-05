@@ -78,23 +78,11 @@ object ConnectionStore {
     ): SavedConnection {
         val profile =
             try {
-                VlessProfile.parse(link)
-            } catch (
-                error: VlessParseException
-            ) {
+                ConnectionProfileParser.parse(link)
+            } catch (error: IllegalArgumentException) {
                 throw IllegalArgumentException(
-                    context.getString(
-                        when (error.error) {
-                            VlessParseError.INVALID_SCHEME ->
-                                R.string.vless_error_invalid_scheme
-
-                            VlessParseError.MISSING_UUID ->
-                                R.string.vless_error_missing_uuid
-
-                            VlessParseError.MISSING_HOST ->
-                                R.string.vless_error_missing_host
-                        }
-                    )
+                    error.localizedVpnMessage(context),
+                    error
                 )
             }
 
@@ -220,10 +208,10 @@ object ConnectionStore {
     }
 
     private fun defaultName(
-        profile: VlessProfile
+        profile: ConnectionProfile
     ): String =
         buildString {
-            append("VLESS")
+            append(profile.protocol.displayName)
 
             if (profile.host.isNotBlank()) {
                 append(" · ")

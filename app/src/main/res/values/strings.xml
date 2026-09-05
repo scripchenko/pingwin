@@ -171,6 +171,7 @@
 
     <string name="qr_invalid_vless">The QR code does not contain a valid VLESS link</string>
 
+    <string name="connection_error_unsupported_protocol">This connection protocol is not supported</string>
     <string name="vless_error_invalid_scheme">The link must start with vless://</string>
     <string name="vless_error_missing_uuid">The link does not contain a UUID</string>
     <string name="vless_error_missing_host">The link does not contain a server address</string>

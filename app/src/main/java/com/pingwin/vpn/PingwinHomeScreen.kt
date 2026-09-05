@@ -75,7 +75,7 @@ fun PingwinHomeScreen(
     val profile =
         remember(connection.id) {
             runCatching {
-                VlessProfile.parse(
+                ConnectionProfileParser.parse(
                     connection.link
                 )
             }.getOrNull()
@@ -89,7 +89,7 @@ fun PingwinHomeScreen(
 
     val defaultConnectionName =
         if (host != null) {
-            "VLESS · $host"
+            "${profile?.protocol?.displayName ?: "VPN"} · $host"
         } else {
             "VLESS"
         }

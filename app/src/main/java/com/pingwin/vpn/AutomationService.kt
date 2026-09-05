@@ -625,7 +625,7 @@ class AutomationService : Service() {
 
         runCatching {
             val profile =
-                VlessProfile.parse(
+                ConnectionProfileParser.parse(
                     connection.link
                 )
 
@@ -635,7 +635,7 @@ class AutomationService : Service() {
                 )
 
             val config =
-                SingBoxConfigBuilder.build(
+                ConnectionConfigBuilder.build(
                     profile,
                     routing,
                     DiagnosticLogStore

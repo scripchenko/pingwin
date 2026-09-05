@@ -24,7 +24,7 @@ fun ServerConnectionCard(
 ) {
     val profile =
         runCatching {
-            VlessProfile.parse(
+            ConnectionProfileParser.parse(
                 connection.link
             )
         }.getOrNull()

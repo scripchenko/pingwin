@@ -81,7 +81,7 @@ fun ConnectionListScreen(
             connections.forEach { connection ->
                 val profile =
                     runCatching {
-                        VlessProfile.parse(
+                        ConnectionProfileParser.parse(
                             connection.link
                         )
                     }.getOrNull()

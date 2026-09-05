@@ -6,6 +6,11 @@ fun Throwable.localizedVpnMessage(
     context: Context
 ): String =
     when (this) {
+        is ConnectionParseException ->
+            context.getString(
+                R.string.connection_error_unsupported_protocol
+            )
+
         is VlessParseException ->
             context.getString(
                 when (error) {

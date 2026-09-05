@@ -52,7 +52,7 @@ class MacroDroidConnectRunner :
 
         val profile =
             try {
-                VlessProfile.parse(
+                ConnectionProfileParser.parse(
                     connection.link
                 )
             } catch (
@@ -73,7 +73,7 @@ class MacroDroidConnectRunner :
 
         val config =
             try {
-                SingBoxConfigBuilder.build(
+                ConnectionConfigBuilder.build(
                     profile,
                     routing,
                     DiagnosticLogStore
