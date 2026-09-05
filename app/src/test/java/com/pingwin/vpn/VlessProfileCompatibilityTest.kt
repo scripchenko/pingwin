@@ -89,4 +89,14 @@ class VlessProfileCompatibilityTest {
         assertEquals("grpc.example.com", profile.authority)
         assertEquals("h2,http/1.1", profile.alpn)
     }
-}
+
+    @Test
+    fun acceptsUppercaseScheme() {
+        val profile =
+            VlessProfile.parse(
+                "VLESS://11111111-1111-4111-8111-111111111111@example.com:443"
+            )
+
+        assertEquals("example.com", profile.host)
+        assertEquals(443, profile.port)
+    }}

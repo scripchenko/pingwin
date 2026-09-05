@@ -42,7 +42,7 @@ data class VlessProfile(
         fun parse(link: String): VlessProfile {
             val trimmed = link.trim()
 
-            if (!trimmed.startsWith("vless://")) {
+            if (!trimmed.startsWith("vless://", ignoreCase = true)) {
                 throw VlessParseException(
                     VlessParseError.INVALID_SCHEME
                 )
