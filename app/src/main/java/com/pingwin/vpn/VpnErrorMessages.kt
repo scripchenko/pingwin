@@ -25,6 +25,20 @@ fun Throwable.localizedVpnMessage(
                 }
             )
 
+        is Hysteria2ParseException ->
+            context.getString(
+                when (error) {
+                    Hysteria2ParseError.INVALID_SCHEME ->
+                        R.string.hysteria2_error_invalid_scheme
+
+                    Hysteria2ParseError.MISSING_HOST ->
+                        R.string.hysteria2_error_missing_host
+
+                    Hysteria2ParseError.INVALID_PORT ->
+                        R.string.hysteria2_error_invalid_port
+                }
+            )
+
         is SingBoxConfigException ->
             context.getString(
                 when (error) {
@@ -39,6 +53,23 @@ fun Throwable.localizedVpnMessage(
 
                     SingBoxConfigError.MISSING_SERVER_NAME ->
                         R.string.singbox_error_missing_server_name
+                }
+            )
+
+        is Hysteria2ConfigException ->
+            context.getString(
+                when (error) {
+                    Hysteria2ConfigError.UNSUPPORTED_OBFS ->
+                        R.string.hysteria2_error_unsupported_obfs
+
+                    Hysteria2ConfigError.MISSING_OBFS_PASSWORD ->
+                        R.string.hysteria2_error_missing_obfs_password
+
+                    Hysteria2ConfigError.UNSUPPORTED_CERTIFICATE_PIN ->
+                        R.string.hysteria2_error_unsupported_pin
+
+                    Hysteria2ConfigError.UNSUPPORTED_ECH ->
+                        R.string.hysteria2_error_unsupported_ech
                 }
             )
 

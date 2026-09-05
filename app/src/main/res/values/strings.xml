@@ -175,6 +175,13 @@
     <string name="vless_error_invalid_scheme">The link must start with vless://</string>
     <string name="vless_error_missing_uuid">The link does not contain a UUID</string>
     <string name="vless_error_missing_host">The link does not contain a server address</string>
+    <string name="hysteria2_error_invalid_scheme">The link must start with hysteria2:// or hy2://</string>
+    <string name="hysteria2_error_missing_host">The link does not contain a server address</string>
+    <string name="hysteria2_error_invalid_port">The Hysteria2 server port is invalid</string>
+    <string name="hysteria2_error_unsupported_obfs">This Hysteria2 obfuscation method is not supported</string>
+    <string name="hysteria2_error_missing_obfs_password">The Hysteria2 obfuscation password is missing</string>
+    <string name="hysteria2_error_unsupported_pin">Hysteria2 certificate pinning is not supported yet</string>
+    <string name="hysteria2_error_unsupported_ech">Hysteria2 ECH is not supported yet</string>
 
     <string name="singbox_error_unsupported_security">Supported security modes: none, tls, reality</string>
     <string name="singbox_error_unsupported_network">Supported VLESS transports: tcp, ws, grpc, httpupgrade, http</string>

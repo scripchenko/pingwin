@@ -64,7 +64,7 @@ class MacroDroidToggleRunner :
                             connection.link
                         )
                     } catch (
-                        error: VlessParseException
+                        error: IllegalArgumentException
                     ) {
                         throw IllegalStateException(
                             error.localizedVpnMessage(
@@ -90,7 +90,7 @@ class MacroDroidToggleRunner :
                                 )
                         )
                     } catch (
-                        error: SingBoxConfigException
+                        error: IllegalArgumentException
                     ) {
                         throw IllegalStateException(
                             error.localizedVpnMessage(

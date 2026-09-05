@@ -14,5 +14,12 @@ object ConnectionConfigBuilder {
                     routing = routing,
                     detailedLogging = detailedLogging
                 )
+
+            is Hysteria2Profile ->
+                Hysteria2ConfigBuilder.build(
+                    profile = profile,
+                    routing = routing,
+                    detailedLogging = detailedLogging
+                )
         }
 }

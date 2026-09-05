@@ -25,6 +25,18 @@ object ConnectionProfileParser {
                     trimmed
                 )
 
+            trimmed.startsWith(
+                "hysteria2://",
+                ignoreCase = true
+            ) ||
+                trimmed.startsWith(
+                    "hy2://",
+                    ignoreCase = true
+                ) ->
+                Hysteria2Profile.parse(
+                    trimmed
+                )
+
             else ->
                 throw ConnectionParseException(
                     ConnectionParseError.UNSUPPORTED_PROTOCOL

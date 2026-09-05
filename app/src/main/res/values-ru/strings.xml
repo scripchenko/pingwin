@@ -179,6 +179,13 @@
     <string name="vless_error_invalid_scheme">Ссылка должна начинаться с vless://</string>
     <string name="vless_error_missing_uuid">В ссылке отсутствует UUID</string>
     <string name="vless_error_missing_host">В ссылке отсутствует адрес сервера</string>
+    <string name="hysteria2_error_invalid_scheme">Ссылка должна начинаться с hysteria2:// или hy2://</string>
+    <string name="hysteria2_error_missing_host">В ссылке отсутствует адрес сервера</string>
+    <string name="hysteria2_error_invalid_port">Некорректный порт сервера Hysteria2</string>
+    <string name="hysteria2_error_unsupported_obfs">Этот метод маскировки Hysteria2 не поддерживается</string>
+    <string name="hysteria2_error_missing_obfs_password">Отсутствует пароль маскировки Hysteria2</string>
+    <string name="hysteria2_error_unsupported_pin">Закрепление сертификата Hysteria2 пока не поддерживается</string>
+    <string name="hysteria2_error_unsupported_ech">ECH для Hysteria2 пока не поддерживается</string>
 
     <string name="singbox_error_unsupported_security">Поддерживаемые режимы безопасности: none, tls, reality</string>
     <string name="singbox_error_unsupported_network">Поддерживаемые транспорты VLESS: tcp, ws, grpc, httpupgrade, http</string>

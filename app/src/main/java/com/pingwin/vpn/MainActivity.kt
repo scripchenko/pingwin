@@ -208,10 +208,12 @@ class MainActivity : ComponentActivity() {
                                     screen = Screen.HOME
                                 }
                             }
-                            .onFailure {
+                            .onFailure { error ->
                                 Toast.makeText(
                                     this@MainActivity,
-                                    getString(R.string.qr_invalid_vless),
+                                    error.localizedVpnMessage(
+                                        this@MainActivity
+                                    ),
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
