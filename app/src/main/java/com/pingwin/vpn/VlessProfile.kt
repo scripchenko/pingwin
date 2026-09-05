@@ -27,6 +27,12 @@ data class VlessProfile(
     val serverName: String?,
     val spiderX: String?,
     val network: String?,
+    val transportHost: String?,
+    val path: String?,
+    val serviceName: String?,
+    val mode: String?,
+    val authority: String?,
+    val alpn: String?,
     override val name: String?
 ) : ConnectionProfile {
     override val protocol = ConnectionProtocol.VLESS
@@ -79,6 +85,12 @@ data class VlessProfile(
                 serverName = params["sni"],
                 spiderX = params["spx"],
                 network = params["type"],
+                transportHost = params["host"],
+                path = params["path"],
+                serviceName = params["serviceName"],
+                mode = params["mode"],
+                authority = params["authority"],
+                alpn = params["alpn"],
                 name = uri.rawFragment?.let(::decode)
             )
         }

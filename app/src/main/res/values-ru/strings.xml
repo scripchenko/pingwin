@@ -180,8 +180,8 @@
     <string name="vless_error_missing_uuid">В ссылке отсутствует UUID</string>
     <string name="vless_error_missing_host">В ссылке отсутствует адрес сервера</string>
 
-    <string name="singbox_error_unsupported_security">Пока поддерживается только security=reality</string>
-    <string name="singbox_error_unsupported_network">Пока поддерживается только type=tcp</string>
+    <string name="singbox_error_unsupported_security">Поддерживаемые режимы безопасности: none, tls, reality</string>
+    <string name="singbox_error_unsupported_network">Поддерживаемые транспорты VLESS: tcp, ws, grpc, httpupgrade, http</string>
     <string name="singbox_error_missing_public_key">Для Reality отсутствует public key (pbk)</string>
     <string name="singbox_error_missing_server_name">Для Reality отсутствует server name (sni)</string>
 

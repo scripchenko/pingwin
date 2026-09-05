@@ -176,8 +176,8 @@
     <string name="vless_error_missing_uuid">The link does not contain a UUID</string>
     <string name="vless_error_missing_host">The link does not contain a server address</string>
 
-    <string name="singbox_error_unsupported_security">Only security=reality is currently supported</string>
-    <string name="singbox_error_unsupported_network">Only type=tcp is currently supported</string>
+    <string name="singbox_error_unsupported_security">Supported security modes: none, tls, reality</string>
+    <string name="singbox_error_unsupported_network">Supported VLESS transports: tcp, ws, grpc, httpupgrade, http</string>
     <string name="singbox_error_missing_public_key">Reality public key (pbk) is missing</string>
     <string name="singbox_error_missing_server_name">Reality server name (sni) is missing</string>
 

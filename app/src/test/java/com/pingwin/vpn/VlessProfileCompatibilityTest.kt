@@ -65,4 +65,28 @@ class VlessProfileCompatibilityTest {
         assertNull(profile.flow)
         assertNull(profile.security)
     }
+
+    @Test
+    fun parsesTransportParameters() {
+        val link =
+            "vless://11111111-1111-4111-8111-111111111111@203.0.113.10:443" +
+                "?security=tls" +
+                "&type=ws" +
+                "&host=cdn.example.com" +
+                "&path=%2Fvpn%2Fws" +
+                "&serviceName=my-service" +
+                "&mode=gun" +
+                "&authority=grpc.example.com" +
+                "&alpn=h2%2Chttp%2F1.1"
+
+        val profile = VlessProfile.parse(link)
+
+        assertEquals("ws", profile.network)
+        assertEquals("cdn.example.com", profile.transportHost)
+        assertEquals("/vpn/ws", profile.path)
+        assertEquals("my-service", profile.serviceName)
+        assertEquals("gun", profile.mode)
+        assertEquals("grpc.example.com", profile.authority)
+        assertEquals("h2,http/1.1", profile.alpn)
+    }
 }
