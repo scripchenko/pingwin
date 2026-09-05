@@ -97,7 +97,7 @@ fun ServerConnectionCard(
             )
 
             Text(
-                text = "VLESS",
+                text = profile?.protocol?.displayName ?: "VPN",
                 style =
                     MaterialTheme.typography.labelLarge,
                 fontWeight =

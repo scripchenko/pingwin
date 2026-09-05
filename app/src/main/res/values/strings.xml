@@ -63,10 +63,12 @@
     <string name="connections_title">Connections</string>
     <string name="connections_empty">No saved connections yet.</string>
     <string name="connections_add">Add connection</string>
+    <string name="connections_delete_title">Delete connection?</string>
+    <string name="connections_delete_message">This connection will be removed.</string>
 
     <string name="add_connection_title">Add connection</string>
-    <string name="add_connection_hint">Paste a VLESS link.</string>
-    <string name="add_connection_link_label">VLESS link</string>
+    <string name="add_connection_hint">Paste a connection link.</string>
+    <string name="add_connection_link_label">Connection link</string>
     <string name="add_connection_scan_qr">Scan QR code</string>
     <string name="add_connection_paste">Paste from clipboard</string>
     <string name="add_connection_add">Add</string>
@@ -169,9 +171,9 @@
     <string name="about_core">Core</string>
     <string name="about_protocol">Protocol</string>
 
-    <string name="qr_invalid_vless">The QR code does not contain a valid VLESS link</string>
 
     <string name="connection_error_unsupported_protocol">This connection protocol is not supported</string>
+    <string name="connection_error_duplicate">This connection is already added</string>
     <string name="vless_error_invalid_scheme">The link must start with vless://</string>
     <string name="vless_error_missing_uuid">The link does not contain a UUID</string>
     <string name="vless_error_missing_host">The link does not contain a server address</string>

@@ -67,6 +67,8 @@
     <string name="connections_title">Подключения</string>
     <string name="connections_empty">Сохранённых подключений пока нет.</string>
     <string name="connections_add">Добавить подключение</string>
+    <string name="connections_delete_title">Удалить подключение?</string>
+    <string name="connections_delete_message">Это подключение будет удалено.</string>
 
     <string name="add_connection_title">Добавить подключение</string>
     <string name="add_connection_hint">Вставьте VLESS-ссылку.</string>
@@ -173,9 +175,9 @@
     <string name="about_core">Ядро</string>
     <string name="about_protocol">Протокол</string>
 
-    <string name="qr_invalid_vless">QR-код не содержит корректную VLESS-ссылку</string>
 
     <string name="connection_error_unsupported_protocol">Этот протокол подключения не поддерживается</string>
+    <string name="connection_error_duplicate">Это подключение уже добавлено</string>
     <string name="vless_error_invalid_scheme">Ссылка должна начинаться с vless://</string>
     <string name="vless_error_missing_uuid">В ссылке отсутствует UUID</string>
     <string name="vless_error_missing_host">В ссылке отсутствует адрес сервера</string>

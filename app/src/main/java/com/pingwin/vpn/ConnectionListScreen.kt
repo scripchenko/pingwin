@@ -12,12 +12,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,6 +43,7 @@ fun ConnectionListScreen(
     onDelete: (SavedConnection) -> Unit,
     onAdd: () -> Unit
 ) {
+    var connectionToDelete by remember { mutableStateOf<SavedConnection?>(null) }
     Column(
         modifier =
             Modifier
@@ -143,36 +150,17 @@ fun ConnectionListScreen(
                                 Modifier.width(14.dp)
                         )
 
-                        Column(
+                        Text(
+                            text = "${profile?.protocol?.displayName ?: "VPN"} · $host",
                             modifier =
                                 Modifier.weight(1f),
-                            verticalArrangement =
-                                Arrangement.spacedBy(3.dp)
-                        ) {
-                            Text(
-                                text = connection.name,
-                                fontSize = 17.sp,
-                                color = Color(0xFF17191F),
-                                fontWeight =
-                                    FontWeight.SemiBold,
-                                maxLines = 1,
-                                overflow =
-                                    TextOverflow.Ellipsis
-                            )
-
-                            Text(
-                                text = host,
-                                fontSize = 14.sp,
-                                color = Color(0xFF777D89)
-                            )
-                        }
-
-                        Text(
-                            text = "VLESS",
-                            fontSize = 13.sp,
-                            color = Color(0xFF555B67),
+                            fontSize = 17.sp,
+                            color = Color(0xFF17191F),
                             fontWeight =
-                                FontWeight.SemiBold
+                                FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow =
+                                TextOverflow.Ellipsis
                         )
 
                         Spacer(
@@ -183,7 +171,7 @@ fun ConnectionListScreen(
                         IconButton(
                             enabled = deleteEnabled,
                             onClick = {
-                                onDelete(connection)
+                                connectionToDelete = connection
                             }
                         ) {
                             Text(
@@ -213,5 +201,53 @@ fun ConnectionListScreen(
                 )
             )
         }
+    }
+    connectionToDelete?.let { connection ->
+        AlertDialog(
+            onDismissRequest = {
+                connectionToDelete = null
+            },
+            title = {
+                Text(
+                    stringResource(
+                        R.string.connections_delete_title
+                    )
+                )
+            },
+            text = {
+                Text(
+                    stringResource(
+                        R.string.connections_delete_message
+                    )
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        connectionToDelete = null
+                        onDelete(connection)
+                    }
+                ) {
+                    Text(
+                        stringResource(
+                            R.string.site_routing_delete
+                        )
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        connectionToDelete = null
+                    }
+                ) {
+                    Text(
+                        stringResource(
+                            R.string.cancel
+                        )
+                    )
+                }
+            }
+        )
     }
 }

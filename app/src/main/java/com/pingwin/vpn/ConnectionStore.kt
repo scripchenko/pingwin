@@ -86,6 +86,31 @@ object ConnectionStore {
                 )
             }
 
+        val duplicate =
+            loadAll(context)
+                .asSequence()
+                .mapNotNull { saved ->
+                    runCatching {
+                        ConnectionProfileParser.parse(
+                            saved.link
+                        )
+                    }.getOrNull()
+                }
+                .any { existing ->
+                    sameConnection(
+                        existing,
+                        profile
+                    )
+                }
+
+        if (duplicate) {
+            throw IllegalArgumentException(
+                context.getString(
+                    R.string.connection_error_duplicate
+                )
+            )
+        }
+
         val connection =
             SavedConnection(
                 id = UUID.randomUUID().toString(),
@@ -206,6 +231,45 @@ object ConnectionStore {
             )
             .apply()
     }
+
+    private fun sameConnection(
+        first: ConnectionProfile,
+        second: ConnectionProfile
+    ): Boolean =
+        when {
+            first is VlessProfile &&
+                second is VlessProfile ->
+                first.copy(name = null) ==
+                    second.copy(name = null)
+
+            first is Hysteria2Profile &&
+                second is Hysteria2Profile ->
+                first.copy(name = null) ==
+                    second.copy(name = null)
+
+            first is TrojanProfile &&
+                second is TrojanProfile ->
+                first.copy(name = null) ==
+                    second.copy(name = null)
+
+            first is TuicProfile &&
+                second is TuicProfile ->
+                first.copy(name = null) ==
+                    second.copy(name = null)
+
+            first is ShadowsocksProfile &&
+                second is ShadowsocksProfile ->
+                first.copy(name = null) ==
+                    second.copy(name = null)
+
+            first is VmessProfile &&
+                second is VmessProfile ->
+                first.copy(name = null) ==
+                    second.copy(name = null)
+
+            else ->
+                false
+        }
 
     private fun defaultName(
         profile: ConnectionProfile
