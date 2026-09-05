@@ -199,6 +199,13 @@
     <string name="shadowsocks_error_missing_host">В ссылке Shadowsocks отсутствует адрес сервера</string>
     <string name="shadowsocks_error_invalid_port">Некорректный порт сервера Shadowsocks</string>
     <string name="shadowsocks_error_unsupported_plugin">Плагины Shadowsocks пока не поддерживаются</string>
+    <string name="vmess_error_invalid_scheme">Ссылка должна начинаться с vmess://</string>
+    <string name="vmess_error_invalid_data">Ссылка VMess содержит некорректные данные</string>
+    <string name="vmess_error_missing_uuid">В ссылке VMess отсутствует UUID</string>
+    <string name="vmess_error_missing_host">В ссылке VMess отсутствует адрес сервера</string>
+    <string name="vmess_error_invalid_port">Некорректный порт сервера VMess</string>
+    <string name="vmess_error_unsupported_tls">Этот режим TLS для VMess не поддерживается</string>
+    <string name="vmess_error_unsupported_network">Этот транспорт VMess не поддерживается</string>
 
     <string name="singbox_error_unsupported_security">Поддерживаемые режимы безопасности: none, tls, reality</string>
     <string name="singbox_error_unsupported_network">Поддерживаемые транспорты: tcp, ws, grpc, httpupgrade, http</string>

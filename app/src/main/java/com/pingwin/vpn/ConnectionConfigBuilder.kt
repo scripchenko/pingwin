@@ -42,5 +42,12 @@ object ConnectionConfigBuilder {
                     routing = routing,
                     detailedLogging = detailedLogging
                 )
+
+            is VmessProfile ->
+                VmessConfigBuilder.build(
+                    profile = profile,
+                    routing = routing,
+                    detailedLogging = detailedLogging
+                )
         }
 }

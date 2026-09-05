@@ -61,6 +61,14 @@ object ConnectionProfileParser {
                     trimmed
                 )
 
+            trimmed.startsWith(
+                "vmess://",
+                ignoreCase = true
+            ) ->
+                VmessProfile.parse(
+                    trimmed
+                )
+
             else ->
                 throw ConnectionParseException(
                     ConnectionParseError.UNSUPPORTED_PROTOCOL

@@ -103,6 +103,37 @@ fun Throwable.localizedVpnMessage(
                 }
             )
 
+        is VmessParseException ->
+            context.getString(
+                when (error) {
+                    VmessParseError.INVALID_SCHEME ->
+                        R.string.vmess_error_invalid_scheme
+
+                    VmessParseError.INVALID_DATA ->
+                        R.string.vmess_error_invalid_data
+
+                    VmessParseError.MISSING_UUID ->
+                        R.string.vmess_error_missing_uuid
+
+                    VmessParseError.MISSING_HOST ->
+                        R.string.vmess_error_missing_host
+
+                    VmessParseError.INVALID_PORT ->
+                        R.string.vmess_error_invalid_port
+                }
+            )
+
+        is VmessConfigException ->
+            context.getString(
+                when (error) {
+                    VmessConfigError.UNSUPPORTED_TLS ->
+                        R.string.vmess_error_unsupported_tls
+
+                    VmessConfigError.UNSUPPORTED_NETWORK ->
+                        R.string.vmess_error_unsupported_network
+                }
+            )
+
         is SingBoxConfigException ->
             context.getString(
                 when (error) {
