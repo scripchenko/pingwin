@@ -28,5 +28,12 @@ object ConnectionConfigBuilder {
                     routing = routing,
                     detailedLogging = detailedLogging
                 )
+
+            is TuicProfile ->
+                TuicConfigBuilder.build(
+                    profile = profile,
+                    routing = routing,
+                    detailedLogging = detailedLogging
+                )
         }
 }

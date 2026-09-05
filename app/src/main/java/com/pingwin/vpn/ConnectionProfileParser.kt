@@ -45,6 +45,14 @@ object ConnectionProfileParser {
                     trimmed
                 )
 
+            trimmed.startsWith(
+                "tuic://",
+                ignoreCase = true
+            ) ->
+                TuicProfile.parse(
+                    trimmed
+                )
+
             else ->
                 throw ConnectionParseException(
                     ConnectionParseError.UNSUPPORTED_PROTOCOL

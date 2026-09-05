@@ -189,6 +189,11 @@
     <string name="trojan_error_invalid_scheme">Ссылка должна начинаться с trojan://</string>
     <string name="trojan_error_missing_password">В ссылке Trojan отсутствует пароль</string>
     <string name="trojan_error_missing_host">В ссылке Trojan отсутствует адрес сервера</string>
+    <string name="tuic_error_invalid_scheme">Ссылка должна начинаться с tuic://</string>
+    <string name="tuic_error_missing_uuid">В ссылке TUIC отсутствует UUID</string>
+    <string name="tuic_error_missing_host">В ссылке TUIC отсутствует адрес сервера</string>
+    <string name="tuic_error_unsupported_congestion_control">Этот алгоритм управления перегрузкой TUIC не поддерживается</string>
+    <string name="tuic_error_unsupported_udp_relay_mode">Этот режим UDP relay TUIC не поддерживается</string>
 
     <string name="singbox_error_unsupported_security">Поддерживаемые режимы безопасности: none, tls, reality</string>
     <string name="singbox_error_unsupported_network">Поддерживаемые транспорты: tcp, ws, grpc, httpupgrade, http</string>

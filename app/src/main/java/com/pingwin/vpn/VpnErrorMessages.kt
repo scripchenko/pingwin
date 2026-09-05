@@ -53,6 +53,31 @@ fun Throwable.localizedVpnMessage(
                 }
             )
 
+        is TuicParseException ->
+            context.getString(
+                when (error) {
+                    TuicParseError.INVALID_SCHEME ->
+                        R.string.tuic_error_invalid_scheme
+
+                    TuicParseError.MISSING_UUID ->
+                        R.string.tuic_error_missing_uuid
+
+                    TuicParseError.MISSING_HOST ->
+                        R.string.tuic_error_missing_host
+                }
+            )
+
+        is TuicConfigException ->
+            context.getString(
+                when (error) {
+                    TuicConfigError.UNSUPPORTED_CONGESTION_CONTROL ->
+                        R.string.tuic_error_unsupported_congestion_control
+
+                    TuicConfigError.UNSUPPORTED_UDP_RELAY_MODE ->
+                        R.string.tuic_error_unsupported_udp_relay_mode
+                }
+            )
+
         is SingBoxConfigException ->
             context.getString(
                 when (error) {

@@ -185,6 +185,11 @@
     <string name="trojan_error_invalid_scheme">The link must start with trojan://</string>
     <string name="trojan_error_missing_password">The Trojan link does not contain a password</string>
     <string name="trojan_error_missing_host">The Trojan link does not contain a server address</string>
+    <string name="tuic_error_invalid_scheme">The link must start with tuic://</string>
+    <string name="tuic_error_missing_uuid">The TUIC link does not contain a UUID</string>
+    <string name="tuic_error_missing_host">The TUIC link does not contain a server address</string>
+    <string name="tuic_error_unsupported_congestion_control">Unsupported TUIC congestion control</string>
+    <string name="tuic_error_unsupported_udp_relay_mode">Unsupported TUIC UDP relay mode</string>
 
     <string name="singbox_error_unsupported_security">Supported security modes: none, tls, reality</string>
     <string name="singbox_error_unsupported_network">Supported transports: tcp, ws, grpc, httpupgrade, http</string>
