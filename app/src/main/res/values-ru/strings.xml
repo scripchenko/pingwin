@@ -194,6 +194,11 @@
     <string name="tuic_error_missing_host">В ссылке TUIC отсутствует адрес сервера</string>
     <string name="tuic_error_unsupported_congestion_control">Этот алгоритм управления перегрузкой TUIC не поддерживается</string>
     <string name="tuic_error_unsupported_udp_relay_mode">Этот режим UDP relay TUIC не поддерживается</string>
+    <string name="shadowsocks_error_invalid_scheme">Ссылка должна начинаться с ss://</string>
+    <string name="shadowsocks_error_invalid_credentials">Некорректные данные авторизации Shadowsocks</string>
+    <string name="shadowsocks_error_missing_host">В ссылке Shadowsocks отсутствует адрес сервера</string>
+    <string name="shadowsocks_error_invalid_port">Некорректный порт сервера Shadowsocks</string>
+    <string name="shadowsocks_error_unsupported_plugin">Плагины Shadowsocks пока не поддерживаются</string>
 
     <string name="singbox_error_unsupported_security">Поддерживаемые режимы безопасности: none, tls, reality</string>
     <string name="singbox_error_unsupported_network">Поддерживаемые транспорты: tcp, ws, grpc, httpupgrade, http</string>

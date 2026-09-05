@@ -190,6 +190,11 @@
     <string name="tuic_error_missing_host">The TUIC link does not contain a server address</string>
     <string name="tuic_error_unsupported_congestion_control">Unsupported TUIC congestion control</string>
     <string name="tuic_error_unsupported_udp_relay_mode">Unsupported TUIC UDP relay mode</string>
+    <string name="shadowsocks_error_invalid_scheme">The link must start with ss://</string>
+    <string name="shadowsocks_error_invalid_credentials">The Shadowsocks credentials are invalid</string>
+    <string name="shadowsocks_error_missing_host">The Shadowsocks link does not contain a server address</string>
+    <string name="shadowsocks_error_invalid_port">The Shadowsocks server port is invalid</string>
+    <string name="shadowsocks_error_unsupported_plugin">Shadowsocks plugins are not supported yet</string>
 
     <string name="singbox_error_unsupported_security">Supported security modes: none, tls, reality</string>
     <string name="singbox_error_unsupported_network">Supported transports: tcp, ws, grpc, httpupgrade, http</string>

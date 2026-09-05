@@ -53,6 +53,14 @@ object ConnectionProfileParser {
                     trimmed
                 )
 
+            trimmed.startsWith(
+                "ss://",
+                ignoreCase = true
+            ) ->
+                ShadowsocksProfile.parse(
+                    trimmed
+                )
+
             else ->
                 throw ConnectionParseException(
                     ConnectionParseError.UNSUPPORTED_PROTOCOL

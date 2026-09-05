@@ -35,5 +35,12 @@ object ConnectionConfigBuilder {
                     routing = routing,
                     detailedLogging = detailedLogging
                 )
+
+            is ShadowsocksProfile ->
+                ShadowsocksConfigBuilder.build(
+                    profile = profile,
+                    routing = routing,
+                    detailedLogging = detailedLogging
+                )
         }
 }

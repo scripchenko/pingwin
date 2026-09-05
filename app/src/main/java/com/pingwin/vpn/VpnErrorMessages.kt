@@ -78,6 +78,31 @@ fun Throwable.localizedVpnMessage(
                 }
             )
 
+        is ShadowsocksParseException ->
+            context.getString(
+                when (error) {
+                    ShadowsocksParseError.INVALID_SCHEME ->
+                        R.string.shadowsocks_error_invalid_scheme
+
+                    ShadowsocksParseError.INVALID_CREDENTIALS ->
+                        R.string.shadowsocks_error_invalid_credentials
+
+                    ShadowsocksParseError.MISSING_HOST ->
+                        R.string.shadowsocks_error_missing_host
+
+                    ShadowsocksParseError.INVALID_PORT ->
+                        R.string.shadowsocks_error_invalid_port
+                }
+            )
+
+        is ShadowsocksConfigException ->
+            context.getString(
+                when (error) {
+                    ShadowsocksConfigError.UNSUPPORTED_PLUGIN ->
+                        R.string.shadowsocks_error_unsupported_plugin
+                }
+            )
+
         is SingBoxConfigException ->
             context.getString(
                 when (error) {
