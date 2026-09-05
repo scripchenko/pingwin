@@ -1,20 +1,9 @@
 package com.pingwin.vpn
 
-enum class SingBoxConfigError {
-    UNSUPPORTED_SECURITY,
-    UNSUPPORTED_NETWORK,
-    MISSING_PUBLIC_KEY,
-    MISSING_SERVER_NAME
-}
-
-class SingBoxConfigException(
-    val error: SingBoxConfigError
-) : IllegalArgumentException()
-
-object SingBoxConfigBuilder {
+object TrojanConfigBuilder {
 
     fun build(
-        profile: VlessProfile,
+        profile: TrojanProfile,
         routing: RoutingSettings = RoutingSettings(),
         detailedLogging: Boolean = false
     ): String {
@@ -23,7 +12,7 @@ object SingBoxConfigBuilder {
                 ?.trim()
                 ?.lowercase()
                 ?.takeIf(String::isNotEmpty)
-                ?: "none"
+                ?: "tls"
 
         if (
             security !in
@@ -60,35 +49,8 @@ object SingBoxConfigBuilder {
             )
         }
 
-        if (
-            security == "reality" &&
-            profile.publicKey.isNullOrBlank()
-        ) {
-            throw SingBoxConfigException(
-                SingBoxConfigError.MISSING_PUBLIC_KEY
-            )
-        }
-
-        if (
-            security == "reality" &&
-            profile.serverName.isNullOrBlank()
-        ) {
-            throw SingBoxConfigException(
-                SingBoxConfigError.MISSING_SERVER_NAME
-            )
-        }
-
         val optionalFields =
             buildList {
-                profile.flow
-                    ?.trim()
-                    ?.takeIf(String::isNotEmpty)
-                    ?.let { flow ->
-                        add(
-                            """"flow": "${jsonEscape(flow)}""""
-                        )
-                    }
-
                 SingBoxTlsBuilder.build(
                     security = security,
                     host = profile.host,
@@ -96,7 +58,8 @@ object SingBoxConfigBuilder {
                     alpn = profile.alpn,
                     fingerprint = profile.fingerprint,
                     publicKey = profile.publicKey,
-                    shortId = profile.shortId
+                    shortId = profile.shortId,
+                    insecure = profile.insecure
                 )?.let(::add)
 
                 SingBoxV2RayTransportBuilder.build(
@@ -109,7 +72,7 @@ object SingBoxConfigBuilder {
                 .joinToString(",\n") {
                     indentBlock(
                         it,
-                        18
+                        2
                     )
                 }
 
@@ -123,11 +86,11 @@ object SingBoxConfigBuilder {
         val proxyOutbound =
             """
             {
-              "type": "vless",
+              "type": "trojan",
               "tag": "proxy",
               "server": "${jsonEscape(profile.host)}",
               "server_port": ${profile.port},
-              "uuid": "${jsonEscape(profile.uuid)}"$optionalSuffix
+              "password": "${jsonEscape(profile.password)}"$optionalSuffix
             }
             """.trimIndent()
 
@@ -137,6 +100,7 @@ object SingBoxConfigBuilder {
             detailedLogging = detailedLogging
         )
     }
+
     private fun indentBlock(
         value: String,
         spaces: Int

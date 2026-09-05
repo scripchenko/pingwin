@@ -37,6 +37,14 @@ object ConnectionProfileParser {
                     trimmed
                 )
 
+            trimmed.startsWith(
+                "trojan://",
+                ignoreCase = true
+            ) ->
+                TrojanProfile.parse(
+                    trimmed
+                )
+
             else ->
                 throw ConnectionParseException(
                     ConnectionParseError.UNSUPPORTED_PROTOCOL

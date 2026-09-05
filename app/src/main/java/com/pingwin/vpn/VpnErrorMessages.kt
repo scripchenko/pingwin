@@ -39,6 +39,20 @@ fun Throwable.localizedVpnMessage(
                 }
             )
 
+        is TrojanParseException ->
+            context.getString(
+                when (error) {
+                    TrojanParseError.INVALID_SCHEME ->
+                        R.string.trojan_error_invalid_scheme
+
+                    TrojanParseError.MISSING_PASSWORD ->
+                        R.string.trojan_error_missing_password
+
+                    TrojanParseError.MISSING_HOST ->
+                        R.string.trojan_error_missing_host
+                }
+            )
+
         is SingBoxConfigException ->
             context.getString(
                 when (error) {

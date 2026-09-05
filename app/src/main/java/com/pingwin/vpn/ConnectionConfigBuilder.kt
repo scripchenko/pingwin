@@ -21,5 +21,12 @@ object ConnectionConfigBuilder {
                     routing = routing,
                     detailedLogging = detailedLogging
                 )
+
+            is TrojanProfile ->
+                TrojanConfigBuilder.build(
+                    profile = profile,
+                    routing = routing,
+                    detailedLogging = detailedLogging
+                )
         }
 }

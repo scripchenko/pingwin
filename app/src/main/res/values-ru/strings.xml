@@ -186,9 +186,12 @@
     <string name="hysteria2_error_missing_obfs_password">Отсутствует пароль маскировки Hysteria2</string>
     <string name="hysteria2_error_unsupported_pin">Закрепление сертификата Hysteria2 пока не поддерживается</string>
     <string name="hysteria2_error_unsupported_ech">ECH для Hysteria2 пока не поддерживается</string>
+    <string name="trojan_error_invalid_scheme">Ссылка должна начинаться с trojan://</string>
+    <string name="trojan_error_missing_password">В ссылке Trojan отсутствует пароль</string>
+    <string name="trojan_error_missing_host">В ссылке Trojan отсутствует адрес сервера</string>
 
     <string name="singbox_error_unsupported_security">Поддерживаемые режимы безопасности: none, tls, reality</string>
-    <string name="singbox_error_unsupported_network">Поддерживаемые транспорты VLESS: tcp, ws, grpc, httpupgrade, http</string>
+    <string name="singbox_error_unsupported_network">Поддерживаемые транспорты: tcp, ws, grpc, httpupgrade, http</string>
     <string name="singbox_error_missing_public_key">Для Reality отсутствует public key (pbk)</string>
     <string name="singbox_error_missing_server_name">Для Reality отсутствует server name (sni)</string>
 

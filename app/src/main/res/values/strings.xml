@@ -182,9 +182,12 @@
     <string name="hysteria2_error_missing_obfs_password">The Hysteria2 obfuscation password is missing</string>
     <string name="hysteria2_error_unsupported_pin">Hysteria2 certificate pinning is not supported yet</string>
     <string name="hysteria2_error_unsupported_ech">Hysteria2 ECH is not supported yet</string>
+    <string name="trojan_error_invalid_scheme">The link must start with trojan://</string>
+    <string name="trojan_error_missing_password">The Trojan link does not contain a password</string>
+    <string name="trojan_error_missing_host">The Trojan link does not contain a server address</string>
 
     <string name="singbox_error_unsupported_security">Supported security modes: none, tls, reality</string>
-    <string name="singbox_error_unsupported_network">Supported VLESS transports: tcp, ws, grpc, httpupgrade, http</string>
+    <string name="singbox_error_unsupported_network">Supported transports: tcp, ws, grpc, httpupgrade, http</string>
     <string name="singbox_error_missing_public_key">Reality public key (pbk) is missing</string>
     <string name="singbox_error_missing_server_name">Reality server name (sni) is missing</string>
 
