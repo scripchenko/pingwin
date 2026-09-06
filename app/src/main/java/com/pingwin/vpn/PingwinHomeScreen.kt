@@ -87,24 +87,7 @@ fun PingwinHomeScreen(
                 it.isNotBlank()
             }
 
-    val defaultConnectionName =
-        if (host != null) {
-            "${profile?.protocol?.displayName ?: "VPN"} · $host"
-        } else {
-            "VLESS"
-        }
-
-    val displayConnectionName =
-        if (
-            connection.name == defaultConnectionName ||
-            connection.name == "VLESS"
-        ) {
-            stringResource(
-                R.string.home_primary_server
-            )
-        } else {
-            connection.name
-        }
+    val displayConnectionName = connection.name
 
     val locationName =
         location?.countryName
