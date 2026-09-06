@@ -57,9 +57,11 @@ The application provides connection management, separate routing rules for appli
 - **VLESS** — implemented and verified with real connections, including TCP + REALITY
 - **Hysteria2** — implemented and verified with real connections
 - **Trojan** — implemented and verified with real connections, including TCP + REALITY
-- **VMess** — implemented and verified with real connections
+- **VMess** — implemented and verified with real connections; availability may depend on the network or mobile operator
 - **TUIC** — configuration support is implemented, but real-world connectivity has not yet been verified; practical testing is planned for a future release
 - **Shadowsocks** — configuration support is implemented, but real-world connectivity has not yet been tested
+
+> Network compatibility can vary by ISP, mobile operator, country, and local filtering. A protocol supported and verified by pingwin is not guaranteed to work on every network.
 
 ### Routing
 
