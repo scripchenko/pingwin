@@ -62,7 +62,7 @@ object TuicConfigBuilder {
             """"type": "tuic""""
 
         fields +=
-            """"tag": "proxy""""
+            """"tag": "proxy-out""""
 
         fields +=
             """"server": "${jsonEscape(profile.host)}""""

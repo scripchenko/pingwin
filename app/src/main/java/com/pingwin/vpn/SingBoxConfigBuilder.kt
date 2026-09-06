@@ -124,7 +124,7 @@ object SingBoxConfigBuilder {
             """
             {
               "type": "vless",
-              "tag": "proxy",
+              "tag": "proxy-out",
               "server": "${jsonEscape(profile.host)}",
               "server_port": ${profile.port},
               "uuid": "${jsonEscape(profile.uuid)}"$optionalSuffix

@@ -87,7 +87,7 @@ object TrojanConfigBuilder {
             """
             {
               "type": "trojan",
-              "tag": "proxy",
+              "tag": "proxy-out",
               "server": "${jsonEscape(profile.host)}",
               "server_port": ${profile.port},
               "password": "${jsonEscape(profile.password)}"$optionalSuffix

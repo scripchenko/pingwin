@@ -61,7 +61,7 @@ object Hysteria2ConfigBuilder {
             """"type": "hysteria2""""
 
         fields +=
-            """"tag": "proxy""""
+            """"tag": "proxy-out""""
 
         fields +=
             """"server": "${jsonEscape(profile.host)}""""

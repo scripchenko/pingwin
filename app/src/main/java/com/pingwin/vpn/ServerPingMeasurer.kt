@@ -1,15 +1,33 @@
 package com.pingwin.vpn
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.os.SystemClock
+import io.nekohasekai.libbox.CommandClient
+import io.nekohasekai.libbox.CommandClientHandler
+import io.nekohasekai.libbox.CommandClientOptions
+import io.nekohasekai.libbox.ConnectionEvents
+import io.nekohasekai.libbox.Libbox
+import io.nekohasekai.libbox.LogIterator
+import io.nekohasekai.libbox.OutboundGroupIterator
+import io.nekohasekai.libbox.StatusMessage
+import io.nekohasekai.libbox.StringIterator
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.net.InetSocketAddress
+import kotlinx.coroutines.withTimeoutOrNull
+import java.util.concurrent.atomic.AtomicBoolean
 
 object ServerPingMeasurer {
 
+    private const val GROUP_TAG = "proxy"
+    private const val OUTBOUND_TAG = "proxy-out"
+
+    private const val INITIAL_GROUP_TIMEOUT_MS =
+        1_500L
+
+    private const val RESULT_TIMEOUT_MS =
+        8_000L
+
+    @Suppress("UNUSED_PARAMETER")
     suspend fun measure(
         context: Context,
         host: String,
@@ -17,79 +35,160 @@ object ServerPingMeasurer {
         attempts: Int = 3
     ): Int? =
         withContext(Dispatchers.IO) {
-            val connectivityManager =
-                context.getSystemService(
-                    ConnectivityManager::class.java
-                )
+            val initialGroupSeen =
+                CompletableDeferred<Unit>()
 
-            val physicalNetwork =
-                connectivityManager.allNetworks
-                    .firstOrNull { network ->
-                        val capabilities =
-                            connectivityManager
-                                .getNetworkCapabilities(network)
-                                ?: return@firstOrNull false
+            val result =
+                CompletableDeferred<Int>()
 
-                        capabilities.hasCapability(
-                            NetworkCapabilities.NET_CAPABILITY_INTERNET
-                        ) &&
-                            !capabilities.hasTransport(
-                                NetworkCapabilities.TRANSPORT_VPN
+            val awaitingResult =
+                AtomicBoolean(false)
+
+            val handler =
+                object : CommandClientHandler {
+
+                    override fun connected() = Unit
+
+                    override fun disconnected(
+                        message: String?
+                    ) {
+                        if (
+                            awaitingResult.get() &&
+                            !result.isCompleted
+                        ) {
+                            result.completeExceptionally(
+                                IllegalStateException(
+                                    message
+                                        ?: "Command client disconnected"
+                                )
                             )
+                        }
                     }
-                    ?: return@withContext null
 
-            val measurements =
-                buildList {
-                    repeat(attempts) {
-                        val socket =
-                            physicalNetwork
-                                .socketFactory
-                                .createSocket()
+                    override fun clearLogs() = Unit
 
-                        try {
-                            val started =
-                                SystemClock.elapsedRealtimeNanos()
+                    override fun setDefaultLogLevel(
+                        level: Int
+                    ) = Unit
 
-                            socket.connect(
-                                InetSocketAddress(
-                                    host,
-                                    port
-                                ),
-                                2500
-                            )
+                    override fun writeLogs(
+                        message: LogIterator?
+                    ) = Unit
 
-                            val elapsedMs =
-                                (
-                                    SystemClock.elapsedRealtimeNanos() -
-                                        started
-                                    ) / 1_000_000L
+                    override fun initializeClashMode(
+                        modeList: StringIterator,
+                        currentMode: String
+                    ) = Unit
 
-                            add(
-                                elapsedMs
-                                    .coerceAtLeast(1L)
-                                    .coerceAtMost(Int.MAX_VALUE.toLong())
-                                    .toInt()
-                            )
-                        } catch (_: Exception) {
-                        } finally {
-                            runCatching {
-                                socket.close()
+                    override fun updateClashMode(
+                        newMode: String
+                    ) = Unit
+
+                    override fun writeConnectionEvents(
+                        events: ConnectionEvents?
+                    ) = Unit
+
+                    override fun writeGroups(
+                        message: OutboundGroupIterator?
+                    ) {
+                        if (message == null) {
+                            return
+                        }
+
+                        while (message.hasNext()) {
+                            val group =
+                                message.next()
+
+                            if (group.tag != GROUP_TAG) {
+                                continue
+                            }
+
+                            if (!initialGroupSeen.isCompleted) {
+                                initialGroupSeen.complete(Unit)
+                            }
+
+                            val items =
+                                group.items
+
+                            while (items.hasNext()) {
+                                val item =
+                                    items.next()
+
+                                if (
+                                    item.tag !=
+                                    OUTBOUND_TAG
+                                ) {
+                                    continue
+                                }
+
+                                if (!awaitingResult.get()) {
+                                    continue
+                                }
+
+                                val delay =
+                                    item.urlTestDelay
+
+                                if (
+                                    delay > 0 &&
+                                    !result.isCompleted
+                                ) {
+                                    result.complete(delay)
+                                }
                             }
                         }
                     }
+
+                    override fun writeStatus(
+                        message: StatusMessage
+                    ) = Unit
                 }
 
-            measurements
-                .sorted()
-                .let { values ->
-                    if (values.isEmpty()) {
-                        null
-                    } else {
-                        values[
-                            values.size / 2
-                        ]
-                    }
+            val options =
+                CommandClientOptions().apply {
+                    addCommand(
+                        Libbox.CommandGroup
+                    )
                 }
+
+            val client =
+                CommandClient(
+                    handler,
+                    options
+                )
+
+            try {
+                client.connect()
+
+                client.setGroupExpand(
+                    GROUP_TAG,
+                    true
+                )
+
+                withTimeoutOrNull(
+                    INITIAL_GROUP_TIMEOUT_MS
+                ) {
+                    initialGroupSeen.await()
+                }
+
+                awaitingResult.set(true)
+
+                client.urlTest(
+                    GROUP_TAG
+                )
+
+                withTimeoutOrNull(
+                    RESULT_TIMEOUT_MS
+                ) {
+                    result.await()
+                }
+            } catch (_: Exception) {
+                null
+            } finally {
+                awaitingResult.set(false)
+
+                runCatching {
+                    client.disconnect()
+                }
+            }
         }
 }

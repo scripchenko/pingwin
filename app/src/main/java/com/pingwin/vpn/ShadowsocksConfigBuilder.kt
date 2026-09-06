@@ -25,7 +25,7 @@ object ShadowsocksConfigBuilder {
             """
             {
               "type": "shadowsocks",
-              "tag": "proxy",
+              "tag": "proxy-out",
               "server": "${jsonEscape(profile.host)}",
               "server_port": ${profile.port},
               "method": "${jsonEscape(profile.method)}",

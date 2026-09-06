@@ -47,6 +47,13 @@ object SingBoxBaseConfigBuilder {
                 }
               ],
               "outbounds": [
+                {
+                  "type": "urltest",
+                  "tag": "proxy",
+                  "outbounds": [
+                    "proxy-out"
+                  ]
+                },
 $outbound,
                 {
                   "type": "direct",
