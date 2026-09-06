@@ -94,11 +94,7 @@ fun ConnectionListScreen(
                     }.getOrNull()
 
                 val host =
-                    profile?.host
-                        ?.takeIf {
-                            it.isNotBlank()
-                        }
-                        ?: "—"
+                    profile?.host?.takeIf { it.isNotBlank() }?.let(HostPrivacyMasker::mask) ?: "—"
 
                 val deleteEnabled =
                     connection.id != lockedConnectionId

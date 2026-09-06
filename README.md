@@ -4,7 +4,7 @@
 
 # pingwin
 
-**pingwin** is an open-source Android client for VLESS connections, powered by [sing-box](https://github.com/SagerNet/sing-box).
+**pingwin** is an open-source Android VPN client powered by [sing-box](https://github.com/SagerNet/sing-box), with support for multiple proxy protocols.
 
 [![Latest release](https://img.shields.io/github/v/release/scripchenko/pingwin?label=release)](https://github.com/scripchenko/pingwin/releases/latest)
 ![Android 7.0+](https://img.shields.io/badge/Android-7.0%2B-3DDC84?logo=android&logoColor=white)
@@ -23,11 +23,11 @@ The automatically generated source code archives are not Android installation pa
 > [!IMPORTANT]
 > pingwin is a client application. It does not provide VPN servers, subscriptions, or connection credentials.
 >
-> You need your own compatible VLESS configuration. Current builds support VLESS over TCP with REALITY.
+> You need your own compatible server configuration. pingwin does not provide VPN infrastructure or credentials.
 
 ## Overview
 
-pingwin manages compatible VLESS connections and runs them through Android's VPN service using sing-box/libbox.
+pingwin manages compatible proxy connections and runs them through Android's VPN service using sing-box/libbox.
 
 The application provides connection management, separate routing rules for applications and domains, network-based automation, MacroDroid actions, and diagnostic logs. The interface is available in English and Russian.
 
@@ -45,20 +45,30 @@ The application provides connection management, separate routing rules for appli
 
 ### Connections
 
-- Save and switch between multiple VLESS connections
-- Add a connection by entering or pasting a VLESS link
-- Import a VLESS link from the clipboard
-- Scan a VLESS QR code with the device camera
-- Current protocol support: VLESS over TCP with REALITY
+- Save and switch between multiple connections
+- Add a connection by entering or pasting a supported connection link
+- Import a connection link from the clipboard
+- Scan a connection QR code with the device camera
+- Automatically detect the protocol from the imported link
+- Server addresses are masked in the interface to reduce accidental disclosure in screenshots
+
+#### Protocol status
+
+- **VLESS** — implemented and verified with real connections, including TCP + REALITY
+- **Hysteria2** — implemented and verified with real connections
+- **Trojan** — implemented and verified with real connections, including TCP + REALITY
+- **VMess** — implemented and verified with real connections
+- **TUIC** — configuration support is implemented, but real-world connectivity has not yet been verified; practical testing is planned for a future release
+- **Shadowsocks** — configuration support is implemented, but real-world connectivity has not yet been tested
 
 ### Routing
 
 - Application routing based on installed Android packages
-- Send only selected applications through the VLESS connection
-- Exclude selected applications from the VLESS connection
+- Send only selected applications through the VPN connection
+- Exclude selected applications from the VPN connection
 - Website and domain-based routing rules
-- Send only selected domains through the VLESS connection
-- Exclude selected domains from the VLESS connection
+- Send only selected domains through the VPN connection
+- Exclude selected domains from the VPN connection
 
 Routing changes are applied after reconnecting the VPN.
 
@@ -81,9 +91,8 @@ Routing changes are applied after reconnecting the VPN.
 ## Requirements
 
 - Android 7.0 or newer (`minSdk 24`)
-- Your own VLESS server or configuration
-- A VLESS link using TCP transport and REALITY security
-- The VLESS link must contain the required server, UUID, REALITY public key (`pbk`), and server name (`sni`) values
+- Your own compatible server or connection configuration
+- A supported connection link containing the parameters required by its protocol
 
 Android will ask for permission to create a VPN connection when pingwin connects for the first time.
 
@@ -100,11 +109,11 @@ pingwin uses sing-box/libbox, so the server-side minimum client version policy m
 3. Download the APK for your device: `app-arm64-v8a-release.apk` for most modern phones, `app-armeabi-v7a-release.apk` for older 32-bit ARM devices, or `app-universal-release.apk` if you are unsure.
 4. Open the downloaded APK.
 5. If Android asks for permission, allow your browser or file manager to install applications from that source.
-6. Start pingwin and add your VLESS configuration.
+6. Start pingwin and add your connection configuration.
 
 ## Getting started
 
-1. Obtain a compatible VLESS link from your server administrator or service provider.
+1. Obtain a compatible connection link from your server administrator or service provider.
 2. Open pingwin.
 3. Add the connection using one of these methods:
    - paste the link manually;
@@ -127,7 +136,7 @@ The following behavior is confirmed by the current source code:
 - **Location:** Android protects access to the current Wi-Fi network name (SSID) with location permissions. Background location access is required for Wi-Fi automation to identify trusted and untrusted networks while pingwin is not in the foreground.
 - **Country detection for automation:** When the "Being abroad" automation rule is enabled, pingwin compares the home country reported by the SIM with the country of the currently registered mobile network. This check is performed locally on the device. If either country cannot be determined, the rule is not applied.
 - **Notifications:** The VPN connection and network automation run as Android foreground services. Their notifications show service status while those services are active.
-- **Stored data:** Saved VLESS links, routing rules, automation settings, cached server location information, and diagnostic logs are stored in regular app-private Android preferences. These preferences are not additionally encrypted by pingwin. VLESS links contain connection credentials.
+- **Stored data:** Saved connection links, routing rules, automation settings, cached server location information, and diagnostic logs are stored in regular app-private Android preferences. These preferences are not additionally encrypted by pingwin. Connection links may contain credentials and other sensitive server information.
 - **Android backup:** Android backup is enabled in the application manifest. Actual backup behavior depends on the Android version, device, and backup settings.
 - **Server location lookup:** To display a country flag, pingwin may send the configured server IP address (or the IP address resolved from its host name) to [`ipwho.is`](https://ipwho.is/), [`ipapi.co`](https://ipapi.co/), and [`api.country.is`](https://api.country.is/) when no valid cached result is available. The results are compared to determine the server country and are cached in the application preferences for up to 24 hours.
 - **Diagnostic logs:** Shared logs can include the pingwin version, Android version, device manufacturer and model, and recorded events. Review logs and remove sensitive information before copying, sharing, or attaching them to an issue.
@@ -221,7 +230,7 @@ When creating an issue, include:
 - the expected and actual behavior;
 - relevant diagnostic log entries, with sensitive information removed.
 
-Do not publish complete VLESS links, UUIDs, QR codes, credentials, or private server information in an issue.
+Do not publish complete connection links, UUIDs, passwords, QR codes, credentials, or private server information in an issue.
 
 ## License
 

@@ -30,11 +30,7 @@ fun ServerConnectionCard(
         }.getOrNull()
 
     val host =
-        profile?.host
-            ?.takeIf {
-                it.isNotBlank()
-            }
-            ?: "—"
+        profile?.host?.takeIf { it.isNotBlank() }?.let(HostPrivacyMasker::mask) ?: "—"
 
     Card(
         modifier =
@@ -74,7 +70,7 @@ fun ServerConnectionCard(
                     Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = connection.name,
+                    text = HostPrivacyMasker.displayConnectionName(connection.name, profile),
                     style =
                         MaterialTheme.typography.titleMedium,
                     fontWeight =

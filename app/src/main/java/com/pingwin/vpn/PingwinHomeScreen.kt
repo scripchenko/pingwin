@@ -87,7 +87,7 @@ fun PingwinHomeScreen(
                 it.isNotBlank()
             }
 
-    val displayConnectionName = connection.name
+    val displayConnectionName = HostPrivacyMasker.displayConnectionName(connection.name, profile)
 
     val locationName =
         location?.countryName
