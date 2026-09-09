@@ -98,10 +98,37 @@ object DiagnosticLogStore {
             return emptyList()
         }
 
-        return raw.lines()
-            .filter {
-                it.isNotBlank()
-            }
+        val original =
+            raw.lines()
+                .filter {
+                    it.isNotBlank()
+                }
+
+        val redacted =
+            original
+                .map { entry ->
+                    DiagnosticLogRedactor.redact(
+                        entry
+                    )
+                }
+                .filter {
+                    it.isNotBlank()
+                }
+                .takeLast(
+                    MAX_ENTRIES
+                )
+
+        if (redacted != original) {
+            prefs(context)
+                .edit()
+                .putString(
+                    KEY_ENTRIES,
+                    redacted.joinToString("\n")
+                )
+                .apply()
+        }
+
+        return redacted
     }
 
     fun clear(
@@ -132,8 +159,15 @@ object DiagnosticLogStore {
 
         messages.forEach { message ->
             if (message.isNotBlank()) {
-                current +=
-                    "$time  $message"
+                val redacted =
+                    DiagnosticLogRedactor.redact(
+                        message
+                    )
+
+                if (redacted.isNotBlank()) {
+                    current +=
+                        "$time  $redacted"
+                }
             }
         }
 
