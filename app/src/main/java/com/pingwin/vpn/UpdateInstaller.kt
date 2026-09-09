@@ -3,12 +3,15 @@ package com.pingwin.vpn
 import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.PackageInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import androidx.core.content.FileProvider
 import java.io.File
+import java.security.MessageDigest
 
 data class UpdateDownloadState(
     val status: Int,
@@ -24,12 +27,16 @@ object UpdateInstaller {
     private const val KEY_DOWNLOAD_ID =
         "download_id"
 
+    private const val KEY_EXPECTED_SHA256 =
+        "expected_sha256"
+
     private const val NO_DOWNLOAD =
         -1L
 
     fun startDownload(
         context: Context,
-        apkUrl: String
+        apkUrl: String,
+        apkSha256: String?
     ): Long {
         cancelCurrentDownload(
             context
@@ -93,6 +100,10 @@ object UpdateInstaller {
             .putLong(
                 KEY_DOWNLOAD_ID,
                 downloadId
+            )
+            .putString(
+                KEY_EXPECTED_SHA256,
+                apkSha256?.lowercase()
             )
             .apply()
 
@@ -202,6 +213,15 @@ object UpdateInstaller {
                 NO_DOWNLOAD
             )
 
+    fun getExpectedSha256(
+        context: Context
+    ): String? =
+        prefs(context)
+            .getString(
+                KEY_EXPECTED_SHA256,
+                null
+            )
+
     fun clearStoredDownload(
         context: Context
     ) {
@@ -209,6 +229,9 @@ object UpdateInstaller {
             .edit()
             .remove(
                 KEY_DOWNLOAD_ID
+            )
+            .remove(
+                KEY_EXPECTED_SHA256
             )
             .apply()
     }
@@ -276,6 +299,182 @@ object UpdateInstaller {
             intent
         )
     }
+
+    fun verifyDownloadedApk(
+        context: Context,
+        apkFile: File
+    ): Boolean {
+        if (!apkFile.isFile) {
+            return false
+        }
+
+        val expectedSha256 =
+            getExpectedSha256(
+                context
+            ) ?: return false
+
+        if (
+            !sha256(
+                apkFile
+            ).equals(
+                expectedSha256,
+                ignoreCase = true
+            )
+        ) {
+            return false
+        }
+
+        val packageManager =
+            context.packageManager
+
+        val flags =
+            if (
+                Build.VERSION.SDK_INT >=
+                    Build.VERSION_CODES.P
+            ) {
+                PackageManager.GET_SIGNING_CERTIFICATES
+            } else {
+                @Suppress("DEPRECATION")
+                PackageManager.GET_SIGNATURES
+            }
+
+        val archiveInfo =
+            packageManager.getPackageArchiveInfo(
+                apkFile.absolutePath,
+                flags
+            ) ?: return false
+
+        if (
+            archiveInfo.packageName !=
+                context.packageName
+        ) {
+            return false
+        }
+
+        val installedInfo =
+            packageManager.getPackageInfo(
+                context.packageName,
+                flags
+            )
+
+        if (
+            signingCertificates(
+                archiveInfo
+            ) !=
+            signingCertificates(
+                installedInfo
+            )
+        ) {
+            return false
+        }
+
+        return versionCode(
+            archiveInfo
+        ) >
+            versionCode(
+                installedInfo
+            )
+    }
+
+    private fun signingCertificates(
+        packageInfo: PackageInfo
+    ): Set<String> {
+        val signatures =
+            if (
+                Build.VERSION.SDK_INT >=
+                    Build.VERSION_CODES.P
+            ) {
+                packageInfo.signingInfo
+                    ?.apkContentsSigners
+                    ?: emptyArray()
+            } else {
+                @Suppress("DEPRECATION")
+                packageInfo.signatures
+                    ?: emptyArray()
+            }
+
+        return signatures
+            .map { signature ->
+                sha256(
+                    signature.toByteArray()
+                )
+            }
+            .toSet()
+    }
+
+    private fun versionCode(
+        packageInfo: PackageInfo
+    ): Long =
+        if (
+            Build.VERSION.SDK_INT >=
+                Build.VERSION_CODES.P
+        ) {
+            packageInfo.longVersionCode
+        } else {
+            @Suppress("DEPRECATION")
+            packageInfo.versionCode.toLong()
+        }
+
+    private fun sha256(
+        file: File
+    ): String {
+        val digest =
+            MessageDigest.getInstance(
+                "SHA-256"
+            )
+
+        file.inputStream().use { input ->
+            val buffer =
+                ByteArray(
+                    DEFAULT_BUFFER_SIZE
+                )
+
+            while (true) {
+                val count =
+                    input.read(
+                        buffer
+                    )
+
+                if (count <= 0) {
+                    break
+                }
+
+                digest.update(
+                    buffer,
+                    0,
+                    count
+                )
+            }
+        }
+
+        return sha256Hex(
+            digest.digest()
+        )
+    }
+
+    private fun sha256(
+        data: ByteArray
+    ): String =
+        sha256Hex(
+            MessageDigest
+                .getInstance(
+                    "SHA-256"
+                )
+                .digest(
+                    data
+                )
+        )
+
+    private fun sha256Hex(
+        data: ByteArray
+    ): String =
+        data.joinToString(
+            separator = ""
+        ) { byte ->
+            "%02x".format(
+                byte.toInt() and 0xff
+            )
+        }
 
     fun installApk(
         context: Context,

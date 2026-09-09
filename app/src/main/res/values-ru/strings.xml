@@ -27,6 +27,7 @@
     <string name="updates_downloading">Загрузка обновления…</string>
     <string name="updates_error">Не удалось проверить обновления</string>
     <string name="updates_download_error">Не удалось скачать обновление</string>
+    <string name="updates_verification_error">Проверка обновления не пройдена. APK не будет установлен.</string>
     <string name="updates_install_permission">Разрешите pingwin устанавливать обновления и повторите попытку</string>
     <string name="settings_home">Главная</string>
 

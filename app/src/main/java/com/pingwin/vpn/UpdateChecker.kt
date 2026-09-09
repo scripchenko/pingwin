@@ -9,7 +9,8 @@ data class UpdateRelease(
     val version: String,
     val apkUrl: String,
     val releaseUrl: String,
-    val releaseNotes: String
+    val releaseNotes: String,
+    val apkSha256: String? = null
 )
 
 object UpdateChecker {
@@ -19,7 +20,8 @@ object UpdateChecker {
 
     private data class ApkAsset(
         val name: String,
-        val url: String
+        val url: String,
+        val sha256: String?
     )
 
     fun getLatestRelease(): UpdateRelease {
@@ -94,7 +96,21 @@ object UpdateChecker {
                                     url =
                                         asset.getString(
                                             "browser_download_url"
+                                        ),
+                                    sha256 =
+                                        asset.optString(
+                                            "digest"
                                         )
+                                            .removePrefix(
+                                                "sha256:"
+                                            )
+                                            .takeIf { value ->
+                                                value.length == 64 &&
+                                                    value.all { char ->
+                                                        char.isDigit() ||
+                                                            char.lowercaseChar() in 'a'..'f'
+                                                    }
+                                            }
                                 )
                             )
                         }
@@ -125,7 +141,8 @@ object UpdateChecker {
                 releaseNotes =
                     json.optString(
                         "body"
-                    )
+                    ),
+                apkSha256 = selectedAsset.sha256
             )
         } finally {
             connection.disconnect()

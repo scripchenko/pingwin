@@ -131,6 +131,11 @@ fun UpdatesScreen(
             mutableStateOf(false)
         }
 
+    var verificationFailed by
+        remember {
+            mutableStateOf(false)
+        }
+
     var downloadFailed by
         remember {
             mutableStateOf(false)
@@ -151,9 +156,86 @@ fun UpdatesScreen(
             mutableStateOf<File?>(null)
         }
 
+    var verifyingApk by
+        remember {
+            mutableStateOf(false)
+        }
+
     val activity =
         context as? ComponentActivity
 
+    fun verifyAndInstall(
+        apkFile: File
+    ) {
+        if (verifyingApk) {
+            return
+        }
+
+        verifyingApk = true
+
+        scope.launch {
+            val verified =
+                withContext(
+                    Dispatchers.IO
+                ) {
+                    runCatching {
+                        UpdateInstaller.verifyDownloadedApk(
+                            context.applicationContext,
+                            apkFile
+                        )
+                    }.getOrDefault(
+                        false
+                    )
+                }
+
+            if (!verified) {
+                verificationFailed = true
+                installPermissionNeeded = false
+                downloadedApk = null
+
+                UpdateInstaller.clearStoredDownload(
+                    context
+                )
+
+                withContext(
+                    Dispatchers.IO
+                ) {
+                    apkFile.delete()
+                }
+
+                verifyingApk = false
+                return@launch
+            }
+
+            verificationFailed = false
+
+            if (
+                UpdateInstaller.canInstallPackages(
+                    context
+                )
+            ) {
+                UpdateInstaller.clearStoredDownload(
+                    context
+                )
+
+                downloadedApk = null
+                installPermissionNeeded = false
+                verifyingApk = false
+
+                UpdateInstaller.installApk(
+                    context,
+                    apkFile
+                )
+            } else {
+                installPermissionNeeded = true
+                verifyingApk = false
+
+                UpdateInstaller.openInstallPermission(
+                    context
+                )
+            }
+        }
+    }
     DisposableEffect(
         activity,
         installPermissionNeeded,
@@ -181,14 +263,7 @@ fun UpdatesScreen(
                     ) {
                         installPermissionNeeded = false
 
-                        UpdateInstaller.clearStoredDownload(
-                            context
-                        )
-
-                        downloadedApk = null
-
-                        UpdateInstaller.installApk(
-                            context,
+                        verifyAndInstall(
                             apkFile
                         )
                     }
@@ -297,31 +372,10 @@ fun UpdatesScreen(
                                     androidx.lifecycle.Lifecycle.State.RESUMED
                                 ) == true
 
-                        if (resumed) {
-                            if (
-                                UpdateInstaller.canInstallPackages(
-                                    context
-                                )
-                            ) {
-                                UpdateInstaller.clearStoredDownload(
-                                    context
-                                )
-
-                                downloadedApk = null
-
-                                UpdateInstaller.installApk(
-                                    context,
-                                    apkFile
-                                )
-                            } else if (
-                                !installPermissionNeeded
-                            ) {
-                                installPermissionNeeded = true
-
-                                UpdateInstaller.openInstallPermission(
-                                    context
-                                )
-                            }
+                        if (resumed && !installPermissionNeeded) {
+                            verifyAndInstall(
+                                apkFile
+                            )
                         }
                     }
                 }
@@ -603,6 +657,7 @@ fun UpdatesScreen(
                     enabled = !downloading,
                     onClick = {
                         downloadFailed = false
+                        verificationFailed = false
                         installPermissionNeeded = false
 
                         val existingApk =
@@ -612,22 +667,9 @@ fun UpdatesScreen(
                             existingApk != null &&
                             existingApk.exists()
                         ) {
-                            if (
-                                UpdateInstaller.canInstallPackages(
-                                    context
-                                )
-                            ) {
-                                UpdateInstaller.installApk(
-                                    context,
-                                    existingApk
-                                )
-                            } else {
-                                installPermissionNeeded = true
-
-                                UpdateInstaller.openInstallPermission(
-                                    context
-                                )
-                            }
+                            verifyAndInstall(
+                                existingApk
+                            )
                         } else {
                             downloadFailed = false
                             downloading = true
@@ -636,7 +678,8 @@ fun UpdatesScreen(
                             runCatching {
                                 UpdateInstaller.startDownload(
                                     context.applicationContext,
-                                    release.apkUrl
+                                    release.apkUrl,
+                                    release.apkSha256
                                 )
                             }.onFailure {
                                 downloading = false
@@ -714,6 +757,16 @@ fun UpdatesScreen(
                     )
                 }
 
+                if (verificationFailed) {
+                    Text(
+                        text =
+                            stringResource(
+                                R.string.updates_verification_error
+                            ),
+                        color =
+                            MaterialTheme.colorScheme.error
+                    )
+                }
                 if (installPermissionNeeded) {
                     Text(
                         text =
