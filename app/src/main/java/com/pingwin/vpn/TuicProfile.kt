@@ -7,7 +7,8 @@ import java.nio.charset.StandardCharsets
 enum class TuicParseError {
     INVALID_SCHEME,
     MISSING_UUID,
-    MISSING_HOST
+    MISSING_HOST,
+    INVALID_PORT
 }
 
 class TuicParseException(
@@ -94,6 +95,12 @@ data class TuicProfile(
             val port =
                 if (uri.port != -1) {
                     uri.port
+                        .takeIf(
+                            PortValidator::isValid
+                        )
+                        ?: throw TuicParseException(
+                            TuicParseError.INVALID_PORT
+                        )
                 } else {
                     443
                 }

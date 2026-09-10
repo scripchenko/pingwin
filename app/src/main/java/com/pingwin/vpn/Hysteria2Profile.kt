@@ -309,21 +309,12 @@ data class Hysteria2Profile(
 
         private fun validatePort(
             value: String
-        ): Int {
-            val port =
-                value.toIntOrNull()
-                    ?: throw Hysteria2ParseException(
-                        Hysteria2ParseError.INVALID_PORT
-                    )
-
-            if (port !in 1..65535) {
-                throw Hysteria2ParseException(
-                    Hysteria2ParseError.INVALID_PORT
-                )
-            }
-
-            return port
-        }
+        ): Int =
+            PortValidator.parse(
+                value
+            ) ?: throw Hysteria2ParseException(
+                Hysteria2ParseError.INVALID_PORT
+            )
 
         private fun parseQuery(
             query: String?

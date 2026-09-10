@@ -182,6 +182,7 @@
     <string name="vless_error_invalid_scheme">Ссылка должна начинаться с vless://</string>
     <string name="vless_error_missing_uuid">В ссылке отсутствует UUID</string>
     <string name="vless_error_missing_host">В ссылке отсутствует адрес сервера</string>
+    <string name="vless_error_invalid_port">Некорректный порт сервера VLESS</string>
     <string name="hysteria2_error_invalid_scheme">Ссылка должна начинаться с hysteria2:// или hy2://</string>
     <string name="hysteria2_error_missing_host">В ссылке отсутствует адрес сервера</string>
     <string name="hysteria2_error_invalid_port">Некорректный порт сервера Hysteria2</string>
@@ -192,9 +193,11 @@
     <string name="trojan_error_invalid_scheme">Ссылка должна начинаться с trojan://</string>
     <string name="trojan_error_missing_password">В ссылке Trojan отсутствует пароль</string>
     <string name="trojan_error_missing_host">В ссылке Trojan отсутствует адрес сервера</string>
+    <string name="trojan_error_invalid_port">Некорректный порт сервера Trojan</string>
     <string name="tuic_error_invalid_scheme">Ссылка должна начинаться с tuic://</string>
     <string name="tuic_error_missing_uuid">В ссылке TUIC отсутствует UUID</string>
     <string name="tuic_error_missing_host">В ссылке TUIC отсутствует адрес сервера</string>
+    <string name="tuic_error_invalid_port">Некорректный порт сервера TUIC</string>
     <string name="tuic_error_unsupported_congestion_control">Этот алгоритм управления перегрузкой TUIC не поддерживается</string>
     <string name="tuic_error_unsupported_udp_relay_mode">Этот режим UDP relay TUIC не поддерживается</string>
     <string name="shadowsocks_error_invalid_scheme">Ссылка должна начинаться с ss://</string>

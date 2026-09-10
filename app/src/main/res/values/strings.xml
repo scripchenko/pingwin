@@ -178,6 +178,7 @@
     <string name="vless_error_invalid_scheme">The link must start with vless://</string>
     <string name="vless_error_missing_uuid">The link does not contain a UUID</string>
     <string name="vless_error_missing_host">The link does not contain a server address</string>
+    <string name="vless_error_invalid_port">The VLESS server port is invalid</string>
     <string name="hysteria2_error_invalid_scheme">The link must start with hysteria2:// or hy2://</string>
     <string name="hysteria2_error_missing_host">The link does not contain a server address</string>
     <string name="hysteria2_error_invalid_port">The Hysteria2 server port is invalid</string>
@@ -188,9 +189,11 @@
     <string name="trojan_error_invalid_scheme">The link must start with trojan://</string>
     <string name="trojan_error_missing_password">The Trojan link does not contain a password</string>
     <string name="trojan_error_missing_host">The Trojan link does not contain a server address</string>
+    <string name="trojan_error_invalid_port">The Trojan server port is invalid</string>
     <string name="tuic_error_invalid_scheme">The link must start with tuic://</string>
     <string name="tuic_error_missing_uuid">The TUIC link does not contain a UUID</string>
     <string name="tuic_error_missing_host">The TUIC link does not contain a server address</string>
+    <string name="tuic_error_invalid_port">The TUIC server port is invalid</string>
     <string name="tuic_error_unsupported_congestion_control">Unsupported TUIC congestion control</string>
     <string name="tuic_error_unsupported_udp_relay_mode">Unsupported TUIC UDP relay mode</string>
     <string name="shadowsocks_error_invalid_scheme">The link must start with ss://</string>

@@ -88,7 +88,7 @@ data class ShadowsocksProfile(
 
             val port =
                 uri.port
-                    .takeIf { it in 1..65535 }
+                    .takeIf(PortValidator::isValid)
                     ?: throw ShadowsocksParseException(
                         ShadowsocksParseError.INVALID_PORT
                     )
@@ -171,11 +171,11 @@ data class ShadowsocksProfile(
                     )
 
             val port =
-                server.substring(
-                    colon + 1
+                PortValidator.parse(
+                    server.substring(
+                        colon + 1
+                    )
                 )
-                    .toIntOrNull()
-                    ?.takeIf { it in 1..65535 }
                     ?: throw ShadowsocksParseException(
                         ShadowsocksParseError.INVALID_PORT
                     )

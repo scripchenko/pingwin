@@ -7,7 +7,8 @@ import java.nio.charset.StandardCharsets
 enum class TrojanParseError {
     INVALID_SCHEME,
     MISSING_PASSWORD,
-    MISSING_HOST
+    MISSING_HOST,
+    INVALID_PORT
 }
 
 class TrojanParseException(
@@ -80,6 +81,12 @@ data class TrojanProfile(
             val port =
                 if (uri.port != -1) {
                     uri.port
+                        .takeIf(
+                            PortValidator::isValid
+                        )
+                        ?: throw TrojanParseException(
+                            TrojanParseError.INVALID_PORT
+                        )
                 } else {
                     443
                 }

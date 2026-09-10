@@ -22,6 +22,9 @@ fun Throwable.localizedVpnMessage(
 
                     VlessParseError.MISSING_HOST ->
                         R.string.vless_error_missing_host
+
+                    VlessParseError.INVALID_PORT ->
+                        R.string.vless_error_invalid_port
                 }
             )
 
@@ -50,6 +53,9 @@ fun Throwable.localizedVpnMessage(
 
                     TrojanParseError.MISSING_HOST ->
                         R.string.trojan_error_missing_host
+
+                    TrojanParseError.INVALID_PORT ->
+                        R.string.trojan_error_invalid_port
                 }
             )
 
@@ -64,6 +70,9 @@ fun Throwable.localizedVpnMessage(
 
                     TuicParseError.MISSING_HOST ->
                         R.string.tuic_error_missing_host
+
+                    TuicParseError.INVALID_PORT ->
+                        R.string.tuic_error_invalid_port
                 }
             )
 

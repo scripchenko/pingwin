@@ -7,7 +7,8 @@ import java.nio.charset.StandardCharsets
 enum class VlessParseError {
     INVALID_SCHEME,
     MISSING_UUID,
-    MISSING_HOST
+    MISSING_HOST,
+    INVALID_PORT
 }
 
 class VlessParseException(
@@ -65,6 +66,12 @@ data class VlessProfile(
             val port =
                 if (uri.port != -1) {
                     uri.port
+                        .takeIf(
+                            PortValidator::isValid
+                        )
+                        ?: throw VlessParseException(
+                            VlessParseError.INVALID_PORT
+                        )
                 } else {
                     443
                 }

@@ -90,9 +90,9 @@ data class VmessProfile(
                     )
 
             val port =
-                json.optString("port")
-                    .toIntOrNull()
-                    ?.takeIf { it in 1..65535 }
+                PortValidator.parse(
+                    json.optString("port")
+                )
                     ?: throw VmessParseException(
                         VmessParseError.INVALID_PORT
                     )
