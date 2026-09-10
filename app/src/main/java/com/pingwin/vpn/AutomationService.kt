@@ -30,6 +30,12 @@ class AutomationService : Service() {
         private const val NOTIFICATION_ID =
             2001
 
+        private const val WIFI_SSID_RETRY_DELAY_MS =
+            500L
+
+        private const val WIFI_SSID_MAX_RETRIES =
+            3
+
         fun sync(
             context: Context
         ) {
@@ -85,6 +91,83 @@ class AutomationService : Service() {
         String? =
         null
 
+    private var wifiSsidRetryNetwork:
+        Network? =
+        null
+
+    private var wifiSsidRetryAttempts =
+        0
+
+    private var wifiSsidRetryScheduled =
+        false
+
+    private val wifiSsidRetryRunnable =
+        Runnable {
+            wifiSsidRetryScheduled =
+                false
+
+            val retryNetwork =
+                wifiSsidRetryNetwork
+
+            if (
+                retryNetwork == null ||
+                currentNetwork != retryNetwork
+            ) {
+                cancelWifiSsidRetry()
+                return@Runnable
+            }
+
+            wifiSsidRetryAttempts +=
+                1
+
+            evaluateCurrentNetwork()
+        }
+
+    private fun scheduleWifiSsidRetry(): Boolean {
+        val network =
+            currentNetwork
+                ?: return false
+
+        if (wifiSsidRetryNetwork != network) {
+            cancelWifiSsidRetry()
+            wifiSsidRetryNetwork =
+                network
+        }
+
+        if (
+            wifiSsidRetryAttempts >=
+            WIFI_SSID_MAX_RETRIES
+        ) {
+            return false
+        }
+
+        if (!wifiSsidRetryScheduled) {
+            wifiSsidRetryScheduled =
+                true
+
+            mainHandler.postDelayed(
+                wifiSsidRetryRunnable,
+                WIFI_SSID_RETRY_DELAY_MS
+            )
+        }
+
+        return true
+    }
+
+    private fun cancelWifiSsidRetry() {
+        mainHandler.removeCallbacks(
+            wifiSsidRetryRunnable
+        )
+
+        wifiSsidRetryScheduled =
+            false
+
+        wifiSsidRetryAttempts =
+            0
+
+        wifiSsidRetryNetwork =
+            null
+    }
     override fun onCreate() {
         super.onCreate()
 
@@ -261,6 +344,8 @@ class AutomationService : Service() {
                             currentNetwork ==
                             network
                         ) {
+                            cancelWifiSsidRetry()
+
                             currentNetwork =
                                 null
 
@@ -300,6 +385,8 @@ class AutomationService : Service() {
                             currentNetwork ==
                             network
                         ) {
+                            cancelWifiSsidRetry()
+
                             currentNetwork =
                                 null
 
@@ -333,6 +420,7 @@ class AutomationService : Service() {
     }
 
     private fun unregisterNetworkMonitor() {
+        cancelWifiSsidRetry()
         val callback =
             networkCallback
                 ?: return
@@ -429,20 +517,37 @@ class AutomationService : Service() {
                     )
 
                 if (ssid == null) {
-                    lastDecisionKey =
+                    if (scheduleWifiSsidRetry()) {
+                        return
+                    }
+
+                    cancelWifiSsidRetry()
+
+                    if (
+                        lastDecisionKey !=
                         "wifi:unknown"
+                    ) {
+                        lastDecisionKey =
+                            "wifi:unknown"
 
-                    updateNotification(
-                        getString(R.string.automation_service_wifi_unknown)
-                    )
+                        updateNotification(
+                            getString(
+                                R.string.automation_service_wifi_unknown
+                            )
+                        )
 
-                    DiagnosticLogStore.append(
-                        this,
-                        getString(R.string.automation_log_ssid_unavailable)
-                    )
+                        DiagnosticLogStore.append(
+                            this,
+                            getString(
+                                R.string.automation_log_ssid_unavailable
+                            )
+                        )
+                    }
 
                     return
                 }
+
+                cancelWifiSsidRetry()
 
                 val trusted =
                     settings
@@ -505,6 +610,8 @@ class AutomationService : Service() {
                 NetworkCapabilities
                     .TRANSPORT_CELLULAR
             ) -> {
+                cancelWifiSsidRetry()
+
                 val key =
                     "mobile"
 
