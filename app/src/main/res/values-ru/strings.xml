@@ -35,6 +35,9 @@
     <string name="language_title">Язык</string>
     <string name="language_english">English</string>
     <string name="language_russian">Русский</string>
+    <string name="external_geoip_title">Определять страну сервера</string>
+    <string name="external_geoip_subtitle">Используются внешние GeoIP-сервисы. IP-адрес сервера будет передаваться сторонним сервисам.</string>
+    <string name="home_geoip_disabled">Страна: выкл.</string>
     <string name="cancel">Отмена</string>
 
     <string name="home_add_qr">QR-код</string>
@@ -164,14 +167,17 @@
 
     <string name="about_title">О программе</string>
     <string name="about_version_line">Версия %1$s</string>
-    <string name="about_description">pingwin — лёгкий VPN-клиент для VLESS-подключений на базе sing-box. Основной акцент сделан на простом управлении подключениями, гибкой маршрутизации и автоматизации.</string>
+    <string name="about_description">pingwin — лёгкий VPN-клиент на базе sing-box с поддержкой современных протоколов. Основной акцент сделан на простом управлении подключениями, раздельной маршрутизации приложений и сайтов, автоматизации и приватности.</string>
     <string name="about_features_title">Возможности</string>
-    <string name="about_feature_connections">VLESS-подключения со сканированием QR-кодов и импортом из буфера обмена</string>
+    <string name="about_feature_connections">VLESS, VMess, Trojan, Shadowsocks, TUIC и Hysteria2 со сканированием QR-кодов и импортом из буфера обмена</string>
     <string name="about_feature_routing">Раздельные правила маршрутизации для приложений и сайтов</string>
     <string name="about_feature_automation">Автоматическое управление VPN для мобильной сети, доверенных и недоверенных Wi-Fi</string>
     <string name="about_feature_macrodroid">Интеграция с MacroDroid: подключение, отключение и переключение VPN</string>
     <string name="about_feature_logs">Диагностические логи для поиска проблем с подключением</string>
     <string name="about_feature_languages">Интерфейс на английском и русском языках</string>
+    <string name="about_feature_privacy">Настройки приватности и маскирование адресов серверов</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_support">Поддержка</string>
     <string name="about_version">Версия</string>
     <string name="about_core">Ядро</string>
     <string name="about_protocol">Протокол</string>
@@ -267,3 +273,6 @@
         <item quantity="other">%d сохранённых серверов</item>
     </plurals>
 </resources>
+
+
+

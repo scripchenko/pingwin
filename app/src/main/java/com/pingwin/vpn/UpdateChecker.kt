@@ -211,51 +211,163 @@ object UpdateChecker {
         currentVersion: String
     ): Boolean {
         val remote =
-            versionNumbers(
-                remoteVersion
-            )
+            parseVersion(remoteVersion)
+                ?: return false
 
         val current =
-            versionNumbers(
-                currentVersion
-            )
+            parseVersion(currentVersion)
+                ?: return false
 
         val size =
             maxOf(
-                remote.size,
-                current.size
+                remote.numbers.size,
+                current.numbers.size
             )
 
         for (index in 0 until size) {
             val remotePart =
-                remote.getOrElse(index) {
+                remote.numbers.getOrElse(index) {
                     0
                 }
 
             val currentPart =
-                current.getOrElse(index) {
+                current.numbers.getOrElse(index) {
                     0
                 }
 
-            if (remotePart > currentPart) {
+            if (remotePart != currentPart) {
+                return remotePart > currentPart
+            }
+        }
+
+        val remotePrerelease =
+            remote.prerelease
+
+        val currentPrerelease =
+            current.prerelease
+
+        if (
+            remotePrerelease == null &&
+            currentPrerelease != null
+        ) {
+            return true
+        }
+
+        if (
+            remotePrerelease != null &&
+            currentPrerelease == null
+        ) {
+            return false
+        }
+
+        if (
+            remotePrerelease == null ||
+            currentPrerelease == null
+        ) {
+            return false
+        }
+
+        val prereleaseSize =
+            maxOf(
+                remotePrerelease.size,
+                currentPrerelease.size
+            )
+
+        for (index in 0 until prereleaseSize) {
+            if (index >= remotePrerelease.size) {
+                return false
+            }
+
+            if (index >= currentPrerelease.size) {
                 return true
             }
 
-            if (remotePart < currentPart) {
-                return false
+            val comparison =
+                comparePrereleaseIdentifier(
+                    remotePrerelease[index],
+                    currentPrerelease[index]
+                )
+
+            if (comparison != 0) {
+                return comparison > 0
             }
         }
 
         return false
     }
 
-    private fun versionNumbers(
+    private data class ParsedVersion(
+        val numbers: List<Int>,
+        val prerelease: List<String>?
+    )
+
+    private fun parseVersion(
         version: String
-    ): List<Int> =
-        Regex("""\d+""")
-            .findAll(version)
-            .map {
-                it.value.toInt()
-            }
-            .toList()
+    ): ParsedVersion? {
+        val normalized =
+            version
+                .trim()
+                .removePrefix("v")
+                .removePrefix("V")
+                .substringBefore("+")
+
+        val core =
+            normalized.substringBefore("-")
+
+        val numbers =
+            core
+                .split(".")
+                .map { part ->
+                    part.toIntOrNull()
+                        ?: return null
+                }
+
+        if (numbers.isEmpty()) {
+            return null
+        }
+
+        val prerelease =
+            normalized
+                .substringAfter(
+                    "-",
+                    ""
+                )
+                .takeIf(String::isNotBlank)
+                ?.split(".")
+
+        return ParsedVersion(
+            numbers = numbers,
+            prerelease = prerelease
+        )
+    }
+
+    private fun comparePrereleaseIdentifier(
+        first: String,
+        second: String
+    ): Int {
+        val firstNumber =
+            first.toLongOrNull()
+
+        val secondNumber =
+            second.toLongOrNull()
+
+        return when {
+            firstNumber != null &&
+                secondNumber != null ->
+                firstNumber.compareTo(
+                    secondNumber
+                )
+
+            firstNumber != null ->
+                -1
+
+            secondNumber != null ->
+                1
+
+            else ->
+                first.compareTo(
+                    second
+                )
+        }
+    }
 }

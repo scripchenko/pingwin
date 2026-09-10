@@ -1,5 +1,8 @@
 package com.pingwin.vpn
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -28,6 +32,17 @@ import androidx.compose.ui.unit.sp
 fun AboutScreen(
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
+
+    fun openUrl(url: String) {
+        context.startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(url)
+            )
+        )
+    }
+
     Column(
         modifier =
             Modifier
@@ -156,12 +171,19 @@ fun AboutScreen(
         AboutFeature(
             text =
                 stringResource(
+                    R.string.about_feature_privacy
+                )
+        )
+
+        AboutFeature(
+            text =
+                stringResource(
                     R.string.about_feature_languages
                 )
         )
 
         Spacer(
-            modifier = Modifier.height(24.dp)
+            modifier = Modifier.height(20.dp)
         )
 
         AboutRow(
@@ -180,16 +202,34 @@ fun AboutScreen(
             value = "sing-box"
         )
 
-        AboutRow(
+        AboutLinkRow(
             title =
                 stringResource(
-                    R.string.about_protocol
+                    R.string.about_github
                 ),
-            value = "VLESS"
+            value = "scripchenko ›",
+            onClick = {
+                openUrl(
+                    "https://github.com/scripchenko"
+                )
+            }
+        )
+
+        AboutLinkRow(
+            title =
+                stringResource(
+                    R.string.about_support
+                ),
+            value = "@dscripchenko ›",
+            onClick = {
+                openUrl(
+                    "https://t.me/dscripchenko"
+                )
+            }
         )
 
         Spacer(
-            modifier = Modifier.height(28.dp)
+            modifier = Modifier.height(24.dp)
         )
 
         Text(
@@ -247,7 +287,7 @@ private fun AboutRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 14.dp),
+                .padding(vertical = 8.dp),
         verticalAlignment =
             Alignment.CenterVertically,
         horizontalArrangement =
@@ -267,6 +307,43 @@ private fun AboutRow(
             text = value,
             fontSize = 16.sp,
             color = Color(0xFF777D89)
+        )
+    }
+}
+
+@Composable
+private fun AboutLinkRow(
+    title: String,
+    value: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable {
+                    onClick()
+                }
+                .padding(vertical = 8.dp),
+        verticalAlignment =
+            Alignment.CenterVertically,
+        horizontalArrangement =
+            Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = title,
+            fontSize = 18.sp,
+            color = Color(0xFF1A1C21)
+        )
+
+        Spacer(
+            modifier = Modifier.width(20.dp)
+        )
+
+        Text(
+            text = value,
+            fontSize = 16.sp,
+            color = Color(0xFF667085)
         )
     }
 }

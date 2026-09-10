@@ -609,9 +609,15 @@ class MainActivity : ComponentActivity() {
                         mutableStateOf(0)
                     }
 
+                val externalGeoIpEnabled =
+                    PrivacySettingsStore.isExternalGeoIpEnabled(
+                        this@MainActivity
+                    )
+
                 LaunchedEffect(
                     connection.id,
-                    profile?.host
+                    profile?.host,
+                    externalGeoIpEnabled
                 ) {
                     val host =
                         profile?.host
@@ -620,7 +626,10 @@ class MainActivity : ComponentActivity() {
                             }
 
                     serverLocation =
-                        if (host == null) {
+                        if (
+                            host == null ||
+                            !externalGeoIpEnabled
+                        ) {
                             null
                         } else {
                             withContext(
@@ -674,6 +683,7 @@ class MainActivity : ComponentActivity() {
                 PingwinHomeScreen(
                     connection = connection,
                     location = serverLocation,
+                    externalGeoIpEnabled = externalGeoIpEnabled,
                     vpnState = vpnState,
                     pingMs = pingMs,
                     routingSettings = routingSettings,

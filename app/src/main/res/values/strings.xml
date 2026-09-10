@@ -35,6 +35,9 @@
     <string name="language_title">Language</string>
     <string name="language_english">English</string>
     <string name="language_russian">Русский</string>
+    <string name="external_geoip_title">Detect server country</string>
+    <string name="external_geoip_subtitle">Uses external GeoIP services. The server IP address will be sent to third-party services.</string>
+    <string name="home_geoip_disabled">Country: off</string>
     <string name="cancel">Cancel</string>
 
     <string name="home_add_qr">QR code</string>
@@ -160,14 +163,17 @@
 
     <string name="about_title">About</string>
     <string name="about_version_line">Version %1$s</string>
-    <string name="about_description">pingwin is a lightweight VPN client for VLESS connections powered by sing-box. It focuses on simple connection management, flexible routing and automation.</string>
+    <string name="about_description">pingwin is a lightweight VPN client based on sing-box with support for modern protocols. It focuses on simple connection management, separate routing for apps and websites, automation, and privacy.</string>
     <string name="about_features_title">Features</string>
-    <string name="about_feature_connections">VLESS connections with QR code scanning and clipboard import</string>
+    <string name="about_feature_connections">VLESS, VMess, Trojan, Shadowsocks, TUIC and Hysteria2 with QR code scanning and clipboard import</string>
     <string name="about_feature_routing">Separate routing rules for applications and websites</string>
     <string name="about_feature_automation">Automatic VPN control for mobile data and trusted or untrusted Wi-Fi</string>
     <string name="about_feature_macrodroid">MacroDroid integration for connect, disconnect and toggle actions</string>
     <string name="about_feature_logs">Diagnostic logs for connection troubleshooting</string>
     <string name="about_feature_languages">English and Russian interface</string>
+    <string name="about_feature_privacy">Privacy controls and masking of server addresses</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_support">Support</string>
     <string name="about_version">Version</string>
     <string name="about_core">Core</string>
     <string name="about_protocol">Protocol</string>
@@ -261,3 +267,6 @@
         <item quantity="other">%d saved servers</item>
     </plurals>
 </resources>
+
+
+

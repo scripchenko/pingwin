@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -43,6 +44,25 @@ fun GeneralScreen(
         remember {
             mutableStateOf(false)
         }
+    var externalGeoIpEnabled by
+        remember {
+            mutableStateOf(
+                PrivacySettingsStore.isExternalGeoIpEnabled(
+                    context
+                )
+            )
+        }
+
+    fun setExternalGeoIpEnabled(
+        enabled: Boolean
+    ) {
+        externalGeoIpEnabled = enabled
+
+        PrivacySettingsStore.setExternalGeoIpEnabled(
+            context = context,
+            enabled = enabled
+        )
+    }
 
     fun selectLanguage(
         language: String
@@ -138,6 +158,55 @@ fun GeneralScreen(
                 text = "›",
                 style =
                     MaterialTheme.typography.headlineSmall
+            )
+        }
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        setExternalGeoIpEnabled(
+                            !externalGeoIpEnabled
+                        )
+                    }
+                    .padding(
+                        vertical = 12.dp
+                    ),
+            verticalAlignment =
+                Alignment.CenterVertically
+        ) {
+            Column(
+                modifier =
+                    Modifier.weight(1f),
+                verticalArrangement =
+                    Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text =
+                        stringResource(
+                            R.string.external_geoip_title
+                        ),
+                    style =
+                        MaterialTheme.typography.titleLarge
+                )
+
+                Text(
+                    text =
+                        stringResource(
+                            R.string.external_geoip_subtitle
+                        ),
+                    style =
+                        MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Switch(
+                checked = externalGeoIpEnabled,
+                onCheckedChange = {
+                    setExternalGeoIpEnabled(
+                        it
+                    )
+                }
             )
         }
     }

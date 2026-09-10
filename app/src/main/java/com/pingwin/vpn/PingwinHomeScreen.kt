@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 fun PingwinHomeScreen(
     connection: SavedConnection,
     location: ServerLocation?,
+    externalGeoIpEnabled: Boolean,
     vpnState: VpnConnectionState,
     pingMs: Int?,
     routingSettings: RoutingSettings,
@@ -90,14 +91,19 @@ fun PingwinHomeScreen(
     val displayConnectionName = HostPrivacyMasker.displayConnectionName(connection.name, profile)
 
     val locationName =
-        location?.countryName
-            ?.takeIf {
-                it.isNotBlank()
-            }
-            ?: stringResource(
-                R.string.home_location_unknown
+        if (!externalGeoIpEnabled) {
+            stringResource(
+                R.string.home_geoip_disabled
             )
-
+        } else {
+            location?.countryName
+                ?.takeIf {
+                    it.isNotBlank()
+                }
+                ?: stringResource(
+                    R.string.home_location_unknown
+                )
+        }
     val appsSubtitle =
         if (routingSettings.appEnabled) {
             pluralStringResource(
@@ -336,11 +342,15 @@ fun PingwinHomeScreen(
             ) {
                 Text(
                     text =
-                        location?.flagEmoji
-                            ?.takeIf {
-                                it.isNotBlank()
-                            }
-                            ?: "🌐",
+                        if (!externalGeoIpEnabled) {
+                            "🌐"
+                        } else {
+                            location?.flagEmoji
+                                ?.takeIf {
+                                    it.isNotBlank()
+                                }
+                                ?: "🌐"
+                        },
                     fontSize = 28.sp
                 )
 
