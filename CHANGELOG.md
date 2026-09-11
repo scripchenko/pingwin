@@ -2,6 +2,27 @@
 
 All notable changes to pingwin are documented in this file.
 
+## [0.1.7] - 2026-09-11
+
+### Security & Privacy
+
+- Protected external Tasker and MacroDroid VPN actions with a per-install authorization token.
+- Restricted internal Tasker plugin service exposure and removed unused exported condition components.
+- Added a random libbox command server secret for local command authentication.
+- Disabled libbox debug mode in release builds.
+- Forced DNS traffic to 1.1.1.1 through the VPN proxy, including whitelist routing modes.
+
+### Changed
+
+- Updated application version to 0.1.7.
+
+### Fixed
+
+- Prevented unauthorized third-party apps from triggering VPN automation actions.
+- Prevented DNS traffic from falling back to the direct outbound in selective routing modes.
+
+---
+
 ## [0.1.6] - 2026-09-10
 
 ### Security & Privacy
