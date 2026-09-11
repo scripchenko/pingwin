@@ -4,21 +4,33 @@ import android.app.Activity
 import android.content.Context
 import android.net.VpnService
 import android.os.Bundle
-import com.joaomgcd.taskerpluginlibrary.action.TaskerPluginRunnerActionNoOutputOrInput
+import com.joaomgcd.taskerpluginlibrary.action.TaskerPluginRunnerActionNoOutput
 import com.joaomgcd.taskerpluginlibrary.config.TaskerPluginConfig
-import com.joaomgcd.taskerpluginlibrary.config.TaskerPluginConfigHelperNoOutputOrInput
-import com.joaomgcd.taskerpluginlibrary.config.TaskerPluginConfigNoInput
+import com.joaomgcd.taskerpluginlibrary.config.TaskerPluginConfigHelperNoOutput
 import com.joaomgcd.taskerpluginlibrary.input.TaskerInput
 import com.joaomgcd.taskerpluginlibrary.runner.TaskerPluginResult
 import com.joaomgcd.taskerpluginlibrary.runner.TaskerPluginResultSucess
 
 class MacroDroidConnectRunner :
-    TaskerPluginRunnerActionNoOutputOrInput() {
+    TaskerPluginRunnerActionNoOutput<
+        AutomationTokenInput
+    >() {
 
     override fun run(
         context: Context,
-        input: TaskerInput<Unit>
+        input: TaskerInput<AutomationTokenInput>
     ): TaskerPluginResult<Unit> {
+
+        if (
+            !AutomationPluginSecurity.isValid(
+                context,
+                input.regular
+            )
+        ) {
+            throw SecurityException(
+                "Unauthorized automation request"
+            )
+        }
 
         val state =
             VpnStatus.state.value
@@ -109,17 +121,22 @@ class MacroDroidConnectRunner :
 }
 
 class MacroDroidConnectHelper(
-    private val pluginConfig: TaskerPluginConfig<Unit>
+    private val pluginConfig:
+        TaskerPluginConfig<AutomationTokenInput>
 ) :
-    TaskerPluginConfigHelperNoOutputOrInput<
+    TaskerPluginConfigHelperNoOutput<
+        AutomationTokenInput,
         MacroDroidConnectRunner
     >(pluginConfig) {
+
+    override val inputClass =
+        AutomationTokenInput::class.java
 
     override val runnerClass =
         MacroDroidConnectRunner::class.java
 
     override fun addToStringBlurb(
-        input: TaskerInput<Unit>,
+        input: TaskerInput<AutomationTokenInput>,
         blurbBuilder: StringBuilder
     ) {
         blurbBuilder.append(
@@ -132,11 +149,28 @@ class MacroDroidConnectHelper(
 
 class MacroDroidConnectActivity :
     Activity(),
-    TaskerPluginConfigNoInput {
+    TaskerPluginConfig<AutomationTokenInput> {
 
     override val context
         get() =
             applicationContext
+
+    override fun assignFromInput(
+        input: TaskerInput<AutomationTokenInput>
+    ) = Unit
+
+    override val inputForTasker:
+        TaskerInput<AutomationTokenInput>
+        get() =
+            TaskerInput(
+                AutomationTokenInput().apply {
+                    token =
+                        AutomationPluginSecurity
+                            .getOrCreateToken(
+                                applicationContext
+                            )
+                }
+            )
 
     private val taskerHelper by lazy {
         MacroDroidConnectHelper(
@@ -150,6 +184,17 @@ class MacroDroidConnectActivity :
         super.onCreate(
             savedInstanceState
         )
+
+        if (
+            !AutomationPluginSecurity
+                .isTrustedConfigCaller(this)
+        ) {
+            setResult(
+                RESULT_CANCELED
+            )
+            finish()
+            return
+        }
 
         taskerHelper.finishForTasker()
     }

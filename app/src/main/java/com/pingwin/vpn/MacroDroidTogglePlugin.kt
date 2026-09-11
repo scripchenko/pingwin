@@ -4,21 +4,33 @@ import android.app.Activity
 import android.content.Context
 import android.net.VpnService
 import android.os.Bundle
-import com.joaomgcd.taskerpluginlibrary.action.TaskerPluginRunnerActionNoOutputOrInput
+import com.joaomgcd.taskerpluginlibrary.action.TaskerPluginRunnerActionNoOutput
 import com.joaomgcd.taskerpluginlibrary.config.TaskerPluginConfig
-import com.joaomgcd.taskerpluginlibrary.config.TaskerPluginConfigHelperNoOutputOrInput
-import com.joaomgcd.taskerpluginlibrary.config.TaskerPluginConfigNoInput
+import com.joaomgcd.taskerpluginlibrary.config.TaskerPluginConfigHelperNoOutput
 import com.joaomgcd.taskerpluginlibrary.input.TaskerInput
 import com.joaomgcd.taskerpluginlibrary.runner.TaskerPluginResult
 import com.joaomgcd.taskerpluginlibrary.runner.TaskerPluginResultSucess
 
 class MacroDroidToggleRunner :
-    TaskerPluginRunnerActionNoOutputOrInput() {
+    TaskerPluginRunnerActionNoOutput<
+        AutomationTokenInput
+    >() {
 
     override fun run(
         context: Context,
-        input: TaskerInput<Unit>
+        input: TaskerInput<AutomationTokenInput>
     ): TaskerPluginResult<Unit> {
+
+        if (
+            !AutomationPluginSecurity.isValid(
+                context,
+                input.regular
+            )
+        ) {
+            throw SecurityException(
+                "Unauthorized automation request"
+            )
+        }
 
         when (VpnStatus.state.value) {
             VpnConnectionState.CONNECTED,
@@ -119,17 +131,22 @@ class MacroDroidToggleRunner :
 }
 
 class MacroDroidToggleHelper(
-    private val pluginConfig: TaskerPluginConfig<Unit>
+    private val pluginConfig:
+        TaskerPluginConfig<AutomationTokenInput>
 ) :
-    TaskerPluginConfigHelperNoOutputOrInput<
+    TaskerPluginConfigHelperNoOutput<
+        AutomationTokenInput,
         MacroDroidToggleRunner
     >(pluginConfig) {
+
+    override val inputClass =
+        AutomationTokenInput::class.java
 
     override val runnerClass =
         MacroDroidToggleRunner::class.java
 
     override fun addToStringBlurb(
-        input: TaskerInput<Unit>,
+        input: TaskerInput<AutomationTokenInput>,
         blurbBuilder: StringBuilder
     ) {
         blurbBuilder.append(
@@ -142,11 +159,28 @@ class MacroDroidToggleHelper(
 
 class MacroDroidToggleActivity :
     Activity(),
-    TaskerPluginConfigNoInput {
+    TaskerPluginConfig<AutomationTokenInput> {
 
     override val context
         get() =
             applicationContext
+
+    override fun assignFromInput(
+        input: TaskerInput<AutomationTokenInput>
+    ) = Unit
+
+    override val inputForTasker:
+        TaskerInput<AutomationTokenInput>
+        get() =
+            TaskerInput(
+                AutomationTokenInput().apply {
+                    token =
+                        AutomationPluginSecurity
+                            .getOrCreateToken(
+                                applicationContext
+                            )
+                }
+            )
 
     private val taskerHelper by lazy {
         MacroDroidToggleHelper(
@@ -160,6 +194,17 @@ class MacroDroidToggleActivity :
         super.onCreate(
             savedInstanceState
         )
+
+        if (
+            !AutomationPluginSecurity
+                .isTrustedConfigCaller(this)
+        ) {
+            setResult(
+                RESULT_CANCELED
+            )
+            finish()
+            return
+        }
 
         taskerHelper.finishForTasker()
     }

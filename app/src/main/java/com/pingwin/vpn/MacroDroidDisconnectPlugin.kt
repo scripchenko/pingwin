@@ -3,21 +3,33 @@ package com.pingwin.vpn
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import com.joaomgcd.taskerpluginlibrary.action.TaskerPluginRunnerActionNoOutputOrInput
+import com.joaomgcd.taskerpluginlibrary.action.TaskerPluginRunnerActionNoOutput
 import com.joaomgcd.taskerpluginlibrary.config.TaskerPluginConfig
-import com.joaomgcd.taskerpluginlibrary.config.TaskerPluginConfigHelperNoOutputOrInput
-import com.joaomgcd.taskerpluginlibrary.config.TaskerPluginConfigNoInput
+import com.joaomgcd.taskerpluginlibrary.config.TaskerPluginConfigHelperNoOutput
 import com.joaomgcd.taskerpluginlibrary.input.TaskerInput
 import com.joaomgcd.taskerpluginlibrary.runner.TaskerPluginResult
 import com.joaomgcd.taskerpluginlibrary.runner.TaskerPluginResultSucess
 
 class MacroDroidDisconnectRunner :
-    TaskerPluginRunnerActionNoOutputOrInput() {
+    TaskerPluginRunnerActionNoOutput<
+        AutomationTokenInput
+    >() {
 
     override fun run(
         context: Context,
-        input: TaskerInput<Unit>
+        input: TaskerInput<AutomationTokenInput>
     ): TaskerPluginResult<Unit> {
+
+        if (
+            !AutomationPluginSecurity.isValid(
+                context,
+                input.regular
+            )
+        ) {
+            throw SecurityException(
+                "Unauthorized automation request"
+            )
+        }
 
         val state =
             VpnStatus.state.value
@@ -45,17 +57,22 @@ class MacroDroidDisconnectRunner :
 }
 
 class MacroDroidDisconnectHelper(
-    private val pluginConfig: TaskerPluginConfig<Unit>
+    private val pluginConfig:
+        TaskerPluginConfig<AutomationTokenInput>
 ) :
-    TaskerPluginConfigHelperNoOutputOrInput<
+    TaskerPluginConfigHelperNoOutput<
+        AutomationTokenInput,
         MacroDroidDisconnectRunner
     >(pluginConfig) {
+
+    override val inputClass =
+        AutomationTokenInput::class.java
 
     override val runnerClass =
         MacroDroidDisconnectRunner::class.java
 
     override fun addToStringBlurb(
-        input: TaskerInput<Unit>,
+        input: TaskerInput<AutomationTokenInput>,
         blurbBuilder: StringBuilder
     ) {
         blurbBuilder.append(
@@ -68,11 +85,28 @@ class MacroDroidDisconnectHelper(
 
 class MacroDroidDisconnectActivity :
     Activity(),
-    TaskerPluginConfigNoInput {
+    TaskerPluginConfig<AutomationTokenInput> {
 
     override val context
         get() =
             applicationContext
+
+    override fun assignFromInput(
+        input: TaskerInput<AutomationTokenInput>
+    ) = Unit
+
+    override val inputForTasker:
+        TaskerInput<AutomationTokenInput>
+        get() =
+            TaskerInput(
+                AutomationTokenInput().apply {
+                    token =
+                        AutomationPluginSecurity
+                            .getOrCreateToken(
+                                applicationContext
+                            )
+                }
+            )
 
     private val taskerHelper by lazy {
         MacroDroidDisconnectHelper(
@@ -86,6 +120,17 @@ class MacroDroidDisconnectActivity :
         super.onCreate(
             savedInstanceState
         )
+
+        if (
+            !AutomationPluginSecurity
+                .isTrustedConfigCaller(this)
+        ) {
+            setResult(
+                RESULT_CANCELED
+            )
+            finish()
+            return
+        }
 
         taskerHelper.finishForTasker()
     }

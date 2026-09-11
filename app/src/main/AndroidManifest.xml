@@ -123,6 +123,17 @@
         </receiver>
 
         <service
+            android:name="com.joaomgcd.taskerpluginlibrary.condition.IntentServiceCondition"
+            tools:node="remove" />
+
+        <receiver
+            android:name="com.joaomgcd.taskerpluginlibrary.condition.BroadcastReceiverCondition"
+            tools:node="remove" />
+        <service
+            android:name="com.joaomgcd.taskerpluginlibrary.action.IntentServiceAction"
+            android:exported="false"
+            tools:replace="android:exported" />
+        <service
             android:name=".AutomationService"
             android:exported="false"
             android:foregroundServiceType="specialUse">
