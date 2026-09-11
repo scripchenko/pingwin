@@ -54,6 +54,15 @@ object SingBoxRoutingConfigBuilder {
         val rules =
             mutableListOf<String>()
 
+        rules +=
+            """
+                {
+                  "ip_cidr": ["1.1.1.1/32"],
+                  "action": "route",
+                  "outbound": "proxy"
+                }
+            """.trimIndent()
+
         if (routing.siteEnabled) {
             rules +=
                 """

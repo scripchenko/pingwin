@@ -162,13 +162,13 @@ class AutoVlessVpnService :
                     0
 
                 commandServerSecret =
-                    ""
+                    Libbox.randomHex(32).value
 
                 logMaxLines =
                     500
 
                 debug =
-                    true
+                    BuildConfig.DEBUG
             }
 
         Libbox.setup(options)
