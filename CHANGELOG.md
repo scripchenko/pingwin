@@ -2,6 +2,19 @@
 
 All notable changes to pingwin are documented in this file.
 
+## [0.1.8] - 2026-09-14
+
+### Changed
+
+- Made the home screen adapt smoothly to the available display size.
+- Updated application version to 0.1.8.
+
+### Fixed
+
+- Automatically removed saved app-routing entries for applications that are no longer installed.
+
+---
+
 ## [0.1.7] - 2026-09-11
 
 ### Security & Privacy
