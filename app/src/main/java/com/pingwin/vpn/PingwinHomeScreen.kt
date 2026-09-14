@@ -23,6 +23,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,11 +32,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -164,6 +168,25 @@ fun PingwinHomeScreen(
             }
         }
 
+    val configuration = LocalConfiguration.current
+    val baseDensity = LocalDensity.current
+
+    val uiScale =
+        minOf(
+            configuration.screenHeightDp / 780f,
+            configuration.screenWidthDp / 360f,
+            1f
+        ).coerceAtLeast(0.70f)
+
+    val adaptiveDensity =
+        Density(
+            density = baseDensity.density * uiScale,
+            fontScale = baseDensity.fontScale
+        )
+
+    CompositionLocalProvider(
+        LocalDensity provides adaptiveDensity
+    ) {
     Column(
         modifier =
             Modifier
@@ -748,6 +771,7 @@ fun PingwinHomeScreen(
             modifier =
                 Modifier.height(18.dp)
         )
+    }
     }
 }
 
