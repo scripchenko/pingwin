@@ -25,6 +25,37 @@ object RoutingSettingsStore {
                 Context.MODE_PRIVATE
             )
 
+        val storedPackages =
+            prefs.getStringSet(
+                KEY_PACKAGES,
+                emptySet()
+            )?.toSet()
+                ?: emptySet()
+
+        val installedPackages =
+            storedPackages
+                .filterTo(
+                    mutableSetOf()
+                ) { packageName ->
+                    runCatching {
+                        @Suppress("DEPRECATION")
+                        context.packageManager
+                            .getApplicationInfo(
+                                packageName,
+                                0
+                            )
+                    }.isSuccess
+                }
+
+        if (installedPackages != storedPackages) {
+            prefs.edit()
+                .putStringSet(
+                    KEY_PACKAGES,
+                    installedPackages
+                )
+                .apply()
+        }
+
         return RoutingSettings(
             siteEnabled =
                 prefs.getBoolean(
@@ -60,11 +91,7 @@ object RoutingSettingsStore {
                     RoutingMode.ONLY_SELECTED_VIA_VPN
                 ),
             packages =
-                prefs.getStringSet(
-                    KEY_PACKAGES,
-                    emptySet()
-                )?.toSet()
-                    ?: emptySet()
+                installedPackages
         )
     }
 
