@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,14 +22,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -55,228 +60,188 @@ fun SettingsScreen(
                 )
             } == true
 
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .navigationBarsPadding()
-                .padding(
-                    horizontal = 22.dp
-                )
+    val configuration = LocalConfiguration.current
+    val baseDensity = LocalDensity.current
+
+    val uiScale =
+        (
+            minOf(
+                configuration.screenHeightDp / 780f,
+                configuration.screenWidthDp / 360f
+            ) * 1.02f
+        ).coerceIn(
+            0.70f,
+            1.10f
+        )
+
+    val adaptiveDensity =
+        Density(
+            density = baseDensity.density * uiScale,
+            fontScale = baseDensity.fontScale
+        )
+
+    CompositionLocalProvider(
+        LocalDensity provides adaptiveDensity
     ) {
-        Spacer(
-            modifier =
-                Modifier.height(18.dp)
-        )
-
-        Text(
-            text =
-                stringResource(
-                    R.string.settings_title
-                ),
-            fontSize = 31.sp,
-            fontWeight =
-                FontWeight.Normal,
-            color =
-                Color(0xFF17191F)
-        )
-
-        Spacer(
-            modifier =
-                Modifier.height(24.dp)
-        )
-
-        SettingsRow(
-            icon = "◉",
-            title =
-                stringResource(
-                    R.string.settings_general
-                ),
-            subtitle =
-                stringResource(
-                    R.string.settings_general_subtitle
-                ),
-            onClick = onGeneralClick
-        )
-
-        SettingsRow(
-            icon = "↗",
-            title =
-                stringResource(
-                    R.string.settings_routing
-                ),
-            subtitle =
-                stringResource(
-                    R.string.settings_routing_subtitle
-                ),
-            onClick = onRoutingClick
-        )
-
-        SettingsRow(
-            icon = "⚡",
-            title =
-                stringResource(
-                    R.string.settings_automation
-                ),
-            subtitle =
-                stringResource(
-                    R.string.settings_automation_subtitle
-                ),
-            onClick = onAutomationClick
-        )
-
-        SettingsRow(
-            icon = "▤",
-            title =
-                stringResource(
-                    R.string.settings_connections
-                ),
-            subtitle =
-                pluralStringResource(
-                    id = R.plurals.saved_servers,
-                    count = connectionCount,
-                    connectionCount
-                ),
-            onClick = onConnectionsClick
-        )
-
-        SettingsRow(
-            icon = "≡",
-            title =
-                stringResource(
-                    R.string.settings_logs
-                ),
-            subtitle =
-                stringResource(
-                    R.string.settings_logs_subtitle
-                ),
-            onClick = onLogsClick
-        )
-
-        SettingsRow(
-            icon = "↻",
-            title =
-                stringResource(
-                    R.string.settings_updates
-                ),
-            subtitle =
-                stringResource(
-                    R.string.settings_updates_subtitle
-                ),
-            onClick = onUpdatesClick,
-            showDot = showUpdateDot
-        )
-
-        SettingsRow(
-            icon = "ⓘ",
-            title =
-                stringResource(
-                    R.string.settings_about
-                ),
-            subtitle = "pingwin ${BuildConfig.VERSION_NAME}",
-            onClick = onAboutClick
-        )
-
-        Spacer(
-            modifier =
-                Modifier.weight(1f)
-        )
-
-        Row(
+        Column(
             modifier =
                 Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .background(
+                        Color(0xFFFAFBFD)
+                    )
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
                     .padding(
-                        horizontal = 14.dp
-                    ),
-            horizontalArrangement =
-                Arrangement.SpaceBetween,
-            verticalAlignment =
-                Alignment.CenterVertically
+                        horizontal = 20.dp
+                    )
         ) {
-            Row(
+            Spacer(
                 modifier =
-                    Modifier
-                        .clickable {
-                            onHomeClick()
-                        }
-                        .padding(
-                            horizontal = 14.dp,
-                            vertical = 10.dp
-                        ),
-                verticalAlignment =
-                    Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "⌂",
-                    fontSize = 22.sp,
-                    color =
-                        Color(0xFF555B67)
-                )
+                    Modifier.height(12.dp)
+            )
 
-                Spacer(
-                    modifier =
-                        Modifier.width(8.dp)
-                )
+            Text(
+                text =
+                    stringResource(
+                        R.string.settings_title
+                    ),
+                fontSize = 31.sp,
+                fontWeight =
+                    FontWeight.Normal,
+                color =
+                    Color(0xFF17191F)
+            )
 
-                Text(
-                    text =
-                        stringResource(
-                            R.string.settings_home
-                        ),
-                    color =
-                        Color(0xFF555B67),
-                    fontSize = 15.sp
-                )
-            }
+            Spacer(
+                modifier =
+                    Modifier.height(18.dp)
+            )
 
             Surface(
+                modifier =
+                    Modifier.fillMaxWidth(),
                 shape =
-                    RoundedCornerShape(18.dp),
+                    RoundedCornerShape(22.dp),
                 color =
-                    Color(0xFFE9EEFF)
+                    Color.White,
+                shadowElevation = 4.dp
             ) {
-                Row(
+                Column(
                     modifier =
                         Modifier.padding(
-                            horizontal = 18.dp,
-                            vertical = 10.dp
-                        ),
-                    verticalAlignment =
-                        Alignment.CenterVertically
+                            horizontal = 16.dp
+                        )
                 ) {
-                    Text(
-                        text = "⚙",
-                        fontSize = 22.sp,
-                        color =
-                            Color(0xFF2450C8)
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.width(8.dp)
-                    )
-
-                    Text(
-                        text =
+                    SettingsRow(
+                        icon = "◉",
+                        title =
                             stringResource(
-                                R.string.settings_title
+                                R.string.settings_general
                             ),
-                        color =
-                            Color(0xFF2450C8),
-                        fontSize = 15.sp,
-                        fontWeight =
-                            FontWeight.SemiBold
+                        subtitle =
+                            stringResource(
+                                R.string.settings_general_subtitle
+                            ),
+                        onClick = onGeneralClick
+                    )
+
+                    SettingsRow(
+                        icon = "↗",
+                        title =
+                            stringResource(
+                                R.string.settings_routing
+                            ),
+                        subtitle =
+                            stringResource(
+                                R.string.settings_routing_subtitle
+                            ),
+                        onClick = onRoutingClick
+                    )
+
+                    SettingsRow(
+                        icon = "⚡",
+                        title =
+                            stringResource(
+                                R.string.settings_automation
+                            ),
+                        subtitle =
+                            stringResource(
+                                R.string.settings_automation_subtitle
+                            ),
+                        onClick = onAutomationClick
+                    )
+
+                    SettingsRow(
+                        icon = "▤",
+                        title =
+                            stringResource(
+                                R.string.settings_connections
+                            ),
+                        subtitle =
+                            pluralStringResource(
+                                id = R.plurals.saved_servers,
+                                count = connectionCount,
+                                connectionCount
+                            ),
+                        onClick = onConnectionsClick
+                    )
+
+                    SettingsRow(
+                        icon = "≡",
+                        title =
+                            stringResource(
+                                R.string.settings_logs
+                            ),
+                        subtitle =
+                            stringResource(
+                                R.string.settings_logs_subtitle
+                            ),
+                        onClick = onLogsClick
+                    )
+
+                    SettingsRow(
+                        icon = "↻",
+                        title =
+                            stringResource(
+                                R.string.settings_updates
+                            ),
+                        subtitle =
+                            stringResource(
+                                R.string.settings_updates_subtitle
+                            ),
+                        onClick = onUpdatesClick,
+                        showDot = showUpdateDot
+                    )
+
+                    SettingsRow(
+                        icon = "ⓘ",
+                        title =
+                            stringResource(
+                                R.string.settings_about
+                            ),
+                        subtitle = "pingwin ${BuildConfig.VERSION_NAME}",
+                        onClick = onAboutClick
                     )
                 }
             }
-        }
 
-        Spacer(
-            modifier =
-                Modifier.height(24.dp)
-        )
+            Spacer(
+                modifier =
+                    Modifier.weight(1f)
+            )
+
+            HomeSettingsBottomBar(
+                settingsSelected = true,
+                onHomeClick = onHomeClick,
+                onSettingsClick = {}
+            )
+
+            Spacer(
+                modifier =
+                    Modifier.height(18.dp)
+            )
+        }
     }
 }
 

@@ -172,11 +172,15 @@ fun PingwinHomeScreen(
     val baseDensity = LocalDensity.current
 
     val uiScale =
-        minOf(
-            configuration.screenHeightDp / 780f,
-            configuration.screenWidthDp / 360f,
-            1f
-        ).coerceAtLeast(0.70f)
+        (
+            minOf(
+                configuration.screenHeightDp / 780f,
+                configuration.screenWidthDp / 360f
+            ) * 1.02f
+        ).coerceIn(
+            0.70f,
+            1.10f
+        )
 
     val adaptiveDensity =
         Density(
@@ -662,110 +666,14 @@ fun PingwinHomeScreen(
 
         Spacer(
             modifier =
-                Modifier.height(18.dp)
+                Modifier.weight(1f)
         )
 
-        Surface(
-            modifier =
-                Modifier.fillMaxWidth(),
-            shape =
-                RoundedCornerShape(26.dp),
-            color =
-                Color.White,
-            shadowElevation = 3.dp
-        ) {
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = 12.dp,
-                            vertical = 8.dp
-                        ),
-                verticalAlignment =
-                    Alignment.CenterVertically
-            ) {
-                Surface(
-                    modifier =
-                        Modifier.weight(1f),
-                    shape =
-                        RoundedCornerShape(18.dp),
-                    color =
-                        Color(0xFFE9EEFF)
-                ) {
-                    Row(
-                        modifier =
-                            Modifier.padding(
-                                horizontal = 14.dp,
-                                vertical = 10.dp
-                            ),
-                        verticalAlignment =
-                            Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "⌂",
-                            fontSize = 22.sp,
-                            color =
-                                Color(0xFF2450C8)
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.width(8.dp)
-                        )
-
-                        Text(
-                            text =
-                                stringResource(
-                                    R.string.settings_home
-                                ),
-                            color =
-                                Color(0xFF2450C8),
-                            fontSize = 15.sp,
-                            fontWeight =
-                                FontWeight.SemiBold
-                        )
-                    }
-                }
-
-                Row(
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .clickable {
-                                onSettingsClick()
-                            }
-                            .padding(
-                                horizontal = 14.dp,
-                                vertical = 10.dp
-                            ),
-                    verticalAlignment =
-                        Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "⚙",
-                        fontSize = 22.sp,
-                        color =
-                            Color(0xFF555B67)
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.width(8.dp)
-                    )
-
-                    Text(
-                        text =
-                            stringResource(
-                                R.string.settings_title
-                            ),
-                        color =
-                            Color(0xFF555B67),
-                        fontSize = 15.sp
-                    )
-                }
-            }
-        }
+        HomeSettingsBottomBar(
+            settingsSelected = false,
+            onHomeClick = {},
+            onSettingsClick = onSettingsClick
+        )
 
         Spacer(
             modifier =
