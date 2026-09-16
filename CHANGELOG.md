@@ -2,6 +2,22 @@
 
 All notable changes to pingwin are documented in this file.
 
+## [0.1.8.1] - 2026-09-16
+
+### Changed
+
+- Refined adaptive scaling of the home and settings screens across different display sizes and densities.
+- Unified the Home / Settings bottom navigation into a shared component with consistent size and position.
+- Updated the Settings screen to match the visual style of the home screen.
+- Updated application version to 0.1.8.1.
+
+### Fixed
+
+- Prevented the Home / Settings bottom navigation from shifting when switching between screens.
+- Kept the Android navigation bar consistent with pingwin's light interface on devices using system dark mode.
+
+---
+
 ## [0.1.8] - 2026-09-14
 
 ### Changed

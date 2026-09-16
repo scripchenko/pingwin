@@ -18,8 +18,8 @@ android {
         applicationId = "com.pingwin.vpn"
         minSdk = 24
         targetSdk = 37
-        versionCode = 9
-        versionName = "0.1.8"
+        versionCode = 10
+        versionName = "0.1.8.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
