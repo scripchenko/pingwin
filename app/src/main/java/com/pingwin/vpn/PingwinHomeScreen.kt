@@ -211,7 +211,7 @@ fun PingwinHomeScreen(
 
         Row(
             modifier =
-                Modifier.fillMaxWidth(),
+                Modifier.fillMaxWidth().height(48.dp),
             verticalAlignment =
                 Alignment.CenterVertically
         ) {

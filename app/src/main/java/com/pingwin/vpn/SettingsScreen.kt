@@ -98,20 +98,29 @@ fun SettingsScreen(
         ) {
             Spacer(
                 modifier =
-                    Modifier.height(12.dp)
+                    Modifier.height(10.5.dp)
             )
 
-            Text(
-                text =
-                    stringResource(
-                        R.string.settings_title
-                    ),
-                fontSize = 31.sp,
-                fontWeight =
-                    FontWeight.Normal,
-                color =
-                    Color(0xFF17191F)
-            )
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+                Text(
+                    text =
+                        stringResource(
+                            R.string.settings_title
+                        ),
+                    fontSize = 31.sp,
+                    fontWeight =
+                        FontWeight.Normal,
+                    color =
+                        Color(0xFF17191F)
+                )
+            }
 
             Spacer(
                 modifier =
@@ -261,7 +270,7 @@ private fun SettingsRow(
                     onClick()
                 }
                 .padding(
-                    vertical = 15.dp
+                    vertical = 13.dp
                 ),
         verticalAlignment =
             Alignment.CenterVertically
