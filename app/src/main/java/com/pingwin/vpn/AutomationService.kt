@@ -559,10 +559,7 @@ class AutomationService : Service() {
                     settings
                         .trustedWifiSsids
                         .any {
-                            it.equals(
-                                ssid,
-                                ignoreCase = true
-                            )
+                            it == ssid
                         }
 
                 val key =
@@ -573,40 +570,47 @@ class AutomationService : Service() {
                             "untrusted"
                         }
 
+                val reason =
+                    if (trusted) {
+                        getString(
+                            R.string.automation_reason_trusted_wifi,
+                            ssid
+                        )
+                    } else {
+                        getString(
+                            R.string.automation_reason_untrusted_wifi,
+                            ssid
+                        )
+                    }
+
                 if (
-                    key ==
+                    key !=
                     lastDecisionKey
                 ) {
-                    return
+                    lastDecisionKey =
+                        key
+
+                    updateNotification(
+                        reason
+                    )
                 }
 
-                lastDecisionKey =
-                    key
-
                 if (trusted) {
-                    updateNotification(
-                        getString(R.string.automation_reason_trusted_wifi, ssid)
-                    )
-
                     if (
                         settings
                             .disconnectOnTrustedWifi
                     ) {
                         stopVpn(
-                            getString(R.string.automation_reason_trusted_wifi, ssid)
+                            reason
                         )
                     }
                 } else {
-                    updateNotification(
-                        getString(R.string.automation_reason_untrusted_wifi, ssid)
-                    )
-
                     if (
                         settings
                             .connectOnUntrustedWifi
                     ) {
                         startVpn(
-                            getString(R.string.automation_reason_untrusted_wifi, ssid)
+                            reason
                         )
                     }
                 }
@@ -622,18 +626,16 @@ class AutomationService : Service() {
                     "mobile"
 
                 if (
-                    key ==
+                    key !=
                     lastDecisionKey
                 ) {
-                    return
+                    lastDecisionKey =
+                        key
+
+                    updateNotification(
+                        getString(R.string.automation_reason_mobile_data)
+                    )
                 }
-
-                lastDecisionKey =
-                    key
-
-                updateNotification(
-                    getString(R.string.automation_reason_mobile_data)
-                )
 
                 if (
                     settings.connectOnMobile
