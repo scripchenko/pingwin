@@ -511,6 +511,12 @@ class AutomationService : Service() {
                 NetworkCapabilities
                     .TRANSPORT_WIFI
             ) -> {
+                if (!settings.connectOnUntrustedWifi && !settings.disconnectOnTrustedWifi) {
+                    cancelWifiSsidRetry()
+                    lastDecisionKey = "wifi:ignored"
+                    return
+                }
+
                 val ssid =
                     resolveWifiSsid(
                         capabilities

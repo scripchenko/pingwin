@@ -66,6 +66,14 @@ fun AutomationScreen(
         mutableStateOf(false)
     }
 
+    var pendingEnableUntrustedWifi by remember {
+        mutableStateOf(false)
+    }
+
+    var pendingEnableTrustedWifi by remember {
+        mutableStateOf(false)
+    }
+
     val trustedWifiPermissionMessage =
         stringResource(
             R.string.automation_location_permission_required
@@ -90,7 +98,7 @@ fun AutomationScreen(
         rememberLauncherForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) {
-            if (pendingEnable) {
+            if (pendingEnable || pendingEnableUntrustedWifi || pendingEnableTrustedWifi) {
                 val granted =
                     Build.VERSION.SDK_INT <
                         Build.VERSION_CODES.Q ||
@@ -103,7 +111,9 @@ fun AutomationScreen(
                 if (granted) {
                     val updated =
                         settings.copy(
-                            enabled = true
+                            enabled = settings.enabled || pendingEnable,
+                            connectOnUntrustedWifi = settings.connectOnUntrustedWifi || pendingEnableUntrustedWifi,
+                            disconnectOnTrustedWifi = settings.disconnectOnTrustedWifi || pendingEnableTrustedWifi
                         )
 
                     settings = updated
@@ -125,13 +135,17 @@ fun AutomationScreen(
                 }
 
                 pendingEnable = false
+                pendingEnableUntrustedWifi = false
+                pendingEnableTrustedWifi = false
             }
         }
     val locationPermissionLauncher =
         rememberLauncherForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { granted ->
-            if (granted && pendingEnable) {
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            val fineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+
+            if (fineGranted && (pendingEnable || pendingEnableUntrustedWifi || pendingEnableTrustedWifi)) {
                 val backgroundGranted =
                     Build.VERSION.SDK_INT <
                         Build.VERSION_CODES.Q ||
@@ -144,7 +158,9 @@ fun AutomationScreen(
                 if (backgroundGranted) {
                     val updated =
                         settings.copy(
-                            enabled = true
+                            enabled = settings.enabled || pendingEnable,
+                            connectOnUntrustedWifi = settings.connectOnUntrustedWifi || pendingEnableUntrustedWifi,
+                            disconnectOnTrustedWifi = settings.disconnectOnTrustedWifi || pendingEnableTrustedWifi
                         )
 
                     settings = updated
@@ -159,6 +175,8 @@ fun AutomationScreen(
                     )
 
                     pendingEnable = false
+                    pendingEnableUntrustedWifi = false
+                    pendingEnableTrustedWifi = false
                 } else {
                     Toast.makeText(
                         context,
@@ -176,7 +194,7 @@ fun AutomationScreen(
                     )
                 }
             } else {
-                if (!granted) {
+                if (!fineGranted) {
                     Toast.makeText(
                         context,
                         trustedWifiPermissionMessage,
@@ -185,6 +203,8 @@ fun AutomationScreen(
                 }
 
                 pendingEnable = false
+                pendingEnableUntrustedWifi = false
+                pendingEnableTrustedWifi = false
             }
         }
 
@@ -320,6 +340,10 @@ fun AutomationScreen(
                             )
                         )
                     } else {
+                        val wifiAutomationNeedsLocation =
+                            settings.connectOnUntrustedWifi ||
+                                settings.disconnectOnTrustedWifi
+
                         val fineLocationGranted =
                             ContextCompat.checkSelfPermission(
                                 context,
@@ -337,11 +361,22 @@ fun AutomationScreen(
                                 PackageManager.PERMISSION_GRANTED
 
                         when {
+                            !wifiAutomationNeedsLocation -> {
+                                save(
+                                    settings.copy(
+                                        enabled = true
+                                    )
+                                )
+                            }
+
                             !fineLocationGranted -> {
                                 pendingEnable = true
 
                                 locationPermissionLauncher.launch(
-                                    Manifest.permission.ACCESS_FINE_LOCATION
+                                    arrayOf(
+                                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                                        Manifest.permission.ACCESS_FINE_LOCATION
+                                    )
                                 )
                             }
 
@@ -435,13 +470,62 @@ fun AutomationScreen(
                     ),
                 checked =
                     settings.connectOnUntrustedWifi,
-                enabled = settings.enabled,
-                onCheckedChange = {
-                    save(
-                        settings.copy(
-                            connectOnUntrustedWifi = it
+                enabled = true,
+                onCheckedChange = { enabled ->
+                    if (!enabled) {
+                        save(
+                            settings.copy(
+                                connectOnUntrustedWifi = false
+                            )
                         )
-                    )
+                    } else {
+                        val fineGranted =
+                            ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.ACCESS_FINE_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED
+
+                        val backgroundGranted =
+                            ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED
+
+                        when {
+                            !fineGranted -> {
+                                pendingEnableUntrustedWifi = true
+                                locationPermissionLauncher.launch(
+                                    arrayOf(
+                                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                                        Manifest.permission.ACCESS_FINE_LOCATION
+                                    )
+                                )
+                            }
+
+                            !backgroundGranted -> {
+                                pendingEnableUntrustedWifi = true
+                                Toast.makeText(
+                                    context,
+                                    backgroundLocationPermissionMessage,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                backgroundLocationSettingsLauncher.launch(
+                                    Intent(
+                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                        Uri.parse("package:${context.packageName}")
+                                    )
+                                )
+                            }
+
+                            else -> {
+                                save(
+                                    settings.copy(
+                                        connectOnUntrustedWifi = true
+                                    )
+                                )
+                            }
+                        }
+                    }
                 }
             )
 
@@ -474,13 +558,62 @@ fun AutomationScreen(
                     ),
                 checked =
                     settings.disconnectOnTrustedWifi,
-                enabled = settings.enabled,
-                onCheckedChange = {
-                    save(
-                        settings.copy(
-                            disconnectOnTrustedWifi = it
+                enabled = true,
+                onCheckedChange = { enabled ->
+                    if (!enabled) {
+                        save(
+                            settings.copy(
+                                disconnectOnTrustedWifi = false
+                            )
                         )
-                    )
+                    } else {
+                        val fineGranted =
+                            ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.ACCESS_FINE_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED
+
+                        val backgroundGranted =
+                            ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED
+
+                        when {
+                            !fineGranted -> {
+                                pendingEnableTrustedWifi = true
+                                locationPermissionLauncher.launch(
+                                    arrayOf(
+                                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                                        Manifest.permission.ACCESS_FINE_LOCATION
+                                    )
+                                )
+                            }
+
+                            !backgroundGranted -> {
+                                pendingEnableTrustedWifi = true
+                                Toast.makeText(
+                                    context,
+                                    backgroundLocationPermissionMessage,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                backgroundLocationSettingsLauncher.launch(
+                                    Intent(
+                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                        Uri.parse("package:${context.packageName}")
+                                    )
+                                )
+                            }
+
+                            else -> {
+                                save(
+                                    settings.copy(
+                                        disconnectOnTrustedWifi = true
+                                    )
+                                )
+                            }
+                        }
+                    }
                 }
             )
 

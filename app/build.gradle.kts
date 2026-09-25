@@ -16,7 +16,7 @@ android {
 
     defaultConfig {
         applicationId = "com.pingwin.vpn"
-        minSdk = 24
+        minSdk = 29
         targetSdk = 37
         versionCode = 10
         versionName = "0.1.8.1"
