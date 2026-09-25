@@ -1,3 +1,5 @@
+import java.security.MessageDigest
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -87,4 +89,66 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 	implementation(files("libs/libbox.aar"))
+}
+
+val verifyLibbox = tasks.register("verifyLibbox") {
+    group = "verification"
+    description = "Verifies the SHA-256 checksum of the bundled libbox.aar"
+
+    inputs.file("libs/libbox.aar").withPropertyName("libboxAar")
+    inputs.file("libs/libbox.sha256").withPropertyName("libboxChecksum")
+
+    doLast {
+        val files =
+            inputs.files.files.associateBy { it.name }
+
+        val libboxFile =
+            checkNotNull(files["libbox.aar"]) {
+                "Missing bundled libbox artifact"
+            }
+
+        val checksumFile =
+            checkNotNull(files["libbox.sha256"]) {
+                "Missing libbox checksum file"
+            }
+
+        val expected =
+            checksumFile
+                .readText()
+                .trim()
+                .substringBefore(" ")
+                .lowercase()
+
+        val digest =
+            MessageDigest.getInstance("SHA-256")
+
+        libboxFile.inputStream().use { input ->
+            val buffer = ByteArray(1024 * 1024)
+
+            while (true) {
+                val count = input.read(buffer)
+
+                if (count < 0) {
+                    break
+                }
+
+                digest.update(buffer, 0, count)
+            }
+        }
+
+        val actual =
+            digest
+                .digest()
+                .joinToString("") { byte ->
+                    "%02x".format(byte)
+                }
+
+        check(actual == expected) {
+            "libbox.aar SHA-256 mismatch. Expected $expected but found $actual"
+        }
+    }
+}
+
+tasks.named("preBuild").configure {
+    dependsOn(verifyLibbox)
 }
