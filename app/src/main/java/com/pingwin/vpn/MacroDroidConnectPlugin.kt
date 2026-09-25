@@ -113,7 +113,8 @@ class MacroDroidConnectRunner :
 
         AutoVlessVpnService.start(
             context,
-            config
+            config,
+            connection.id
         )
 
         return TaskerPluginResultSucess()

@@ -20,9 +20,21 @@ object VpnStatus {
     val state: StateFlow<VpnConnectionState> =
         _state.asStateFlow()
 
+    private val _activeConnectionId =
+        MutableStateFlow<String?>(null)
+
+    val activeConnectionId: StateFlow<String?> =
+        _activeConnectionId.asStateFlow()
+
     fun set(
         value: VpnConnectionState
     ) {
         _state.value = value
+    }
+
+    fun setActiveConnectionId(
+        connectionId: String?
+    ) {
+        _activeConnectionId.value = connectionId
     }
 }

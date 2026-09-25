@@ -150,7 +150,14 @@ class MainActivity : ComponentActivity() {
                 val vpnState by
                     VpnStatus.state.collectAsState()
 
+                val activeConnectionId by
+                    VpnStatus.activeConnectionId.collectAsState()
+
                 var pendingConfig by remember {
+                    mutableStateOf<String?>(null)
+                }
+
+                var pendingConnectionId by remember {
                     mutableStateOf<String?>(null)
                 }
 
@@ -159,13 +166,19 @@ class MainActivity : ComponentActivity() {
                         contract =
                             ActivityResultContracts.StartActivityForResult()
                     ) { result ->
-                        if (result.resultCode == RESULT_OK) {
-                            pendingConfig?.let {
-                                AutoVlessVpnService.start(
-                                    this@MainActivity,
-                                    it
-                                )
-                            }
+                        val config = pendingConfig
+                        val connectionId = pendingConnectionId
+
+                        if (
+                            result.resultCode == RESULT_OK &&
+                            config != null &&
+                            connectionId != null
+                        ) {
+                            AutoVlessVpnService.start(
+                                this@MainActivity,
+                                config,
+                                connectionId
+                            )
                         } else {
                             VpnStatus.set(
                                 VpnConnectionState.ERROR
@@ -173,6 +186,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         pendingConfig = null
+                        pendingConnectionId = null
                     }
 
                 val qrLauncher =
@@ -261,6 +275,7 @@ class MainActivity : ComponentActivity() {
 
                         if (permissionIntent != null) {
                             pendingConfig = config
+                            pendingConnectionId = connection.id
 
                             vpnPermissionLauncher.launch(
                                 permissionIntent
@@ -268,7 +283,8 @@ class MainActivity : ComponentActivity() {
                         } else {
                             AutoVlessVpnService.start(
                                 this@MainActivity,
-                                config
+                                config,
+                                connection.id
                             )
                         }
                     } catch (_: Exception) {
@@ -449,11 +465,11 @@ class MainActivity : ComponentActivity() {
                             lockedConnectionId =
                                 if (
                                     vpnState ==
-                                        VpnConnectionState.CONNECTED ||
+                                    VpnConnectionState.CONNECTED ||
                                     vpnState ==
-                                        VpnConnectionState.CONNECTING
+                                    VpnConnectionState.CONNECTING
                                 ) {
-                                    selectedConnection?.id
+                                    activeConnectionId
                                 } else {
                                     null
                                 },
@@ -548,7 +564,21 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val connection =
-                    selectedConnection
+                    if (
+                        vpnState == VpnConnectionState.CONNECTED ||
+                        vpnState == VpnConnectionState.CONNECTING
+                    ) {
+                        activeConnectionId
+                            ?.let {
+                                ConnectionStore.findById(
+                                    this@MainActivity,
+                                    it
+                                )
+                            }
+                            ?: selectedConnection
+                    } else {
+                        selectedConnection
+                    }
 
                 if (connection == null) {
                     AddConnectionScreen(

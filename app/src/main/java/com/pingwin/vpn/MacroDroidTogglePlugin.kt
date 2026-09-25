@@ -121,7 +121,8 @@ class MacroDroidToggleRunner :
 
                 AutoVlessVpnService.start(
                     context,
-                    config
+                    config,
+                    connection.id
                 )
             }
         }

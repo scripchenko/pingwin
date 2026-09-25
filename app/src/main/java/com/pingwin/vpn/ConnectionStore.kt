@@ -48,6 +48,14 @@ object ConnectionStore {
         }.getOrDefault(emptyList())
     }
 
+    fun findById(
+        context: Context,
+        id: String
+    ): SavedConnection? =
+        loadAll(context).firstOrNull {
+            it.id == id
+        }
+
     fun selected(
         context: Context
     ): SavedConnection? {

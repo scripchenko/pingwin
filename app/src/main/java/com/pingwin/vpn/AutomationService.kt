@@ -764,7 +764,8 @@ class AutomationService : Service() {
 
             AutoVlessVpnService.start(
                 this,
-                config
+                config,
+                connection.id
             )
         }.onFailure {
             DiagnosticLogStore.append(

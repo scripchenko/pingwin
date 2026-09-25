@@ -50,6 +50,7 @@ class AutoVlessVpnService :
     companion object {
         private const val TAG = "Pingwin"
         private const val EXTRA_CONFIG = "config"
+        private const val EXTRA_CONNECTION_ID = "connection_id"
 
         private const val ACTION_START = "START"
         private const val ACTION_STOP = "STOP"
@@ -57,7 +58,11 @@ class AutoVlessVpnService :
         private const val NOTIFICATION_CHANNEL_ID = "autovless_vpn"
         private const val NOTIFICATION_ID = 1001
 
-        fun start(context: Context, config: String) {
+        fun start(
+            context: Context,
+            config: String,
+            connectionId: String
+        ) {
             val intent =
                 Intent(
                     context,
@@ -65,6 +70,7 @@ class AutoVlessVpnService :
                 ).apply {
                     action = ACTION_START
                     putExtra(EXTRA_CONFIG, config)
+                    putExtra(EXTRA_CONNECTION_ID, connectionId)
                 }
 
             context.startForegroundService(intent)
@@ -116,6 +122,10 @@ class AutoVlessVpnService :
         super.onCreate()
 
         createNotificationChannel()
+
+        startForegroundNotification(
+            getString(R.string.vpn_service_starting)
+        )
 
         try {
             setupLibbox()
@@ -185,10 +195,6 @@ class AutoVlessVpnService :
         startId: Int
     ): Int {
 
-        startForegroundNotification(
-            getString(R.string.vpn_service_starting)
-        )
-
         when (intent?.action) {
 
             ACTION_START -> {
@@ -197,19 +203,26 @@ class AutoVlessVpnService :
                     getString(R.string.vpn_log_start)
                 )
 
-                VpnStatus.set(
-                    VpnConnectionState.CONNECTING
-                )
-
                 val config =
                     intent.getStringExtra(
                         EXTRA_CONFIG
                     )
 
-                if (!config.isNullOrBlank()) {
+                val connectionId =
+                    intent.getStringExtra(
+                        EXTRA_CONNECTION_ID
+                    )
+
+                if (
+                    !config.isNullOrBlank() &&
+                    !connectionId.isNullOrBlank()
+                ) {
 
                     executor.execute {
-                        startVpn(config)
+                        startVpn(
+                            config,
+                            connectionId
+                        )
                     }
 
                 } else {
@@ -240,7 +253,8 @@ class AutoVlessVpnService :
     }
 
     private fun startVpn(
-        config: String
+        config: String,
+        connectionId: String
     ) {
         synchronized(this) {
 
@@ -256,6 +270,14 @@ class AutoVlessVpnService :
             }
 
             isStarting = true
+
+            VpnStatus.setActiveConnectionId(
+                connectionId
+            )
+
+            VpnStatus.set(
+                VpnConnectionState.CONNECTING
+            )
 
             try {
                 Log.d(
@@ -353,55 +375,58 @@ class AutoVlessVpnService :
         }
     }
 
+    private fun releaseVpnResources() {
+        stopPhysicalNetworkMonitor()
+
+        singBoxLogClient
+            ?.stop()
+
+        singBoxLogClient =
+            null
+
+        try {
+            commandServer
+                ?.closeService()
+        } catch (e: Exception) {
+            Log.e(
+                TAG,
+                "closeService failed",
+                e
+            )
+        }
+
+        try {
+            commandServer
+                ?.close()
+        } catch (e: Exception) {
+            Log.e(
+                TAG,
+                "CommandServer close failed",
+                e
+            )
+        }
+
+        commandServer =
+            null
+
+        try {
+            tunDescriptor
+                ?.close()
+        } catch (e: Exception) {
+            Log.e(
+                TAG,
+                "TUN close failed",
+                e
+            )
+        }
+
+        tunDescriptor =
+            null
+    }
+
     private fun stopVpn() {
         synchronized(this) {
-
-            stopPhysicalNetworkMonitor()
-
-            singBoxLogClient
-                ?.stop()
-
-            singBoxLogClient =
-                null
-
-            try {
-                commandServer
-                    ?.closeService()
-            } catch (e: Exception) {
-                Log.e(
-                    TAG,
-                    "closeService failed",
-                    e
-                )
-            }
-
-            try {
-                commandServer
-                    ?.close()
-            } catch (e: Exception) {
-                Log.e(
-                    TAG,
-                    "CommandServer close failed",
-                    e
-                )
-            }
-
-            commandServer =
-                null
-
-            try {
-                tunDescriptor
-                    ?.close()
-            } catch (e: Exception) {
-                Log.e(
-                    TAG,
-                    "TUN close failed",
-                    e
-                )
-            }
-
-            tunDescriptor =
-                null
+            releaseVpnResources()
 
             stopForeground(
                 STOP_FOREGROUND_REMOVE
@@ -412,6 +437,10 @@ class AutoVlessVpnService :
             DiagnosticLogStore.append(
                 this,
                 getString(R.string.vpn_log_disconnected)
+            )
+
+            VpnStatus.setActiveConnectionId(
+                null
             )
 
             VpnStatus.set(
@@ -426,7 +455,6 @@ class AutoVlessVpnService :
                 )
             }
 
-
             Log.d(
                 TAG,
                 "VPN stopped"
@@ -435,44 +463,27 @@ class AutoVlessVpnService :
     }
 
     override fun onDestroy() {
+        synchronized(this) {
+            releaseVpnResources()
 
-        stopPhysicalNetworkMonitor()
-
-            singBoxLogClient
-                ?.stop()
-
-            singBoxLogClient =
+            VpnStatus.setActiveConnectionId(
                 null
+            )
 
-            try {
-                commandServer
-                ?.closeService()
-        } catch (_: Exception) {
+            if (
+                VpnStatus.state.value !=
+                VpnConnectionState.ERROR
+            ) {
+                VpnStatus.set(
+                    VpnConnectionState.DISCONNECTED
+                )
+            }
         }
-
-        try {
-            commandServer
-                ?.close()
-        } catch (_: Exception) {
-        }
-
-        try {
-            tunDescriptor
-                ?.close()
-        } catch (_: Exception) {
-        }
-
-        commandServer =
-            null
-
-        tunDescriptor =
-            null
 
         executor.shutdownNow()
 
         super.onDestroy()
     }
-
     override fun onRevoke() {
         executor.execute {
             stopVpn()
