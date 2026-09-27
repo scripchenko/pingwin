@@ -139,6 +139,10 @@ object UpdateInstaller {
                     context
                 )
 
+                getDownloadFile(
+                    context
+                ).delete()
+
                 return null
             }
 
@@ -257,6 +261,10 @@ object UpdateInstaller {
         clearStoredDownload(
             context
         )
+
+        getDownloadFile(
+            context
+        ).delete()
     }
 
     fun canInstallPackages(
@@ -311,9 +319,10 @@ object UpdateInstaller {
         val expectedSha256 =
             getExpectedSha256(
                 context
-            ) ?: return false
+            )
 
         if (
+            expectedSha256 != null &&
             !sha256(
                 apkFile
             ).equals(

@@ -199,15 +199,9 @@ fun UpdatesScreen(
                 installLaunched = false
                 downloadedApk = null
 
-                UpdateInstaller.clearStoredDownload(
-                    context
+                UpdateInstaller.cancelCurrentDownload(
+                    context.applicationContext
                 )
-
-                withContext(
-                    Dispatchers.IO
-                ) {
-                    apkFile.delete()
-                }
 
                 verifyingApk = false
                 return@launch
@@ -395,8 +389,8 @@ fun UpdatesScreen(
                     downloadProgress = null
                     downloadFailed = true
 
-                    UpdateInstaller.clearStoredDownload(
-                        context
+                    UpdateInstaller.cancelCurrentDownload(
+                        context.applicationContext
                     )
                 }
             }
