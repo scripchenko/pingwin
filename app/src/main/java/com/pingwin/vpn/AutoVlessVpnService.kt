@@ -44,8 +44,7 @@ import io.nekohasekai.libbox.NetworkInterface as LibboxNetworkInterface
 
 class AutoVlessVpnService :
     VpnService(),
-    PlatformInterface,
-    CommandServerHandler {
+    PlatformInterface {
 
     companion object {
         private const val TAG = "Pingwin"
@@ -117,6 +116,12 @@ class AutoVlessVpnService :
 
     @Volatile
     private var isStarting = false
+
+    @Volatile
+    private var currentSessionStartId = 0
+
+    @Volatile
+    private var latestServiceStartId = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -195,6 +200,8 @@ class AutoVlessVpnService :
         startId: Int
     ): Int {
 
+        latestServiceStartId = startId
+
         when (intent?.action) {
 
             ACTION_START -> {
@@ -221,7 +228,8 @@ class AutoVlessVpnService :
                     executor.execute {
                         startVpn(
                             config,
-                            connectionId
+                            connectionId,
+                            startId
                         )
                     }
 
@@ -231,13 +239,13 @@ class AutoVlessVpnService :
                         "Missing sing-box config"
                     )
 
-                    stopVpn()
+                    stopVpn(startId)
                 }
             }
 
             ACTION_STOP -> {
                 executor.execute {
-                    stopVpn()
+                    stopVpn(startId)
                 }
             }
 
@@ -254,7 +262,8 @@ class AutoVlessVpnService :
 
     private fun startVpn(
         config: String,
-        connectionId: String
+        connectionId: String,
+        startId: Int
     ) {
         synchronized(this) {
 
@@ -270,6 +279,7 @@ class AutoVlessVpnService :
             }
 
             isStarting = true
+            currentSessionStartId = startId
 
             VpnStatus.setActiveConnectionId(
                 connectionId
@@ -287,9 +297,12 @@ class AutoVlessVpnService :
 
                 val server =
                     CommandServer(
-                        this,
+                        createCommandServerHandler(startId),
                         this
                     )
+
+                commandServer =
+                    server
 
                 Log.d(
                     TAG,
@@ -314,9 +327,6 @@ class AutoVlessVpnService :
                     config,
                     OverrideOptions()
                 )
-
-                commandServer =
-                    server
 
                 singBoxLogClient =
                     SingBoxLogClient(this).also {
@@ -363,7 +373,7 @@ class AutoVlessVpnService :
                     getString(R.string.vpn_log_connection_error, e.localizedVpnMessage(this))
                 )
 
-                stopVpn()
+                stopVpn(startId, startId)
 
                 VpnStatus.set(
                     VpnConnectionState.ERROR
@@ -424,15 +434,32 @@ class AutoVlessVpnService :
             null
     }
 
-    private fun stopVpn() {
+    private fun stopVpn(
+        stopStartId: Int,
+        expectedSessionStartId: Int? = null
+    ) {
         synchronized(this) {
+            if (
+                expectedSessionStartId != null &&
+                expectedSessionStartId != currentSessionStartId
+            ) {
+                Log.d(
+                    TAG,
+                    "Ignoring stale VPN stop for session $expectedSessionStartId; current session is $currentSessionStartId"
+                )
+
+                return
+            }
+
             releaseVpnResources()
+
+            currentSessionStartId = 0
 
             stopForeground(
                 STOP_FOREGROUND_REMOVE
             )
 
-            stopSelf()
+            stopSelf(stopStartId)
 
             DiagnosticLogStore.append(
                 this,
@@ -485,8 +512,19 @@ class AutoVlessVpnService :
         super.onDestroy()
     }
     override fun onRevoke() {
-        executor.execute {
-            stopVpn()
+        val sessionStartId =
+            currentSessionStartId
+
+        val stopStartId =
+            latestServiceStartId
+
+        if (sessionStartId != 0) {
+            executor.execute {
+                stopVpn(
+                    stopStartId,
+                    sessionStartId
+                )
+            }
         }
 
         super.onRevoke()
@@ -1422,35 +1460,48 @@ class AutoVlessVpnService :
     // CommandServerHandler
     // ------------------------------------------------------------
 
-    override fun serviceStop() {
-        executor.execute {
-            stopVpn()
+    private fun createCommandServerHandler(
+        sessionStartId: Int
+    ): CommandServerHandler =
+        object : CommandServerHandler {
+
+            override fun serviceStop() {
+                val stopStartId =
+                    latestServiceStartId
+
+                executor.execute {
+                    stopVpn(
+                        stopStartId,
+                        sessionStartId
+                    )
+                }
+            }
+
+            override fun serviceReload() {
+                Log.d(
+                    TAG,
+                    "serviceReload requested"
+                )
+            }
+
+            override fun getSystemProxyStatus():
+                    SystemProxyStatus? =
+                null
+
+            override fun setSystemProxyEnabled(
+                isEnabled: Boolean
+            ) {
+            }
+
+            override fun writeDebugMessage(
+                message: String?
+            ) {
+                Log.d(
+                    TAG,
+                    message ?: ""
+                )
+            }
         }
-    }
-
-    override fun serviceReload() {
-        Log.d(
-            TAG,
-            "serviceReload requested"
-        )
-    }
-
-    override fun getSystemProxyStatus(): SystemProxyStatus? =
-        null
-
-    override fun setSystemProxyEnabled(
-        isEnabled: Boolean
-    ) {
-    }
-
-    override fun writeDebugMessage(
-        message: String?
-    ) {
-        Log.d(
-            TAG,
-            message ?: ""
-        )
-    }
 
     // ------------------------------------------------------------
     // libbox iterators
