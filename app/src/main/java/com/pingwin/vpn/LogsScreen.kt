@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +37,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -46,6 +50,7 @@ fun LogsScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     var detailedEnabled by remember {
         mutableStateOf(
@@ -266,10 +271,12 @@ fun LogsScreen(
                     modifier =
                         Modifier.weight(1f),
                     onClick = {
-                        shareLogs(
-                            context,
-                            entries
-                        )
+                        scope.launch {
+                            shareLogs(
+                                context,
+                                entries
+                            )
+                        }
                     }
                 ) {
                     Text(
@@ -339,41 +346,57 @@ private fun copyLogs(
     ).show()
 }
 
-private fun shareLogs(
+private suspend fun shareLogs(
     context: Context,
     entries: List<String>
 ) {
-    runCatching {
-        val logDir =
-            File(
-                context.cacheDir,
-                "logs"
-            ).apply {
-                mkdirs()
+    val file =
+        withContext(
+            Dispatchers.IO
+        ) {
+            runCatching {
+                val logDir =
+                    File(
+                        context.cacheDir,
+                        "logs"
+                    ).apply {
+                        mkdirs()
+                    }
+
+                val stamp =
+                    SimpleDateFormat(
+                        "yyyy-MM-dd_HH-mm-ss",
+                        Locale.US
+                    ).format(
+                        Date()
+                    )
+
+                File(
+                    logDir,
+                    "pingwin-log-$stamp.txt"
+                ).apply {
+                    writeText(
+                        buildLogText(
+                            context,
+                            entries
+                        ),
+                        Charsets.UTF_8
+                    )
+                }
             }
-
-        val stamp =
-            SimpleDateFormat(
-                "yyyy-MM-dd_HH-mm-ss",
-                Locale.US
-            ).format(
-                Date()
-            )
-
-        val file =
-            File(
-                logDir,
-                "pingwin-log-$stamp.txt"
-            )
-
-        file.writeText(
-            buildLogText(
+        }.getOrElse {
+            Toast.makeText(
                 context,
-                entries
-            ),
-            Charsets.UTF_8
-        )
+                context.getString(
+                    R.string.logs_file_error
+                ),
+                Toast.LENGTH_LONG
+            ).show()
 
+            return
+        }
+
+    runCatching {
         val uri =
             FileProvider.getUriForFile(
                 context,
