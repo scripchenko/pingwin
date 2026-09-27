@@ -161,6 +161,11 @@ fun UpdatesScreen(
             mutableStateOf(false)
         }
 
+    var installLaunched by
+        remember {
+            mutableStateOf(false)
+        }
+
     val activity =
         context as? ComponentActivity
 
@@ -191,6 +196,7 @@ fun UpdatesScreen(
             if (!verified) {
                 verificationFailed = true
                 installPermissionNeeded = false
+                installLaunched = false
                 downloadedApk = null
 
                 UpdateInstaller.clearStoredDownload(
@@ -214,18 +220,18 @@ fun UpdatesScreen(
                     context
                 )
             ) {
-                UpdateInstaller.clearStoredDownload(
-                    context
-                )
-
-                downloadedApk = null
                 installPermissionNeeded = false
                 verifyingApk = false
+                installLaunched = true
 
-                UpdateInstaller.installApk(
-                    context,
-                    apkFile
-                )
+                runCatching {
+                    UpdateInstaller.installApk(
+                        context,
+                        apkFile
+                    )
+                }.onFailure {
+                    installLaunched = false
+                }
             } else {
                 installPermissionNeeded = true
                 verifyingApk = false
@@ -372,7 +378,11 @@ fun UpdatesScreen(
                                     androidx.lifecycle.Lifecycle.State.RESUMED
                                 ) == true
 
-                        if (resumed && !installPermissionNeeded) {
+                        if (
+                            resumed &&
+                                !installPermissionNeeded &&
+                                !installLaunched
+                        ) {
                             verifyAndInstall(
                                 apkFile
                             )
@@ -651,59 +661,60 @@ fun UpdatesScreen(
                 )
 
                 if (!downloading) {
-                Button(
-                    modifier =
-                        Modifier.fillMaxWidth(),
-                    enabled = !downloading,
-                    onClick = {
-                        downloadFailed = false
-                        verificationFailed = false
-                        installPermissionNeeded = false
-
-                        val existingApk =
-                            downloadedApk
-
-                        if (
-                            existingApk != null &&
-                            existingApk.exists()
-                        ) {
-                            verifyAndInstall(
-                                existingApk
-                            )
-                        } else {
+                    Button(
+                        modifier =
+                            Modifier.fillMaxWidth(),
+                        enabled = !downloading,
+                        onClick = {
                             downloadFailed = false
-                            downloading = true
-                            downloadProgress = 0
+                            verificationFailed = false
+                            installPermissionNeeded = false
+                            installLaunched = false
 
-                            runCatching {
-                                UpdateInstaller.startDownload(
-                                    context.applicationContext,
-                                    release.apkUrl,
-                                    release.apkSha256
-                                )
-                            }.onFailure {
-                                downloading = false
-                                downloadProgress = null
-                                downloadFailed = true
-                            }
-                        }
-                    }
-                ) {
-                    Text(
-                        text =
-                            if (downloading) {
-                                stringResource(
-                                    R.string.updates_downloading
+                            val existingApk =
+                                downloadedApk
+
+                            if (
+                                existingApk != null &&
+                                existingApk.exists()
+                            ) {
+                                verifyAndInstall(
+                                    existingApk
                                 )
                             } else {
-                                stringResource(
-                                    R.string.updates_download
-                                )
+                                downloadFailed = false
+                                downloading = true
+                                downloadProgress = 0
+
+                                runCatching {
+                                    UpdateInstaller.startDownload(
+                                        context.applicationContext,
+                                        release.apkUrl,
+                                        release.apkSha256
+                                    )
+                                }.onFailure {
+                                    downloading = false
+                                    downloadProgress = null
+                                    downloadFailed = true
+                                }
                             }
-                    )
+                        }
+                    ) {
+                        Text(
+                            text =
+                                if (downloading) {
+                                    stringResource(
+                                        R.string.updates_downloading
+                                    )
+                                } else {
+                                    stringResource(
+                                        R.string.updates_download
+                                    )
+                                }
+                        )
+                    }
                 }
 
-                }
                 if (downloading) {
                     val progress =
                         downloadProgress ?: 0
