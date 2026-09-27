@@ -269,10 +269,10 @@ class AutoVlessVpnService :
     ) {
         synchronized(this) {
 
-            if (
-                commandServer != null ||
-                isStarting
-            ) {
+            if (!VpnLifecyclePolicy.canStart(
+                    hasCommandServer = commandServer != null,
+                    isStarting = isStarting
+                )) {
                 Log.d(
                     TAG,
                     "VPN is already running or starting"
@@ -442,8 +442,10 @@ class AutoVlessVpnService :
     ) {
         synchronized(this) {
             if (
-                expectedSessionStartId != null &&
-                expectedSessionStartId != currentSessionStartId
+                VpnLifecyclePolicy.isStaleStop(
+                    expectedSessionStartId,
+                    currentSessionStartId
+                )
             ) {
                 Log.d(
                     TAG,

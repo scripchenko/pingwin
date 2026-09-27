@@ -463,16 +463,10 @@ class MainActivity : ComponentActivity() {
                             selectedId =
                                 selectedConnection?.id,
                             lockedConnectionId =
-                                if (
-                                    vpnState ==
-                                    VpnConnectionState.CONNECTED ||
-                                    vpnState ==
-                                    VpnConnectionState.CONNECTING
-                                ) {
+                                VpnLifecyclePolicy.lockedConnectionId(
+                                    vpnState,
                                     activeConnectionId
-                                } else {
-                                    null
-                                },
+                                ),
                             onBack = {
                                 screen =
                                     connectionsBackScreen
@@ -563,21 +557,27 @@ class MainActivity : ComponentActivity() {
                     Screen.HOME -> Unit
                 }
 
+                val displayedConnectionId =
+                    VpnLifecyclePolicy.displayedConnectionId(
+                        vpnState,
+                        activeConnectionId,
+                        selectedConnection?.id
+                    )
+
                 val connection =
-                    if (
-                        vpnState == VpnConnectionState.CONNECTED ||
-                        vpnState == VpnConnectionState.CONNECTING
-                    ) {
-                        activeConnectionId
-                            ?.let {
-                                ConnectionStore.findById(
-                                    this@MainActivity,
-                                    it
-                                )
-                            }
-                            ?: selectedConnection
-                    } else {
-                        selectedConnection
+                    when {
+                        displayedConnectionId == null ->
+                            null
+
+                        displayedConnectionId ==
+                            selectedConnection?.id ->
+                            selectedConnection
+
+                        else ->
+                            ConnectionStore.findById(
+                                this@MainActivity,
+                                displayedConnectionId
+                            ) ?: selectedConnection
                     }
 
                 if (connection == null) {

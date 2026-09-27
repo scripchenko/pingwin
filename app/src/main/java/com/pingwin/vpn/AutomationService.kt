@@ -556,11 +556,10 @@ class AutomationService : Service() {
                 cancelWifiSsidRetry()
 
                 val trusted =
-                    settings
-                        .trustedWifiSsids
-                        .any {
-                            it == ssid
-                        }
+                    AutomationDecisionPolicy.isTrustedWifi(
+                        ssid,
+                        settings.trustedWifiSsids
+                    )
 
                 val key =
                     "wifi:$ssid:" +
@@ -595,24 +594,20 @@ class AutomationService : Service() {
                     )
                 }
 
-                if (trusted) {
-                    if (
-                        settings
-                            .disconnectOnTrustedWifi
-                    ) {
-                        stopVpn(
-                            reason
-                        )
-                    }
-                } else {
-                    if (
-                        settings
-                            .connectOnUntrustedWifi
-                    ) {
-                        startVpn(
-                            reason
-                        )
-                    }
+                when (
+                    AutomationDecisionPolicy.wifiAction(
+                        settings,
+                        ssid
+                    )
+                ) {
+                    AutomationVpnAction.CONNECT ->
+                        startVpn(reason)
+
+                    AutomationVpnAction.DISCONNECT ->
+                        stopVpn(reason)
+
+                    AutomationVpnAction.NONE ->
+                        Unit
                 }
             }
 
@@ -637,12 +632,21 @@ class AutomationService : Service() {
                     )
                 }
 
-                if (
-                    settings.connectOnMobile
-                ) {
-                    startVpn(
-                        getString(R.string.automation_reason_mobile_data)
+                when (
+                    AutomationDecisionPolicy.mobileAction(
+                        settings
                     )
+                ) {
+                    AutomationVpnAction.CONNECT ->
+                        startVpn(
+                            getString(
+                                R.string.automation_reason_mobile_data
+                            )
+                        )
+
+                    AutomationVpnAction.DISCONNECT,
+                    AutomationVpnAction.NONE ->
+                        Unit
                 }
             }
         }
