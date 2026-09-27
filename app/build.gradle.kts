@@ -78,7 +78,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation("androidx.work:work-runtime:2.11.2")
+    implementation("androidx.work:work-runtime:2.12.0")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.joaomgcd:taskerpluginlibrary:0.4.10")
     testImplementation(libs.junit)
