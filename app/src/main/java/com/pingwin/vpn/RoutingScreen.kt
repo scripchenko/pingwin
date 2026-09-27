@@ -82,6 +82,13 @@ fun RoutingScreen(
                 MaterialTheme.typography.bodyMedium
         )
 
+        if (routing.appEnabled && routing.siteEnabled) {
+            Text(
+                text = stringResource(R.string.routing_combined_rules_note),
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
         HorizontalDivider()
 
         RoutingSection(

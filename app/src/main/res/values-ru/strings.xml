@@ -87,6 +87,7 @@
 
     <string name="routing_title">Маршрутизация</string>
     <string name="routing_intro">Настройте, какой трафик должен идти через VPN. Правила для приложений и сайтов задаются отдельно.</string>
+    <string name="routing_combined_rules_note">Правила приложений и сайтов объединяются: совпадение с любым правилом «через VPN» направляет трафик в VPN, но правило «без VPN» имеет приоритет при конфликте.</string>
     <string name="routing_applications">Приложения</string>
     <string name="routing_sites">Сайты</string>
     <string name="routing_changes_reconnect">Изменения применяются после переподключения VPN.</string>

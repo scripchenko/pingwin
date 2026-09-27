@@ -83,6 +83,7 @@
 
     <string name="routing_title">Routing</string>
     <string name="routing_intro">Choose which traffic should go through VPN. Rules for apps and websites are configured separately.</string>
+    <string name="routing_combined_rules_note">Application and website rules are combined: matching any “via VPN” rule sends traffic through VPN, but a “without VPN” rule takes priority when rules conflict.</string>
     <string name="routing_applications">Applications</string>
     <string name="routing_sites">Websites</string>
     <string name="routing_changes_reconnect">Changes apply after reconnecting VPN.</string>
