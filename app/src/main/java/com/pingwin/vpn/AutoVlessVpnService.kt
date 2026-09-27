@@ -239,7 +239,9 @@ class AutoVlessVpnService :
                         "Missing sing-box config"
                     )
 
-                    stopVpn(startId)
+                    executor.execute {
+                        stopVpn(startId)
+                    }
                 }
             }
 
@@ -455,11 +457,14 @@ class AutoVlessVpnService :
 
             currentSessionStartId = 0
 
-            stopForeground(
-                STOP_FOREGROUND_REMOVE
-            )
+            val serviceWillStop =
+                stopSelfResult(stopStartId)
 
-            stopSelf(stopStartId)
+            if (serviceWillStop) {
+                stopForeground(
+                    STOP_FOREGROUND_REMOVE
+                )
+            }
 
             DiagnosticLogStore.append(
                 this,
