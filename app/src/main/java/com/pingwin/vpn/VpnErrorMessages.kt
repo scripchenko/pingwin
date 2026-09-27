@@ -8,7 +8,16 @@ fun Throwable.localizedVpnMessage(
     when (this) {
         is ConnectionParseException ->
             context.getString(
-                R.string.connection_error_unsupported_protocol
+                when (error) {
+                    ConnectionParseError.UNSUPPORTED_PROTOCOL ->
+                        R.string.connection_error_unsupported_protocol
+
+                    ConnectionParseError.INPUT_TOO_LARGE ->
+                        R.string.connection_error_input_too_large
+
+                    ConnectionParseError.INVALID_CHARACTERS ->
+                        R.string.connection_error_invalid_characters
+                }
             )
 
         is VlessParseException ->

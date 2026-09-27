@@ -181,6 +181,8 @@
 
 
     <string name="connection_error_unsupported_protocol">This connection protocol is not supported</string>
+    <string name="connection_error_input_too_large">Connection link is too large.</string>
+    <string name="connection_error_invalid_characters">Connection link contains invalid control characters.</string>
     <string name="connection_error_duplicate">This connection is already added</string>
     <string name="vless_error_invalid_scheme">The link must start with vless://</string>
     <string name="vless_error_missing_uuid">The link does not contain a UUID</string>

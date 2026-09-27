@@ -185,6 +185,8 @@
 
 
     <string name="connection_error_unsupported_protocol">Этот протокол подключения не поддерживается</string>
+    <string name="connection_error_input_too_large">Ссылка подключения слишком большая.</string>
+    <string name="connection_error_invalid_characters">Ссылка подключения содержит недопустимые управляющие символы.</string>
     <string name="connection_error_duplicate">Это подключение уже добавлено</string>
     <string name="vless_error_invalid_scheme">Ссылка должна начинаться с vless://</string>
     <string name="vless_error_missing_uuid">В ссылке отсутствует UUID</string>

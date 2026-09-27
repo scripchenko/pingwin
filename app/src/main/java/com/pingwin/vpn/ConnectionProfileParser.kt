@@ -1,7 +1,9 @@
 package com.pingwin.vpn
 
 enum class ConnectionParseError {
-    UNSUPPORTED_PROTOCOL
+    UNSUPPORTED_PROTOCOL,
+    INPUT_TOO_LARGE,
+    INVALID_CHARACTERS
 }
 
 class ConnectionParseException(
@@ -10,11 +12,30 @@ class ConnectionParseException(
 
 object ConnectionProfileParser {
 
+    internal const val MAX_LINK_LENGTH = 65_536
+
     fun parse(
         link: String
     ): ConnectionProfile {
         val trimmed =
             link.trim()
+
+        if (trimmed.length > MAX_LINK_LENGTH) {
+            throw ConnectionParseException(
+                ConnectionParseError.INPUT_TOO_LARGE
+            )
+        }
+
+        if (
+            trimmed.any { character ->
+                character.code < 0x20 ||
+                    character.code == 0x7F
+            }
+        ) {
+            throw ConnectionParseException(
+                ConnectionParseError.INVALID_CHARACTERS
+            )
+        }
 
         return when {
             trimmed.startsWith(
