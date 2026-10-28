@@ -56,6 +56,7 @@ The application provides connection management, separate routing rules for appli
 
 - **VLESS** — implemented and verified with real connections, including TCP + REALITY
 - **Hysteria2** — implemented and verified with real connections
+  - **TLS certificates:** For a self-signed certificate, the Hysteria2 link must explicitly include `insecure=1`. pingwin does not add this parameter automatically. With a publicly trusted certificate, it is not required.
 - **Trojan** — implemented and verified with real connections, including TCP + REALITY
 - **VMess** — implemented and verified with real connections; availability may depend on the network or mobile operator
 - **TUIC** — configuration support is implemented, but real-world connectivity has not yet been verified; practical testing is planned for a future release
