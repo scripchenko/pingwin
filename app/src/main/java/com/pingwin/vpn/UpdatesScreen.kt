@@ -8,6 +8,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.Arrangement
@@ -405,6 +408,7 @@ fun UpdatesScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
+                .verticalScroll(rememberScrollState())
                 .padding(
                     horizontal = 20.dp
                 )
@@ -654,6 +658,34 @@ fun UpdatesScreen(
                     modifier = Modifier.height(12.dp)
                 )
 
+                val summaryNotes =
+                    summarizePingwinReleaseNotes(release.releaseNotes)
+
+                if (summaryNotes.isNotEmpty()) {
+                    Text(
+                        text = stringResource(R.string.updates_whats_new),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF1A1C21)
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    summaryNotes.forEach { note ->
+                        Text(
+                            text = "• $note",
+                            fontSize = 14.sp,
+                            lineHeight = 20.sp,
+                            color = Color(0xFF555D69),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+
                 if (!downloading) {
                     Button(
                         modifier =
@@ -799,4 +831,28 @@ fun UpdatesScreen(
                 Modifier.height(8.dp)
         )
     }
+}
+// A concise preview, not an automatic translation or AI summary.
+// GitHub Release body remains the source of truth.
+private fun summarizePingwinReleaseNotes(markdown: String): List<String> {
+    val bulletPrefix = Regex("""^(?:[-*•]\s+|\d{1,2}[.)]\s+)""")
+    val markdownLink = Regex("""\[([^]]+)]\([^)]+\)""")
+    val checkbox = Regex("""^\[[ xX]]\s*""")
+
+    return markdown.lineSequence()
+        .map { it.trim() }
+        .mapNotNull { line ->
+            val match = bulletPrefix.find(line) ?: return@mapNotNull null
+            line.substring(match.range.last + 1)
+                .replace(markdownLink, "$1")
+                .replace(checkbox, "")
+                .replace(Regex("""[`*_]"""), "")
+                .trim()
+                .takeIf { it.isNotBlank() }
+                ?.let { note ->
+                    if (note.length > 135) note.take(132).trimEnd() + "…" else note
+                }
+        }
+        .take(4)
+        .toList()
 }

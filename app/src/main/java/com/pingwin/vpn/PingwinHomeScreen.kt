@@ -504,6 +504,9 @@ fun PingwinHomeScreen(
                         Modifier.height(18.dp)
                 )
 
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                 Text(
                     text =
                         when (vpnState) {
@@ -535,8 +538,7 @@ fun PingwinHomeScreen(
                 )
 
                 Spacer(
-                    modifier =
-                        Modifier.height(8.dp)
+                    modifier = Modifier.width(12.dp)
                 )
 
                 Row(
@@ -607,6 +609,7 @@ fun PingwinHomeScreen(
                                     vertical = 2.dp
                                 )
                     )
+                }
                 }
             }
         }
