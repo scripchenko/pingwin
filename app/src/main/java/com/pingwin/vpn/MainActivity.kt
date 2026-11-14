@@ -44,6 +44,7 @@ class MainActivity : ComponentActivity() {
         UPDATES,
         ADD_CONNECTION,
         CONNECTIONS,
+        DIAGNOSTICS,
         ROUTING,
         APP_ROUTING,
         SITE_ROUTING
@@ -145,6 +146,10 @@ class MainActivity : ComponentActivity() {
 
                 var connectionsRevision by remember {
                     mutableStateOf(0)
+                }
+
+                var diagnosticsConnectionId by rememberSaveable {
+                    mutableStateOf<String?>(null)
                 }
 
                 val vpnState by
@@ -482,6 +487,10 @@ class MainActivity : ComponentActivity() {
 
                                 screen = Screen.HOME
                             },
+                            onDiagnose = { connection ->
+                                diagnosticsConnectionId = connection.id
+                                screen = Screen.DIAGNOSTICS
+                            },
                             onDelete = { connection ->
                                 ConnectionStore.remove(
                                     this@MainActivity,
@@ -498,6 +507,32 @@ class MainActivity : ComponentActivity() {
                             onAdd = {
                                 screen =
                                     Screen.ADD_CONNECTION
+                            }
+                        )
+
+                        return@PingwinTheme
+                    }
+
+                    Screen.DIAGNOSTICS -> {
+                        BackHandler {
+                            screen = Screen.CONNECTIONS
+                        }
+
+                        val diagnosticConnection = remember(
+                            diagnosticsConnectionId,
+                            connectionsRevision
+                        ) {
+                            ConnectionStore.loadAll(
+                                this@MainActivity
+                            ).firstOrNull { it.id == diagnosticsConnectionId }
+                        }
+
+                        ConnectionDiagnosticsScreen(
+                            connection = diagnosticConnection,
+                            vpnState = vpnState,
+                            activeConnectionId = activeConnectionId,
+                            onBack = {
+                                screen = Screen.CONNECTIONS
                             }
                         )
 

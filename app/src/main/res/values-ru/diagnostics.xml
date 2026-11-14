@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connections_diagnose">Диагностика подключения</string>
+    <string name="diagnostics_title">Диагностика подключения</string>
+    <string name="diagnostics_profile_missing">Сохранённое подключение больше не найдено.</string>
+    <string name="diagnostics_server">%1$s · %2$s:%3$d</string>
+    <string name="diagnostics_vpn_this_active">VPN: этот сервер подключён</string>
+    <string name="diagnostics_vpn_other_active">VPN: подключён другой сервер</string>
+    <string name="diagnostics_vpn_connecting">VPN: подключение выполняется</string>
+    <string name="diagnostics_vpn_error">VPN: ошибка подключения</string>
+    <string name="diagnostics_vpn_off">VPN: отключён</string>
+    <string name="diagnostics_explanation">Диагностика не подключает, не отключает и не перенастраивает VPN. Проверки DNS и TCP проходят через обычную сеть (Wi-Fi или мобильную), в обход VPN. Доступный TCP-порт не подтверждает работу VPN, TLS/REALITY или авторизации. Пользовательские правила маршрутизации не проверяются.</string>
+    <string name="diagnostics_repeat">Проверить повторно</string>
+    <string name="diagnostics_running">Выполняется проверка…</string>
+    <string name="diagnostics_link_title">Сохранённая ссылка</string>
+    <string name="diagnostics_config_title">Конфигурация sing-box</string>
+    <string name="diagnostics_dns_title">DNS / адрес сервера</string>
+    <string name="diagnostics_tcp_title">Доступность TCP-порта</string>
+    <string name="diagnostics_ok">Успешно</string>
+    <string name="diagnostics_failed">Ошибка</string>
+    <string name="diagnostics_skipped">Не проверялось</string>
+    <string name="diagnostics_link_ok">Сохранённая ссылка корректно разбирается.</string>
+    <string name="diagnostics_link_bad">Ссылка некорректна или её протокол не поддерживается.</string>
+    <string name="diagnostics_config_ok">Сгенерированная конфигурация сервера прошла локальную проверку sing-box.</string>
+    <string name="diagnostics_config_bad">Сгенерированная конфигурация сервера не прошла локальную проверку sing-box.</string>
+    <string name="diagnostics_dns_ok">Имя сервера разрешается через обычную сеть.</string>
+    <string name="diagnostics_dns_bad">Не удалось определить IP-адрес сервера через обычную сеть.</string>
+    <string name="diagnostics_dns_literal">Указан IP-адрес: отдельная проверка DNS не требуется.</string>
+    <string name="diagnostics_tcp_ok">TCP-соединение с портом установлено. Это не проверка VPN-рукопожатия.</string>
+    <string name="diagnostics_tcp_bad">Не удалось установить TCP-соединение. Возможно, сеть или сервер блокируют порт.</string>
+    <string name="diagnostics_udp_skipped">Этот протокол использует UDP. Проверка TCP была бы некорректной, поэтому она пропущена.</string>
+    <string name="diagnostics_no_network">Для проверки не найдена обычная сеть, доступная в обход VPN.</string>
+    <string name="diagnostics_previous_failed">Проверка пропущена из-за ошибки на предыдущем этапе.</string>
+</resources>

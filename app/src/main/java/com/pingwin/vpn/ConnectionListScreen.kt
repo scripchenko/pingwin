@@ -28,6 +28,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -40,6 +42,7 @@ fun ConnectionListScreen(
     lockedConnectionId: String?,
     onBack: () -> Unit,
     onSelect: (SavedConnection) -> Unit,
+    onDiagnose: (SavedConnection) -> Unit,
     onDelete: (SavedConnection) -> Unit,
     onAdd: () -> Unit
 ) {
@@ -163,6 +166,22 @@ fun ConnectionListScreen(
                             modifier =
                                 Modifier.width(6.dp)
                         )
+
+                        val diagnoseDescription = stringResource(
+                            R.string.connections_diagnose
+                        )
+                        IconButton(
+                            modifier = Modifier.semantics {
+                                contentDescription = diagnoseDescription
+                            },
+                            onClick = { onDiagnose(connection) }
+                        ) {
+                            Text(
+                                text = "ⓘ",
+                                fontSize = 24.sp,
+                                color = Color(0xFF2450C8)
+                            )
+                        }
 
                         IconButton(
                             enabled = deleteEnabled,

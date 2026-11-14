@@ -49,6 +49,7 @@ fun HomeSettingsBottomBar(
                     Modifier.weight(1f),
                 selected =
                     !settingsSelected,
+                emphasized = true,
                 icon = "⌂",
                 text =
                     stringResource(
@@ -62,6 +63,7 @@ fun HomeSettingsBottomBar(
                     Modifier.weight(1f),
                 selected =
                     settingsSelected,
+                emphasized = false,
                 icon = "⚙",
                 text =
                     stringResource(
@@ -77,6 +79,7 @@ fun HomeSettingsBottomBar(
 private fun BottomBarItem(
     modifier: Modifier,
     selected: Boolean,
+    emphasized: Boolean,
     icon: String,
     text: String,
     onClick: () -> Unit
@@ -132,7 +135,7 @@ private fun BottomBarItem(
                     },
                 fontSize = 15.sp,
                 fontWeight =
-                    if (selected) {
+                    if (emphasized) {
                         FontWeight.SemiBold
                     } else {
                         FontWeight.Normal

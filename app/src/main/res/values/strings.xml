@@ -269,6 +269,37 @@
         <item quantity="one">%d saved server</item>
         <item quantity="other">%d saved servers</item>
     </plurals>
+    <string name="connections_diagnose">Diagnose connection</string>
+    <string name="diagnostics_title">Connection diagnostics</string>
+    <string name="diagnostics_profile_missing">This saved connection is no longer available.</string>
+    <string name="diagnostics_server">%1$s · %2$s:%3$d</string>
+    <string name="diagnostics_vpn_this_active">VPN: this connection is active</string>
+    <string name="diagnostics_vpn_other_active">VPN: another connection is active</string>
+    <string name="diagnostics_vpn_connecting">VPN: connecting</string>
+    <string name="diagnostics_vpn_error">VPN: connection error</string>
+    <string name="diagnostics_vpn_off">VPN: disconnected</string>
+    <string name="diagnostics_explanation">These checks do not connect, disconnect or change VPN. DNS and TCP checks use a physical network (Wi-Fi or mobile data), bypassing VPN. An open TCP port does not prove that VPN authentication or TLS/REALITY works. Custom routing rules are not validated.</string>
+    <string name="diagnostics_repeat">Run checks again</string>
+    <string name="diagnostics_running">Running checks…</string>
+    <string name="diagnostics_link_title">Saved link</string>
+    <string name="diagnostics_config_title">sing-box configuration</string>
+    <string name="diagnostics_dns_title">DNS / server address</string>
+    <string name="diagnostics_tcp_title">TCP port reachability</string>
+    <string name="diagnostics_ok">Passed</string>
+    <string name="diagnostics_failed">Failed</string>
+    <string name="diagnostics_skipped">Not tested</string>
+    <string name="diagnostics_link_ok">The saved link can be parsed.</string>
+    <string name="diagnostics_link_bad">The saved link is invalid or unsupported.</string>
+    <string name="diagnostics_config_ok">The generated server profile configuration passes the local sing-box check.</string>
+    <string name="diagnostics_config_bad">The generated server profile configuration did not pass the local sing-box check.</string>
+    <string name="diagnostics_dns_ok">The server name resolved on the physical network.</string>
+    <string name="diagnostics_dns_bad">Could not resolve the server address on the physical network.</string>
+    <string name="diagnostics_dns_literal">The server uses an IP address; no DNS lookup is needed.</string>
+    <string name="diagnostics_tcp_ok">A TCP connection to the server port succeeded. This is not a VPN handshake test.</string>
+    <string name="diagnostics_tcp_bad">Could not establish a TCP connection. The network or server may block this port.</string>
+    <string name="diagnostics_udp_skipped">This protocol uses UDP. A TCP port check would be misleading, so it was skipped.</string>
+    <string name="diagnostics_no_network">No non-VPN physical network is available for these checks.</string>
+    <string name="diagnostics_previous_failed">Skipped because a previous check did not pass.</string>
 </resources>
 
 
